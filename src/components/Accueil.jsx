@@ -89,7 +89,7 @@ function Accueil() {
         <div className="flex-1 flex flex-col justify-center items-center text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Qui sommes-nous ?</h2>
           <p className="text-gray-600 mb-6 px-4">
-            Nous créons des solutions innovantes pour simplifier votre quotidien.
+            Associations des Etudiants Dynamique de Diego AEDDI.
           </p>
           <div className="flex space-x-4">
             {['📱', '📧', '📞'].map((icon, i) => (
