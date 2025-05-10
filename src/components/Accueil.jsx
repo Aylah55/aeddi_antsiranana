@@ -27,7 +27,6 @@ function Accueil() {
       setIsSwitching(false);
     }, 300);
   };
-
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
@@ -35,12 +34,9 @@ function Accueil() {
 
     return () => clearInterval(interval);
   }, [images.length]);
-
   return (
     <div className="flex flex-col-reverse lg:flex-row h-auto lg:h-screen">
-      {/* Partie gauche - Conteneur du carrousel (50% de largeur) */}
       <div className="w-full lg:w-1/2 bg-gray-100 p-6 flex flex-col">
-        {/* Carrousel avec hauteur limitée */}
         <div className="relative h-[500px] rounded-xl overflow-hidden shadow-lg mb-6">
           <AnimatePresence mode="wait">
             <motion.div
@@ -58,8 +54,6 @@ function Accueil() {
               />
             </motion.div>
           </AnimatePresence>
-
-          {/* Contrôles du carrousel */}
           <button
             onClick={prevImage}
             className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white/80 text-gray-800 p-2 rounded-full shadow hover:bg-white transition"
@@ -89,7 +83,7 @@ function Accueil() {
         <div className="flex-1 flex flex-col justify-center items-center text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Qui sommes-nous ?</h2>
           <p className="text-gray-600 mb-6 px-4">
-            Associations des Etudiants Dynamique de Diego AEDDI.
+            Associations des Etudiants Dynamiques de Diego AEDDI.
           </p>
           <div className="flex space-x-4">
             {['📱', '📧', '📞'].map((icon, i) => (
