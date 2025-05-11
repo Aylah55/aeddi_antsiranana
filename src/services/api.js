@@ -22,32 +22,32 @@ apiClient.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
-// Gestion des erreurs centralisée
-const handleApiError = (error) => {
-  if (error.response) {
-    console.error('API Error Response:', {
-      status: error.response.status,
-      data: error.response.data,
-      headers: error.response.headers
-    });
-    throw error.response.data;
-  } else if (error.request) {
-    console.error('API Request Error:', error.request);
-    throw new Error('Aucune réponse du serveur');
-  } else {
-    console.error('API Setup Error:', error.message);
-    throw error;
+// Intercepteur de réponse pour la gestion des erreurs
+apiClient.interceptors.response.use(
+  response => response, // Retourne la réponse si tout est OK
+  error => {
+    // Gère les erreurs d'API globalement
+    if (error.response) {
+      console.error('API Error Response:', {
+        status: error.response.status,
+        data: error.response.data,
+        headers: error.response.headers
+      });
+      throw error.response.data;
+    } else if (error.request) {
+      console.error('API Request Error:', error.request);
+      throw new Error('Aucune réponse du serveur');
+    } else {
+      console.error('API Setup Error:', error.message);
+      throw error;
+    }
   }
-};
+);
 
 // Service d'authentification
 export const authService = {
   inscription: (formData) => {
-    return apiClient.post('/inscription', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    return apiClient.post('/inscription', formData); // Axios gère le type `multipart/form-data`
   },
 
   login: (credentials) => {
@@ -66,11 +66,7 @@ export const userService = {
   },
 
   updateProfile: (id, formData) => {
-    return apiClient.post(`/profile/${id}?_method=PUT`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    return apiClient.post(`/profile/${id}?_method=PUT`, formData); // Axios gère également `multipart/form-data`
   },
 
   fetchAll: () => {
@@ -78,47 +74,40 @@ export const userService = {
   },
 
   update: (id, formData) => {
-    return apiClient.post(`/actions/users/${id}`, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-    });
-},
+    return apiClient.post(`/actions/users/${id}`, formData);
+  },
+
   delete: (id) => {
     return apiClient.delete(`/actions/users/${id}`);
   }
 };
 
-// Fonctions dépréciées (à supprimer progressivement)
-export const registerUser = authService.inscription;
-export const loginUser = authService.login;
-export const logoutUser = authService.logout;
-export const getUserProfile = userService.getProfile;
-export const updateUserProfile = userService.updateProfile;
-export const fetchUsers = userService.fetchAll;
-export const updateUser = userService.update;
-export const deleteUser = userService.delete;
+// Service d'activités
+export const activiteService = {
+  fetchAll: () => {
+    return apiClient.get('/activites');
+  },
+
+  create: (data) => {
+    return apiClient.post('/activites', data);
+  },
+
+  update: (id, data) => {
+    return apiClient.put(`/activites/${id}`, data);
+  },
+
+  delete: (id) => {
+    return apiClient.delete(`/activites/${id}`);
+  }
+};
+
 // Export par défaut pour les cas spéciaux
 export default {
   install: (app) => {
     app.config.globalProperties.$api = {
       auth: authService,
-      users: userService
+      users: userService,
+      activites: activiteService
     };
-  }
-};
-
-export const activiteService = {
-  fetchAll: () => {
-    return apiClient.get('/activites');
-  },
-  create: (data) => {
-    return apiClient.post('/activites', data);
-  },
-  update: (id, data) => {
-    return apiClient.put(`/activites/${id}`, data);
-  },
-  delete: (id) => {
-    return apiClient.delete(`/activites/${id}`);
   }
 };
