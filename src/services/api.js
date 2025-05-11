@@ -40,30 +40,112 @@ const handleApiError = (error) => {
   }
 };
 
-// Service d'authentification (inscription uniquement)
+// Service d'authentification
 export const authService = {
+  // Inscription d'un utilisateur
   inscription: (formData) => {
     return apiClient.post('/inscription', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    }).catch(handleApiError); // Ajout de la gestion des erreurs ici
+    }).catch(handleApiError); // Gérer les erreurs
   },
 
+  // Connexion d'un utilisateur
   login: (credentials) => {
-    return apiClient.post('/login', credentials).catch(handleApiError); // Ajout de la gestion des erreurs ici
+    return apiClient.post('/login', credentials)
+      .catch(handleApiError); // Gérer les erreurs
   },
 
+  // Déconnexion de l'utilisateur
   logout: () => {
-    return apiClient.post('/logout').catch(handleApiError); // Ajout de la gestion des erreurs ici
+    return apiClient.post('/logout')
+      .catch(handleApiError); // Gérer les erreurs
   }
 };
+
+// Service utilisateur
+export const userService = {
+  getProfile: (id) => {
+    return apiClient.get(`/profile/${id}`)
+      .catch(handleApiError); // Gérer les erreurs
+  },
+
+  updateProfile: (id, formData) => {
+    return apiClient.post(`/profile/${id}?_method=PUT`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    }).catch(handleApiError); // Gérer les erreurs
+  },
+
+  fetchAll: () => {
+    return apiClient.get('/users')
+      .catch(handleApiError); // Gérer les erreurs
+  },
+
+  update: (id, formData) => {
+    return apiClient.post(`/actions/users/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    }).catch(handleApiError); // Gérer les erreurs
+  },
+
+  delete: (id) => {
+    return apiClient.delete(`/actions/users/${id}`)
+      .catch(handleApiError); // Gérer les erreurs
+  }
+};
+
+// Service activités
+export const activiteService = {
+  fetchAll: () => {
+    return apiClient.get('/activites')
+      .catch(handleApiError); // Gérer les erreurs
+  },
+
+  create: (data) => {
+    return apiClient.post('/activites', data)
+      .catch(handleApiError); // Gérer les erreurs
+  },
+
+  update: (id, data) => {
+    return apiClient.put(`/activites/${id}`, data)
+      .catch(handleApiError); // Gérer les erreurs
+  },
+
+  delete: (id) => {
+    return apiClient.delete(`/activites/${id}`)
+      .catch(handleApiError); // Gérer les erreurs
+  }
+};
+
+// Exposer les services d'authentification
+export const registerUser = authService.inscription;
+export const loginUser = authService.login;
+export const logoutUser = authService.logout;
+
+// Exposer les services utilisateur
+export const getUserProfile = userService.getProfile;
+export const updateUserProfile = userService.updateProfile;
+export const fetchUsers = userService.fetchAll;
+export const updateUser = userService.update;
+export const deleteUser = userService.delete;
+
+// Exposer les services d'activités
+export const fetchActivities = activiteService.fetchAll;
+export const createActivity = activiteService.create;
+export const updateActivity = activiteService.update;
+export const deleteActivity = activiteService.delete;
 
 // Export par défaut pour les cas spéciaux
 export default {
   install: (app) => {
     app.config.globalProperties.$api = {
       auth: authService,
+      users: userService,
+      activities: activiteService
     };
   }
 };
