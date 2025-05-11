@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL;
+// URL de ton API backend sur Render
+const API_URL = 'https://aeddi-backend.onrender.com/api';  // Mise à jour ici
 
-// Configuration Axios globale
+// Configuration Axios
 const apiClient = axios.create({
   baseURL: API_URL,
   headers: {
@@ -11,7 +12,7 @@ const apiClient = axios.create({
   }
 });
 
-// Intercepteur pour ajouter le token JWT
+// Intercepteur pour ajouter un token (si besoin à l’avenir)
 apiClient.interceptors.request.use(config => {
   const token = localStorage.getItem('auth_token');
   if (token) {
@@ -22,103 +23,30 @@ apiClient.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
-// Gestion des erreurs centralisée
+// Gestion des erreurs
 const handleApiError = (error) => {
   if (error.response) {
-    console.error('API Error Response:', {
-      status: error.response.status,
-      data: error.response.data,
-      headers: error.response.headers
-    });
+    console.error('Erreur API :', error.response.data);
     throw error.response.data;
   } else if (error.request) {
-    console.error('API Request Error:', error.request);
+    console.error('Pas de réponse du serveur :', error.request);
     throw new Error('Aucune réponse du serveur');
   } else {
-    console.error('API Setup Error:', error.message);
+    console.error('Erreur de configuration :', error.message);
     throw error;
   }
 };
 
-// Service d'authentification
-export const authService = {
-  inscription: (formData) => {
-    return apiClient.post('/inscription', formData, {
+// Service d'inscription uniquement
+export const registerUser = async (formData) => {
+  try {
+    const response = await apiClient.post('/inscription', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
-  },
-
-  login: (credentials) => {
-    return apiClient.post('/login', credentials);
-  },
-
-  logout: () => {
-    return apiClient.post('/logout');
-  }
-};
-
-// Service utilisateur
-export const userService = {
-  getProfile: (id) => {
-    return apiClient.get(`/profile/${id}`);
-  },
-
-  updateProfile: (id, formData) => {
-    return apiClient.post(`/profile/${id}?_method=PUT`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-  },
-
-  fetchAll: () => {
-    return apiClient.get('/users');
-  },
-
-  update: (id, formData) => {
-    return apiClient.post(`/actions/users/${id}`, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-    });
-},
-  delete: (id) => {
-    return apiClient.delete(`/actions/users/${id}`);
-  }
-};
-
-// Fonctions dépréciées (à supprimer progressivement)
-export const registerUser = authService.inscription;
-export const loginUser = authService.login;
-export const logoutUser = authService.logout;
-export const getUserProfile = userService.getProfile;
-export const updateUserProfile = userService.updateProfile;
-export const fetchUsers = userService.fetchAll;
-export const updateUser = userService.update;
-export const deleteUser = userService.delete;
-// Export par défaut pour les cas spéciaux
-export default {
-  install: (app) => {
-    app.config.globalProperties.$api = {
-      auth: authService,
-      users: userService
-    };
-  }
-};
-
-export const activiteService = {
-  fetchAll: () => {
-    return apiClient.get('/activites');
-  },
-  create: (data) => {
-    return apiClient.post('/activites', data);
-  },
-  update: (id, data) => {
-    return apiClient.put(`/activites/${id}`, data);
-  },
-  delete: (id) => {
-    return apiClient.delete(`/activites/${id}`);
+    return response.data;
+  } catch (error) {
+    handleApiError(error);
   }
 };
