@@ -100,7 +100,10 @@ export const activiteService = {
     return apiClient.delete(`/activites/${id}`);
   }
 };
-
+// Exportation des anciennes fonctions pour compatibilité
+export const loginUser = authService.login;
+export const registerUser = authService.inscription;
+export const logoutUser = authService.logout;
 // Export par défaut pour les cas spéciaux
 export default {
   install: (app) => {
