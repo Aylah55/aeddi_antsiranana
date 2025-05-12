@@ -28,10 +28,11 @@ const ProfilDashbord = () => {
                     navigate('/login');
                     return;
                 }
-
                 const storedUser = localStorage.getItem('user');
                 if (storedUser) {
-                    setUser(JSON.parse(storedUser));
+                    const userData = JSON.parse(storedUser);
+                    setUser(userData);
+                    console.log('User data:', userData); // Ajoutez ce log
                 } else {
                     const response = await getUserProfile();
                     setUser(response.data.user);

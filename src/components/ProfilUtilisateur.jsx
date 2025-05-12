@@ -106,17 +106,17 @@ function ProfilUtilisateur({ user, setUser }) {
                 {/* Photo de profil - Partie gauche */}
                 <div className="md:w-1/3 flex flex-col items-center">
                     <div className="relative group w-64 h-64 rounded-xl overflow-hidden shadow-lg border-4 border-white bg-gray-100">
-                        {user.photo ? (
-                            <img
-                                src={`https://aeddi-backend.onrender.com/storage/${user.image}`}
-                                alt="Photo de profil"
-                                className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
-                            />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                                <span className="text-7xl text-gray-400">👤</span>
-                            </div>
-                        )}
+                    {user.photo_url ? (
+                        <img
+                            src={user.photo_url}
+                            alt="Photo de profil"
+                            className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-7xl text-gray-400">👤</span>
+                        </div>
+                    )}
                         {isEditing && (
                             <label className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                 <input
