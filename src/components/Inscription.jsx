@@ -37,7 +37,10 @@ function Inscription({ onSwitch }) {
     
         try {
             const response = await registerUser(data);
-                navigate('/dashbord');  
+            // Enregistrer le token et les infos utilisateur
+            localStorage.setItem('auth_token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            navigate('/dashbord');  
         } catch (err) {
             if (err.response?.status === 422) {
                 const errors = err.response.data.errors;
