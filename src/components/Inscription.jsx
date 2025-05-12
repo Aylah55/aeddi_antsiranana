@@ -32,11 +32,26 @@ function Inscription({ onSwitch }) {
         data.append('email', formData.email);
         data.append('password', formData.password);
         if (formData.photo) {
+            console.log('Photo avant envoi:', {
+                name: formData.photo.name,
+                type: formData.photo.type,
+                size: formData.photo.size
+            });
             data.append('photo', formData.photo);
         }
     
         try {
             const response = await registerUser(data);
+            console.log('Réponse du serveur:', {
+                token: response.data.token,
+                user: {
+                    id: response.data.user.id,
+                    nom: response.data.user.nom,
+                    prenom: response.data.user.prenom,
+                    email: response.data.user.email,
+                    photo: response.data.user.photo
+                }
+            });
             // Enregistrer le token et les infos utilisateur
             localStorage.setItem('auth_token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));

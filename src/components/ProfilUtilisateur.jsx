@@ -106,11 +106,15 @@ function ProfilUtilisateur({ user, setUser }) {
                 {/* Photo de profil - Partie gauche */}
                 <div className="md:w-1/3 flex flex-col items-center">
                     <div className="relative group w-64 h-64 rounded-xl overflow-hidden shadow-lg border-4 border-white bg-gray-100">
-                        {user.photo ? (
+                        {user?.photo ? (
                             <img
                                 src={`${API_URL}/storage/${user.photo}`}
                                 alt="Photo de profil"
                                 className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    console.log('Erreur d\'affichage de la photo:', user.photo);
+                                }}
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center">
