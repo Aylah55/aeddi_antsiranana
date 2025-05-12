@@ -48,23 +48,22 @@ export const authService = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    }).catch(handleApiError); // Gérer les erreurs
+    }).catch(handleApiError);
   },
 
-  // Connexion d'un utilisateur
+
   login: (credentials) => {
     return apiClient.post('/login', credentials)
-      .catch(handleApiError); // Gérer les erreurs
+      .catch(handleApiError);
   },
 
-  // Déconnexion de l'utilisateur
+
   logout: () => {
     return apiClient.post('/logout')
-      .catch(handleApiError); // Gérer les erreurs
+      .catch(handleApiError);
   }
 };
 
-// Service utilisateur
 export const userService = {
 getCurrentUser: () => {
   return apiClient.get('/user')
@@ -76,12 +75,12 @@ getCurrentUser: () => {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    }).catch(handleApiError); // Gérer les erreurs
+    }).catch(handleApiError);
   },
 
   fetchAll: () => {
     return apiClient.get('/users')
-      .catch(handleApiError); // Gérer les erreurs
+      .catch(handleApiError);
   },
 
   update: (id, formData) => {
@@ -89,12 +88,12 @@ getCurrentUser: () => {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    }).catch(handleApiError); // Gérer les erreurs
+    }).catch(handleApiError);
   },
 
   delete: (id) => {
     return apiClient.delete(`/actions/users/${id}`)
-      .catch(handleApiError); // Gérer les erreurs
+      .catch(handleApiError);
   }
 };
 
