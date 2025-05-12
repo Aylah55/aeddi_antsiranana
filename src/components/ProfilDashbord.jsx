@@ -5,6 +5,7 @@ import ListUtilisateur from './ListUtilisateur';
 import ListeActivites from './ListeActivites';
 import { getUserProfile, logoutUser } from '../services/api';
 
+
 const ProfilDashbord = () => {
     const [dateHeure, setDateHeure] = useState(new Date());
     const [contenuActif, setContenuActif] = useState('Informations de votre profil');
@@ -12,6 +13,8 @@ const ProfilDashbord = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    
+    
 
     useEffect(() => {
         const interval = setInterval(() => {

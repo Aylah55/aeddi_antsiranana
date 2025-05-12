@@ -66,10 +66,10 @@ export const authService = {
 
 // Service utilisateur
 export const userService = {
-  getProfile: (id) => {
-    return apiClient.get(`/profile/${id}`)
-      .catch(handleApiError); // Gérer les erreurs
-  },
+getCurrentUser: () => {
+  return apiClient.get('/user')
+    .catch(handleApiError);
+},
 
   updateProfile: (id, formData) => {
     return apiClient.post(`/profile/${id}?_method=PUT`, formData, {
@@ -132,6 +132,7 @@ export const updateUserProfile = userService.updateProfile;
 export const fetchUsers = userService.fetchAll;
 export const updateUser = userService.update;
 export const deleteUser = userService.delete;
+export const getCurrentUser = userService.getCurrentUser;
 
 // Exposer les services d'activités
 export const fetchActivities = activiteService.fetchAll;
