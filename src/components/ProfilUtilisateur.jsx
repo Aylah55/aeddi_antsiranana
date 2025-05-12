@@ -102,13 +102,13 @@ function ProfilUtilisateur({ user, setUser }) {
                 </div>
             )}
 
-            <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex flex-col md:flex-row min-h-[calc(100vh-100px)] gap-8">
                 {/* Photo de profil - Partie gauche */}
                 <div className="md:w-1/3 flex flex-col items-center">
                     <div className="relative group w-64 h-64 rounded-xl overflow-hidden shadow-lg border-4 border-white bg-gray-100">
                         {user.photo ? (
                             <img
-                                src={`${API_URL}/storage/${user.photo}`}
+                                src={`https://aeddi-backend.onrender.com/storage/${user.image}`}
                                 alt="Photo de profil"
                                 className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
                             />
