@@ -71,7 +71,7 @@ getCurrentUser: () => {
 },
 
   updateProfile: (id, formData) => {
-    return apiClient.post(`/profile/${id}?_method=PUT`, formData, {
+    return apiClient.put(`/profile/${id}?_method=PUT`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
