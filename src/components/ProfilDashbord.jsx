@@ -64,12 +64,28 @@ const ProfilDashbord = () => {
 
     const handleLogout = async () => {
         try {
-            await logoutUser();
+            // D'abord supprimer les données sensibles du stockage local
             localStorage.removeItem('auth_token');
             localStorage.removeItem('user');
-            navigate('/');
+            
+            // Ensuite effectuer l'appel API de déconnexion
+            try {
+                await logoutUser();
+            } catch (error) {
+                console.warn('Erreur lors de l\'appel API de déconnexion, mais l\'utilisateur est quand même déconnecté localement', error);
+            }
+            
+            // Rediriger vers la page d'accueil
+            navigate('/', { replace: true });
+            
+            // Forcer un rechargement complet pour s'assurer que tout l'état est réinitialisé
+            window.location.reload();
         } catch (error) {
-            console.error('Erreur lors de la déconnexion:', error);
+            console.error('Erreur critique lors de la déconnexion:', error);
+            // En cas d'erreur critique, forcer quand même la déconnexion locale
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user');
+            navigate('/', { replace: true });
         }
     };
 

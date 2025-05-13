@@ -65,13 +65,13 @@ export const authService = {
 };
 
 export const userService = {
-getCurrentUser: () => {
-  return apiClient.get('/user')
-    .catch(handleApiError);
-},
+  getProfile: () => {
+    return apiClient.get('/user')
+      .catch(handleApiError);
+  },
 
   updateProfile: (id, formData) => {
-    return apiClient.put(`/profile/${id}?_method=PUT`, formData, {
+    return apiClient.post(`/profile/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -131,7 +131,8 @@ export const updateUserProfile = userService.updateProfile;
 export const fetchUsers = userService.fetchAll;
 export const updateUser = userService.update;
 export const deleteUser = userService.delete;
-export const getCurrentUser = userService.getCurrentUser;
+// Alias pour la rétrocompatibilité
+export const getCurrentUser = userService.getProfile;
 
 // Exposer les services d'activités
 export const fetchActivities = activiteService.fetchAll;
