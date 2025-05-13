@@ -1,15 +1,24 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL;
+// Configuration de l'URL de base de l'API en fonction de l'environnement
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 // Configuration Axios globale
 const apiClient = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
     'Accept': 'application/json',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
   }
 });
+
+// Configuration des credentials pour les requêtes cross-origin
+apiClient.defaults.withCredentials = true;
 
 // Intercepteur pour ajouter le token JWT
 apiClient.interceptors.request.use(config => {
@@ -78,8 +87,21 @@ export const userService = {
     }).catch(handleApiError);
   },
 
-  fetchAll: () => {
+  // Récupérer tous les utilisateurs
+  fetchUsers: () => {
     return apiClient.get('/users')
+      .then(response => {
+        // S'assurer que la réponse contient bien la propriété users
+        if (response.data && response.data.users) {
+          return { data: response.data };
+        }
+        // Si la réponse est directement le tableau des utilisateurs
+        if (Array.isArray(response.data)) {
+          return { data: { users: response.data } };
+        }
+        // Sinon, retourner la réponse telle quelle
+        return response;
+      })
       .catch(handleApiError);
   },
 
@@ -139,6 +161,9 @@ export const fetchActivities = activiteService.fetchAll;
 export const createActivity = activiteService.create;
 export const updateActivity = activiteService.update;
 export const deleteActivity = activiteService.delete;
+
+// Exporter apiClient pour une utilisation directe si nécessaire
+export { apiClient };
 
 // Export par défaut pour les cas spéciaux
 export default {
