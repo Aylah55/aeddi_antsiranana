@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Configuration de l'URL de base de l'API en fonction de l'environnement
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://aeddi-backend.onrender.com/api';
 
 // Configuration Axios globale
 const apiClient = axios.create({
@@ -10,15 +10,28 @@ const apiClient = axios.create({
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'X-Requested-With': 'XMLHttpRequest',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+    'X-Requested-With': 'XMLHttpRequest'
   }
 });
 
-// Configuration des credentials pour les requêtes cross-origin
-apiClient.defaults.withCredentials = true;
+// Configuration des intercepteurs pour gérer les requêtes CORS
+apiClient.interceptors.request.use(
+  config => {
+    // Ne pas ajouter le header Authorization pour les requêtes OPTIONS
+    if (config.method === 'options') {
+      return config;
+    }
+    
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
 
 // Intercepteur pour ajouter le token JWT
 apiClient.interceptors.request.use(config => {
