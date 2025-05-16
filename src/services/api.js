@@ -1,15 +1,36 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL;
+// Configuration de l'URL de base de l'API en fonction de l'environnement
+const API_URL = process.env.REACT_APP_API_URL || 'https://aeddi-backend.onrender.com/api';
 
 // Configuration Axios globale
 const apiClient = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
     'Accept': 'application/json',
-    'Content-Type': 'application/json'
+    'X-Requested-With': 'XMLHttpRequest'
   }
 });
+
+// Configuration des intercepteurs pour gérer les requêtes CORS
+apiClient.interceptors.request.use(
+  config => {
+    // Ne pas ajouter le header Authorization pour les requêtes OPTIONS
+    if (config.method === 'options') {
+      return config;
+    }
+    
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
 
 // Intercepteur pour ajouter le token JWT
 apiClient.interceptors.request.use(config => {
@@ -48,40 +69,52 @@ export const authService = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    }).catch(handleApiError); // Gérer les erreurs
+    }).catch(handleApiError);
   },
 
-  // Connexion d'un utilisateur
+
   login: (credentials) => {
     return apiClient.post('/login', credentials)
-      .catch(handleApiError); // Gérer les erreurs
+      .catch(handleApiError);
   },
 
-  // Déconnexion de l'utilisateur
+
   logout: () => {
     return apiClient.post('/logout')
-      .catch(handleApiError); // Gérer les erreurs
+      .catch(handleApiError);
   }
 };
 
-// Service utilisateur
 export const userService = {
-getCurrentUser: () => {
-  return apiClient.get('/user')
-    .catch(handleApiError);
-},
+  getProfile: () => {
+    return apiClient.get('/user')
+      .catch(handleApiError);
+  },
 
   updateProfile: (id, formData) => {
-    return apiClient.post(`/profile/${id}?_method=PUT`, formData, {
+    return apiClient.post(`/profile/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    }).catch(handleApiError); // Gérer les erreurs
+    }).catch(handleApiError);
   },
 
-  fetchAll: () => {
+  // Récupérer tous les utilisateurs
+  fetchUsers: () => {
     return apiClient.get('/users')
-      .catch(handleApiError); // Gérer les erreurs
+      .then(response => {
+        // S'assurer que la réponse contient bien la propriété users
+        if (response.data && response.data.users) {
+          return { data: response.data };
+        }
+        // Si la réponse est directement le tableau des utilisateurs
+        if (Array.isArray(response.data)) {
+          return { data: { users: response.data } };
+        }
+        // Sinon, retourner la réponse telle quelle
+        return response;
+      })
+      .catch(handleApiError);
   },
 
   update: (id, formData) => {
@@ -89,12 +122,12 @@ getCurrentUser: () => {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    }).catch(handleApiError); // Gérer les erreurs
+    }).catch(handleApiError);
   },
 
   delete: (id) => {
     return apiClient.delete(`/actions/users/${id}`)
-      .catch(handleApiError); // Gérer les erreurs
+      .catch(handleApiError);
   }
 };
 
@@ -132,13 +165,17 @@ export const updateUserProfile = userService.updateProfile;
 export const fetchUsers = userService.fetchAll;
 export const updateUser = userService.update;
 export const deleteUser = userService.delete;
-export const getCurrentUser = userService.getCurrentUser;
+// Alias pour la rétrocompatibilité
+export const getCurrentUser = userService.getProfile;
 
 // Exposer les services d'activités
 export const fetchActivities = activiteService.fetchAll;
 export const createActivity = activiteService.create;
 export const updateActivity = activiteService.update;
 export const deleteActivity = activiteService.delete;
+
+// Exporter apiClient pour une utilisation directe si nécessaire
+export { apiClient };
 
 // Export par défaut pour les cas spéciaux
 export default {

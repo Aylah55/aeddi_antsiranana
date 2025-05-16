@@ -21,13 +21,34 @@ const ListUtilisateur = () => {
     useEffect(() => {
         const getUsers = async () => {
             try {
+                setLoading(true);
                 const response = await fetchUsers();
-                const fetchedUsers = response?.data?.users || response?.users || [];
+                console.log('Réponse de l\'API:', response);
+                
+                // Gérer différents formats de réponse
+                let fetchedUsers = [];
+                if (response && response.data) {
+                    if (Array.isArray(response.data)) {
+                        fetchedUsers = response.data;
+                    } else if (response.data.users && Array.isArray(response.data.users)) {
+                        fetchedUsers = response.data.users;
+                    } else if (response.data.data && Array.isArray(response.data.data)) {
+                        fetchedUsers = response.data.data;
+                    }
+                }
+                
+                console.log('Utilisateurs récupérés:', fetchedUsers);
                 setUsers(fetchedUsers);
                 setLoading(false);
             } catch (err) {
-                console.error('API Error:', err.response?.data || err.message);
-                setError(err.message || 'Une erreur est survenue lors du chargement des utilisateurs');
+                console.error('Erreur API:', err);
+                console.error('Détails de l\'erreur:', {
+                    message: err.message,
+                    response: err.response,
+                    data: err.response?.data,
+                    status: err.response?.status
+                });
+                setError(err.response?.data?.message || err.message || 'Une erreur est survenue lors du chargement des utilisateurs');
                 setLoading(false);
             }
         };
