@@ -7,43 +7,28 @@ const API_URL = process.env.REACT_APP_API_URL || 'https://aeddi-backend.onrender
 const apiClient = axios.create({
   baseURL: API_URL,
   withCredentials: true,
+  timeout: 10000, // 10 secondes de timeout
   headers: {
     'Accept': 'application/json',
     'X-Requested-With': 'XMLHttpRequest'
   }
 });
 
-// Configuration des intercepteurs pour gérer les requêtes CORS
+// Intercepteur pour ajouter le token JWT dans les en-têtes (sauf pour les requêtes OPTIONS)
 apiClient.interceptors.request.use(
   config => {
-    // Ne pas ajouter le header Authorization pour les requêtes OPTIONS
-    if (config.method === 'options') {
-      return config;
-    }
-    
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (config.method !== 'options') {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
-  error => {
-    return Promise.reject(error);
-  }
+  error => Promise.reject(error)
 );
 
-// Intercepteur pour ajouter le token JWT
-apiClient.interceptors.request.use(config => {
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, error => {
-  return Promise.reject(error);
-});
-
-// Gestion des erreurs centralisée
+// Gestion centralisée des erreurs API
 const handleApiError = (error) => {
   if (error.response) {
     console.error('API Error Response:', {
@@ -63,7 +48,7 @@ const handleApiError = (error) => {
 
 // Service d'authentification
 export const authService = {
-  // Inscription d'un utilisateur
+  // Inscription
   inscription: (formData) => {
     return apiClient.post('/inscription', formData, {
       headers: {
@@ -72,25 +57,28 @@ export const authService = {
     }).catch(handleApiError);
   },
 
-
+  // Connexion
   login: (credentials) => {
     return apiClient.post('/login', credentials)
       .catch(handleApiError);
   },
 
-
+  // Déconnexion
   logout: () => {
     return apiClient.post('/logout')
       .catch(handleApiError);
   }
 };
 
+// Service utilisateur
 export const userService = {
+  // Profil utilisateur connecté
   getProfile: () => {
     return apiClient.get('/user')
       .catch(handleApiError);
   },
 
+  // Mise à jour du profil utilisateur
   updateProfile: (id, formData) => {
     return apiClient.post(`/profile/${id}`, formData, {
       headers: {
@@ -100,90 +88,79 @@ export const userService = {
   },
 
   // Récupérer tous les utilisateurs
-  fetchUsers: () => {
+  fetchAll: () => {
     return apiClient.get('/users')
       .then(response => {
-        // S'assurer que la réponse contient bien la propriété users
         if (response.data && response.data.users) {
           return { data: response.data };
         }
-        // Si la réponse est directement le tableau des utilisateurs
         if (Array.isArray(response.data)) {
           return { data: { users: response.data } };
         }
-        // Sinon, retourner la réponse telle quelle
         return response;
       })
       .catch(handleApiError);
   },
 
+  // Mettre à jour un utilisateur
   update: (id, formData) => {
-    return apiClient.post(`/actions/users/${id}`, formData, {
+    return apiClient.put(`/actions/users/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     }).catch(handleApiError);
   },
 
+  // Supprimer un utilisateur
   delete: (id) => {
     return apiClient.delete(`/actions/users/${id}`)
       .catch(handleApiError);
   }
 };
 
-// Service activités
+// Service des activités
 export const activiteService = {
+  // Récupérer toutes les activités
   fetchAll: () => {
     return apiClient.get('/activites')
-      .catch(handleApiError); // Gérer les erreurs
+      .catch(handleApiError);
   },
 
+  // Créer une activité
   create: (data) => {
     return apiClient.post('/activites', data)
-      .catch(handleApiError); // Gérer les erreurs
+      .catch(handleApiError);
   },
 
+  // Mettre à jour une activité
   update: (id, data) => {
     return apiClient.put(`/activites/${id}`, data)
-      .catch(handleApiError); // Gérer les erreurs
+      .catch(handleApiError);
   },
 
+  // Supprimer une activité
   delete: (id) => {
     return apiClient.delete(`/activites/${id}`)
-      .catch(handleApiError); // Gérer les erreurs
+      .catch(handleApiError);
   }
 };
 
-// Exposer les services d'authentification
+// Alias pratiques pour les composants React
 export const registerUser = authService.inscription;
 export const loginUser = authService.login;
 export const logoutUser = authService.logout;
 
-// Exposer les services utilisateur
 export const getUserProfile = userService.getProfile;
 export const updateUserProfile = userService.updateProfile;
 export const fetchUsers = userService.fetchAll;
 export const updateUser = userService.update;
 export const deleteUser = userService.delete;
-// Alias pour la rétrocompatibilité
 export const getCurrentUser = userService.getProfile;
 
-// Exposer les services d'activités
 export const fetchActivities = activiteService.fetchAll;
 export const createActivity = activiteService.create;
 export const updateActivity = activiteService.update;
 export const deleteActivity = activiteService.delete;
 
-// Exporter apiClient pour une utilisation directe si nécessaire
+// Exporter l’instance Axios si besoin
 export { apiClient };
-
-// Export par défaut pour les cas spéciaux
-export default {
-  install: (app) => {
-    app.config.globalProperties.$api = {
-      auth: authService,
-      users: userService,
-      activities: activiteService
-    };
-  }
-};
