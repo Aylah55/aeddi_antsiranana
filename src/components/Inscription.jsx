@@ -36,12 +36,9 @@ function Inscription({ onSwitch }) {
         }
     
         try {
-            console.log('Sending registration data:', data);
             const response = await registerUser(data);
-            console.log('Registration successful:', response);
-            navigate('/dashboard');  
+                navigate('/dashbord');  
         } catch (err) {
-            console.error('Registration error:', err);
             if (err.response?.status === 422) {
                 const errors = err.response.data.errors;
                 let errorMessages = [];
