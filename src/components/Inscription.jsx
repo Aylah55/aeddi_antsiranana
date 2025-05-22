@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL || 'https://aeddi-backend.onrender.com/api';
+
 function Inscription({ onSwitch }) {
   const [formData, setFormData] = useState({
     nom: '',
@@ -36,13 +38,16 @@ function Inscription({ onSwitch }) {
 
     try {
       const response = await axios.post(
-        'https://aeddi-backend.onrender.com/api/inscription',
+        `${API_URL}/inscription`,
         data,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-XSRF-TOKEN': document.cookie.match(/XSRF-TOKEN=([\w-]+)/)?.[1]
           },
-          withCredentials: true, // <-- très important pour CORS avec credentials
+          withCredentials: true,
         }
       );
       // En cas de succès, naviguer vers le tableau de bord
