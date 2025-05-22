@@ -13,6 +13,7 @@ function Inscription({ onSwitch }) {
     photo: null,
   });
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -26,6 +27,7 @@ function Inscription({ onSwitch }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
 
     const data = new FormData();
     data.append('nom', formData.nom);
@@ -37,22 +39,30 @@ function Inscription({ onSwitch }) {
     }
 
     try {
-      const response = await axios.post(
-        `${API_URL}/inscription`,
-        data,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-XSRF-TOKEN': document.cookie.match(/XSRF-TOKEN=([\w-]+)/)?.[1]
-          },
-          withCredentials: true,
-        }
-      );
-      // En cas de succès, naviguer vers le tableau de bord
-      navigate('/dashbord');
+      console.log('Envoi de la requête à:', `${API_URL}/inscription`);
+      const response = await axios({
+        method: 'post',
+        url: `${API_URL}/inscription`,
+        data: data,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        withCredentials: true
+      });
+
+      console.log('Réponse reçue:', response);
+      
+      if (response.data && response.data.status === 'success') {
+        // En cas de succès, naviguer vers le tableau de bord
+        navigate('/dashbord');
+      } else {
+        setError('Une erreur est survenue lors de l\'inscription');
+      }
     } catch (err) {
+      console.error('Erreur détaillée:', err);
+      
       if (err.response?.status === 422) {
         const errors = err.response.data.errors;
         let errorMessages = [];
@@ -60,9 +70,15 @@ function Inscription({ onSwitch }) {
           errorMessages.push(...errors[key]);
         }
         setError(errorMessages.join('\n'));
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message) {
+        setError(`Erreur: ${err.message}`);
       } else {
-        setError(err.response?.data?.message || 'Une erreur est survenue');
+        setError('Une erreur inattendue est survenue');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -144,9 +160,10 @@ function Inscription({ onSwitch }) {
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 shadow-md"
+            disabled={isLoading}
+            className={`w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 shadow-md ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            S'inscrire
+            {isLoading ? 'Inscription en cours...' : 'S\'inscrire'}
           </button>
         </form>
 
