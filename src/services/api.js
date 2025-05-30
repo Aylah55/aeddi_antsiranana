@@ -7,22 +7,27 @@ const API_URL = process.env.REACT_APP_API_URL || 'https://aeddi-backend.onrender
 const apiClient = axios.create({
   baseURL: API_URL,
   withCredentials: true,
-  timeout: 10000, // 10 secondes de timeout
+  timeout: 10000,
   headers: {
     'Accept': 'application/json',
+    'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest'
   }
 });
 
-// Intercepteur pour ajouter le token JWT dans les en-têtes (sauf pour les requêtes OPTIONS)
+// Intercepteur pour ajouter le token JWT dans les en-têtes
 apiClient.interceptors.request.use(
   config => {
-    if (config.method !== 'options') {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Pour les requêtes multipart/form-data, ne pas définir Content-Type
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     return config;
   },
   error => Promise.reject(error)
@@ -162,5 +167,5 @@ export const createActivity = activiteService.create;
 export const updateActivity = activiteService.update;
 export const deleteActivity = activiteService.delete;
 
-// Exporter l’instance Axios si besoin
+// Exporter l'instance Axios si besoin
 export { apiClient };
