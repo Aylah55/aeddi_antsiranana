@@ -39,7 +39,13 @@ function Inscription({ onSwitch }) {
     }
 
     try {
-      console.log('Envoi de la requête à:', `${API_URL}/inscription`);
+      console.log('Données envoyées:', {
+        nom: formData.nom,
+        prenom: formData.prenom,
+        email: formData.email,
+        photo: formData.photo ? formData.photo.name : 'Pas de photo'
+      });
+
       const response = await axios({
         method: 'post',
         url: `${API_URL}/inscription`,
@@ -50,30 +56,41 @@ function Inscription({ onSwitch }) {
         }
       });
 
-      console.log('Réponse reçue:', response);
+      console.log('Réponse complète:', response);
+      console.log('Statut de la réponse:', response.status);
+      console.log('Données de la réponse:', response.data);
       
       if (response.data && response.data.status === 'success') {
+        // Stocker le token et les informations de l'utilisateur
+        localStorage.setItem('auth_token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         // En cas de succès, naviguer vers le tableau de bord
         navigate('/dashbord');
       } else {
-        setError('Une erreur est survenue lors de l\'inscription');
+        console.log('Réponse sans succès:', response.data);
+        setError('Une erreur est survenue lors de l\'inscription: ' + (response.data.message || 'Erreur inconnue'));
       }
     } catch (err) {
-      console.error('Erreur détaillée:', err);
+      console.error('Erreur complète:', err);
+      console.error('Response de l\'erreur:', err.response);
       
       if (err.response?.status === 422) {
         const errors = err.response.data.errors;
+        console.log('Erreurs de validation:', errors);
         let errorMessages = [];
         for (const key in errors) {
-          errorMessages.push(...errors[key]);
+          errorMessages.push(`${key}: ${errors[key].join(', ')}`);
         }
         setError(errorMessages.join('\n'));
       } else if (err.response?.data?.message) {
-        setError(err.response.data.message);
+        console.log('Message d\'erreur du serveur:', err.response.data.message);
+        setError(`Erreur du serveur: ${err.response.data.message}`);
       } else if (err.message) {
-        setError(`Erreur: ${err.message}`);
+        console.log('Message d\'erreur:', err.message);
+        setError(`Erreur de connexion: ${err.message}`);
       } else {
-        setError('Une erreur inattendue est survenue');
+        console.log('Erreur inconnue');
+        setError('Une erreur inattendue est survenue lors de l\'inscription');
       }
     } finally {
       setIsLoading(false);
