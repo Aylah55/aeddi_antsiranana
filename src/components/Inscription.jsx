@@ -29,10 +29,6 @@ function Inscription({ onSwitch }) {
     setError(null);
     setIsLoading(true);
 
-    console.log('=== DÉBUT DE LA SOUMISSION ===');
-    console.log('URL de l\'API:', API_URL);
-    console.log('FormData initial:', formData);
-
     const data = new FormData();
     data.append('nom', formData.nom);
     data.append('prenom', formData.prenom);
@@ -42,94 +38,44 @@ function Inscription({ onSwitch }) {
       data.append('photo', formData.photo);
     }
 
-    console.log('=== CONTENU DU FORMDATA ===');
-    for (let pair of data.entries()) {
-      console.log(pair[0] + ': ' + (pair[0] === 'photo' ? 'File object' : pair[1]));
-    }
-
     try {
-      console.log('=== ENVOI DE LA REQUÊTE ===');
-      const fullUrl = `${API_URL}/inscription`;
-      console.log('URL complète:', fullUrl);
-
-      const response = await axios.post(fullUrl, data, {
+      const response = await axios.post(`${API_URL}/inscription`, data, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json'
-        }
+          'Accept': 'application/json',
+        },
       });
 
-      console.log('=== RÉPONSE REÇUE ===');
-      console.log('Status:', response.status);
-      console.log('Headers:', response.headers);
-      console.log('Data:', response.data);
+      const resData = response.data;
 
-      // Vérification détaillée de la réponse
-      if (!response.data) {
-        throw new Error('Pas de données reçues du serveur');
-      }
-
-      if (response.data.status === 'success' && response.data.token && response.data.user) {
-        console.log('=== INSCRIPTION RÉUSSIE ===');
-        console.log('Token reçu:', response.data.token);
-        console.log('Données utilisateur:', response.data.user);
-
-        // Stockage des données
-        localStorage.setItem('auth_token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-
-        // Vérification du stockage
-        const storedToken = localStorage.getItem('auth_token');
-        const storedUser = localStorage.getItem('user');
-        console.log('=== VÉRIFICATION DU STOCKAGE ===');
-        console.log('Token stocké:', storedToken);
-        console.log('Utilisateur stocké:', storedUser);
-
-        if (storedToken && storedUser) {
-          navigate('/dashbord');
-        } else {
-          throw new Error('Échec du stockage des données d\'authentification');
-        }
+      if (resData && resData.token && resData.user) {
+        localStorage.setItem('auth_token', resData.token);
+        localStorage.setItem('user', JSON.stringify(resData.user));
+        navigate('/dashbord');
       } else {
-        console.log('=== RÉPONSE INVALIDE ===');
-        console.log('Données de réponse:', response.data);
-        
-        let errorMessage = 'Erreur lors de l\'inscription: ';
-        if (response.data.message) {
-          errorMessage += response.data.message;
-        } else if (response.data.error) {
-          errorMessage += response.data.error;
-        } else {
-          errorMessage += 'Format de réponse invalide';
-        }
-        setError(errorMessage);
+        setError('Erreur lors de l\'inscription : réponse inattendue du serveur.');
+        console.log('Réponse inattendue du serveur:', resData);
       }
     } catch (err) {
-      console.log('=== ERREUR DÉTAILLÉE ===');
-      console.log('Type d\'erreur:', err.constructor.name);
-      console.log('Message d\'erreur:', err.message);
-      
       if (err.response) {
-        console.log('Statut de l\'erreur:', err.response.status);
-        console.log('Données de l\'erreur:', err.response.data);
-        
-        if (err.response.status === 422) {
-          const errors = err.response.data.errors;
-          let errorMessages = [];
-          for (const key in errors) {
-            errorMessages.push(`${key}: ${errors[key].join(', ')}`);
-          }
-          setError(errorMessages.join('\n'));
+        const status = err.response.status;
+        const data = err.response.data;
+
+        if (status === 422 && data.errors) {
+          const errorMessages = Object.entries(data.errors)
+            .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+            .join('\n');
+          setError(errorMessages);
+        } else if (data.message) {
+          setError(`Erreur du serveur (${status}): ${data.message}`);
         } else {
-          setError(`Erreur du serveur (${err.response.status}): ${err.response.data.message || err.message}`);
+          setError(`Erreur du serveur (${status})`);
         }
       } else if (err.request) {
-        console.log('Erreur de requête:', err.request);
-        setError('Erreur de connexion: Le serveur ne répond pas');
+        setError('Erreur de connexion : le serveur ne répond pas.');
       } else {
-        console.log('Erreur:', err.message);
-        setError(`Erreur: ${err.message}`);
+        setError(`Erreur : ${err.message}`);
       }
+      console.error('Erreur détaillée:', err);
     } finally {
       setIsLoading(false);
     }
