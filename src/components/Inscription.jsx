@@ -29,7 +29,6 @@ function Inscription({ onSwitch }) {
     setError(null);
     setIsLoading(true);
 
-    // Log des données du formulaire
     console.log('=== DÉBUT DE LA SOUMISSION ===');
     console.log('URL de l\'API:', API_URL);
     console.log('FormData initial:', formData);
@@ -43,7 +42,6 @@ function Inscription({ onSwitch }) {
       data.append('photo', formData.photo);
     }
 
-    // Vérification du contenu du FormData
     console.log('=== CONTENU DU FORMDATA ===');
     for (let pair of data.entries()) {
       console.log(pair[0] + ': ' + (pair[0] === 'photo' ? 'File object' : pair[1]));
@@ -51,86 +49,88 @@ function Inscription({ onSwitch }) {
 
     try {
       console.log('=== ENVOI DE LA REQUÊTE ===');
-      console.log('URL complète:', `${API_URL}/inscription`);
-      console.log('Headers:', {
-        'Content-Type': 'multipart/form-data',
-        'Accept': 'application/json'
-      });
+      const fullUrl = `${API_URL}/inscription`;
+      console.log('URL complète:', fullUrl);
 
-      // Première tentative avec axios normal
-      let response;
-      try {
-        response = await axios({
-          method: 'post',
-          url: `${API_URL}/inscription`,
-          data: data,
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Accept': 'application/json'
-          }
-        });
-      } catch (axiosError) {
-        console.log('=== ERREUR AXIOS DÉTAILLÉE ===');
-        console.log('Status:', axiosError.response?.status);
-        console.log('Status Text:', axiosError.response?.statusText);
-        console.log('Headers:', axiosError.response?.headers);
-        console.log('Data:', axiosError.response?.data);
-        console.log('Config:', axiosError.config);
-        throw axiosError;
-      }
+      const response = await axios.post(fullUrl, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json'
+        }
+      });
 
       console.log('=== RÉPONSE REÇUE ===');
       console.log('Status:', response.status);
       console.log('Headers:', response.headers);
       console.log('Data:', response.data);
-      
-      if (response.data && response.data.status === 'success') {
+
+      // Vérification détaillée de la réponse
+      if (!response.data) {
+        throw new Error('Pas de données reçues du serveur');
+      }
+
+      if (response.data.status === 'success' && response.data.token && response.data.user) {
         console.log('=== INSCRIPTION RÉUSSIE ===');
-        // Stocker le token et les informations de l'utilisateur
+        console.log('Token reçu:', response.data.token);
+        console.log('Données utilisateur:', response.data.user);
+
+        // Stockage des données
         localStorage.setItem('auth_token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        // En cas de succès, naviguer vers le tableau de bord
-        navigate('/dashbord');
+
+        // Vérification du stockage
+        const storedToken = localStorage.getItem('auth_token');
+        const storedUser = localStorage.getItem('user');
+        console.log('=== VÉRIFICATION DU STOCKAGE ===');
+        console.log('Token stocké:', storedToken);
+        console.log('Utilisateur stocké:', storedUser);
+
+        if (storedToken && storedUser) {
+          navigate('/dashbord');
+        } else {
+          throw new Error('Échec du stockage des données d\'authentification');
+        }
       } else {
-        console.log('=== RÉPONSE SANS SUCCÈS ===');
-        console.log('Response data:', response.data);
-        setError('Une erreur est survenue lors de l\'inscription: ' + (response.data.message || 'Réponse invalide du serveur'));
+        console.log('=== RÉPONSE INVALIDE ===');
+        console.log('Données de réponse:', response.data);
+        
+        let errorMessage = 'Erreur lors de l\'inscription: ';
+        if (response.data.message) {
+          errorMessage += response.data.message;
+        } else if (response.data.error) {
+          errorMessage += response.data.error;
+        } else {
+          errorMessage += 'Format de réponse invalide';
+        }
+        setError(errorMessage);
       }
     } catch (err) {
       console.log('=== ERREUR DÉTAILLÉE ===');
       console.log('Type d\'erreur:', err.constructor.name);
       console.log('Message d\'erreur:', err.message);
-      console.log('Stack trace:', err.stack);
       
       if (err.response) {
-        console.log('=== DÉTAILS DE LA RÉPONSE D\'ERREUR ===');
-        console.log('Status:', err.response.status);
-        console.log('Headers:', err.response.headers);
-        console.log('Data:', err.response.data);
-
+        console.log('Statut de l\'erreur:', err.response.status);
+        console.log('Données de l\'erreur:', err.response.data);
+        
         if (err.response.status === 422) {
           const errors = err.response.data.errors;
-          console.log('Erreurs de validation:', errors);
           let errorMessages = [];
           for (const key in errors) {
             errorMessages.push(`${key}: ${errors[key].join(', ')}`);
           }
           setError(errorMessages.join('\n'));
         } else {
-          setError(`Erreur du serveur (${err.response.status}): ${err.response.data.message || 'Erreur inconnue'}`);
+          setError(`Erreur du serveur (${err.response.status}): ${err.response.data.message || err.message}`);
         }
       } else if (err.request) {
-        console.log('=== ERREUR DE REQUÊTE ===');
-        console.log('La requête a été faite mais pas de réponse reçue');
-        console.log('Request:', err.request);
-        setError('Erreur de connexion: Pas de réponse du serveur');
+        console.log('Erreur de requête:', err.request);
+        setError('Erreur de connexion: Le serveur ne répond pas');
       } else {
-        console.log('=== ERREUR DE CONFIGURATION ===');
-        console.log('Error config:', err.config);
-        setError(`Erreur de configuration: ${err.message}`);
+        console.log('Erreur:', err.message);
+        setError(`Erreur: ${err.message}`);
       }
     } finally {
-      console.log('=== FIN DE LA SOUMISSION ===');
       setIsLoading(false);
     }
   };
