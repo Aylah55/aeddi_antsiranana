@@ -29,6 +29,11 @@ function Inscription({ onSwitch }) {
     setError(null);
     setIsLoading(true);
 
+    // Log des données du formulaire
+    console.log('=== DÉBUT DE LA SOUMISSION ===');
+    console.log('URL de l\'API:', API_URL);
+    console.log('FormData initial:', formData);
+
     const data = new FormData();
     data.append('nom', formData.nom);
     data.append('prenom', formData.prenom);
@@ -38,61 +43,94 @@ function Inscription({ onSwitch }) {
       data.append('photo', formData.photo);
     }
 
+    // Vérification du contenu du FormData
+    console.log('=== CONTENU DU FORMDATA ===');
+    for (let pair of data.entries()) {
+      console.log(pair[0] + ': ' + (pair[0] === 'photo' ? 'File object' : pair[1]));
+    }
+
     try {
-      console.log('Données envoyées:', {
-        nom: formData.nom,
-        prenom: formData.prenom,
-        email: formData.email,
-        photo: formData.photo ? formData.photo.name : 'Pas de photo'
+      console.log('=== ENVOI DE LA REQUÊTE ===');
+      console.log('URL complète:', `${API_URL}/inscription`);
+      console.log('Headers:', {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json'
       });
 
-      const response = await axios({
-        method: 'post',
-        url: `${API_URL}/inscription`,
-        data: data,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json'
-        }
-      });
+      // Première tentative avec axios normal
+      let response;
+      try {
+        response = await axios({
+          method: 'post',
+          url: `${API_URL}/inscription`,
+          data: data,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Accept': 'application/json'
+          }
+        });
+      } catch (axiosError) {
+        console.log('=== ERREUR AXIOS DÉTAILLÉE ===');
+        console.log('Status:', axiosError.response?.status);
+        console.log('Status Text:', axiosError.response?.statusText);
+        console.log('Headers:', axiosError.response?.headers);
+        console.log('Data:', axiosError.response?.data);
+        console.log('Config:', axiosError.config);
+        throw axiosError;
+      }
 
-      console.log('Réponse complète:', response);
-      console.log('Statut de la réponse:', response.status);
-      console.log('Données de la réponse:', response.data);
+      console.log('=== RÉPONSE REÇUE ===');
+      console.log('Status:', response.status);
+      console.log('Headers:', response.headers);
+      console.log('Data:', response.data);
       
       if (response.data && response.data.status === 'success') {
+        console.log('=== INSCRIPTION RÉUSSIE ===');
         // Stocker le token et les informations de l'utilisateur
         localStorage.setItem('auth_token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         // En cas de succès, naviguer vers le tableau de bord
         navigate('/dashbord');
       } else {
-        console.log('Réponse sans succès:', response.data);
-        setError('Une erreur est survenue lors de l\'inscription: ' + (response.data.message || 'Erreur inconnue'));
+        console.log('=== RÉPONSE SANS SUCCÈS ===');
+        console.log('Response data:', response.data);
+        setError('Une erreur est survenue lors de l\'inscription: ' + (response.data.message || 'Réponse invalide du serveur'));
       }
     } catch (err) {
-      console.error('Erreur complète:', err);
-      console.error('Response de l\'erreur:', err.response);
+      console.log('=== ERREUR DÉTAILLÉE ===');
+      console.log('Type d\'erreur:', err.constructor.name);
+      console.log('Message d\'erreur:', err.message);
+      console.log('Stack trace:', err.stack);
       
-      if (err.response?.status === 422) {
-        const errors = err.response.data.errors;
-        console.log('Erreurs de validation:', errors);
-        let errorMessages = [];
-        for (const key in errors) {
-          errorMessages.push(`${key}: ${errors[key].join(', ')}`);
+      if (err.response) {
+        console.log('=== DÉTAILS DE LA RÉPONSE D\'ERREUR ===');
+        console.log('Status:', err.response.status);
+        console.log('Headers:', err.response.headers);
+        console.log('Data:', err.response.data);
+
+        if (err.response.status === 422) {
+          const errors = err.response.data.errors;
+          console.log('Erreurs de validation:', errors);
+          let errorMessages = [];
+          for (const key in errors) {
+            errorMessages.push(`${key}: ${errors[key].join(', ')}`);
+          }
+          setError(errorMessages.join('\n'));
+        } else {
+          setError(`Erreur du serveur (${err.response.status}): ${err.response.data.message || 'Erreur inconnue'}`);
         }
-        setError(errorMessages.join('\n'));
-      } else if (err.response?.data?.message) {
-        console.log('Message d\'erreur du serveur:', err.response.data.message);
-        setError(`Erreur du serveur: ${err.response.data.message}`);
-      } else if (err.message) {
-        console.log('Message d\'erreur:', err.message);
-        setError(`Erreur de connexion: ${err.message}`);
+      } else if (err.request) {
+        console.log('=== ERREUR DE REQUÊTE ===');
+        console.log('La requête a été faite mais pas de réponse reçue');
+        console.log('Request:', err.request);
+        setError('Erreur de connexion: Pas de réponse du serveur');
       } else {
-        console.log('Erreur inconnue');
-        setError('Une erreur inattendue est survenue lors de l\'inscription');
+        console.log('=== ERREUR DE CONFIGURATION ===');
+        console.log('Error config:', err.config);
+        setError(`Erreur de configuration: ${err.message}`);
       }
     } finally {
+      console.log('=== FIN DE LA SOUMISSION ===');
       setIsLoading(false);
     }
   };
