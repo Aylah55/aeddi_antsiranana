@@ -11,7 +11,8 @@ const apiClient = axios.create({
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'X-Requested-With': 'XMLHttpRequest'
+    'X-Requested-With': 'XMLHttpRequest',
+    'Origin': 'https://aeddi-antsiranana.onrender.com'
   }
 });
 
