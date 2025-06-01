@@ -91,7 +91,7 @@ function Inscription({ onSwitch }) {
       } else {
         console.log('=== RÉPONSE INVALIDE ===');
         console.log('Structure de la réponse:', Object.keys(response.data));
-        
+
         let errorMessage = 'Erreur lors de l\'inscription: ';
         if (response.data.message) {
           errorMessage += response.data.message;
@@ -106,11 +106,11 @@ function Inscription({ onSwitch }) {
       console.log('=== ERREUR DÉTAILLÉE ===');
       console.log('Type d\'erreur:', err.constructor.name);
       console.log('Message d\'erreur:', err.message);
-      
+
       if (err.response) {
         console.log('Statut de l\'erreur:', err.response.status);
         console.log('Données de l\'erreur:', err.response.data);
-        
+
         if (err.response.status === 422) {
           const errors = err.response.data.errors;
           let errorMessages = [];
