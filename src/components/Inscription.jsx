@@ -46,10 +46,8 @@ function Inscription({ onSwitch }) {
         data: data,
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        withCredentials: true
+          'Accept': 'application/json'
+        }
       });
 
       console.log('Réponse reçue:', response);
