@@ -29,6 +29,10 @@ function Inscription({ onSwitch }) {
     setError(null);
     setIsLoading(true);
 
+    console.log('=== DÉBUT DE L\'INSCRIPTION ===');
+    console.log('URL de l\'API:', API_URL);
+    console.log('FormData initial:', formData);
+
     const data = new FormData();
     data.append('nom', formData.nom);
     data.append('prenom', formData.prenom);
@@ -38,8 +42,19 @@ function Inscription({ onSwitch }) {
       data.append('photo', formData.photo);
     }
 
+    console.log('=== CONTENU DU FORMDATA ===');
+    for (let pair of data.entries()) {
+      console.log(pair[0] + ':', pair[0] === 'photo' ? 'File object' : pair[1]);
+    }
+
     try {
+      console.log('=== ENVOI DE LA REQUÊTE ===');
       const fullUrl = `${API_URL}/inscription`;
+      console.log('URL complète:', fullUrl);
+      console.log('Headers de la requête:', {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json'
+      });
 
       const response = await axios.post(fullUrl, data, {
         headers: {
@@ -48,33 +63,61 @@ function Inscription({ onSwitch }) {
         }
       });
 
-      const responseData = response.data;
+      console.log('=== RÉPONSE REÇUE ===');
+      console.log('Status:', response.status);
+      console.log('Headers:', response.headers);
+      console.log('Data:', response.data);
 
-      if (
-        (responseData.status === 'success' || responseData.success === true) &&
-        (responseData.token || responseData.data?.token) &&
-        (responseData.user || responseData.data?.user)
-      ) {
-        const token = responseData.token || responseData.data.token;
-        const user = responseData.user || responseData.data.user;
+      if (!response.data) {
+        throw new Error('Pas de données reçues du serveur');
+      }
 
-        localStorage.setItem('auth_token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+      if (response.data.status === 'success' && response.data.token && response.data.user) {
+        console.log('=== INSCRIPTION RÉUSSIE ===');
+        console.log('Token reçu:', response.data.token.substring(0, 10) + '...');
+        console.log('Données utilisateur:', response.data.user);
 
-        navigate('/dashbord');
+        localStorage.setItem('auth_token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+
+        // Vérification du stockage
+        const storedToken = localStorage.getItem('auth_token');
+        const storedUser = localStorage.getItem('user');
+        console.log('=== VÉRIFICATION DU STOCKAGE ===');
+        console.log('Token stocké:', storedToken ? 'Présent' : 'Absent');
+        console.log('Utilisateur stocké:', storedUser ? 'Présent' : 'Absent');
+
+        if (storedToken && storedUser) {
+          navigate('/dashbord');
+        } else {
+          throw new Error('Échec du stockage des données d\'authentification');
+        }
       } else {
+        console.log('=== RÉPONSE INVALIDE ===');
+        console.log('Structure de la réponse:', Object.keys(response.data));
+        console.log('Contenu de la réponse:', response.data);
+
         let errorMessage = 'Erreur lors de l\'inscription: ';
-        if (responseData.message) {
-          errorMessage += responseData.message;
-        } else if (responseData.error) {
-          errorMessage += responseData.error;
+        if (response.data.message) {
+          errorMessage += response.data.message;
+        } else if (response.data.error) {
+          errorMessage += response.data.error;
         } else {
           errorMessage += 'Format de réponse invalide';
         }
         setError(errorMessage);
       }
     } catch (err) {
+      console.log('=== ERREUR DÉTAILLÉE ===');
+      console.log('Type d\'erreur:', err.constructor.name);
+      console.log('Message d\'erreur:', err.message);
+
       if (err.response) {
+        console.log('Statut de l\'erreur:', err.response.status);
+        console.log('Headers de l\'erreur:', err.response.headers);
+        console.log('Données de l\'erreur:', err.response.data);
+        console.log('Type de contenu reçu:', err.response.headers['content-type']);
+
         if (err.response.status === 422) {
           const errors = err.response.data.errors;
           let errorMessages = [];
@@ -86,8 +129,10 @@ function Inscription({ onSwitch }) {
           setError(`Erreur du serveur (${err.response.status}): ${err.response.data.message || err.message}`);
         }
       } else if (err.request) {
+        console.log('Erreur de requête:', err.request);
         setError('Erreur de connexion: Le serveur ne répond pas');
       } else {
+        console.log('Erreur:', err.message);
         setError(`Erreur: ${err.message}`);
       }
     } finally {
