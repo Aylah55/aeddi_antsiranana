@@ -6,13 +6,10 @@ const API_URL = process.env.REACT_APP_API_URL || 'https://aeddi-backend.onrender
 // Configuration Axios globale
 const apiClient = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
   timeout: 10000,
   headers: {
     'Accept': 'application/json',
-    'Content-Type': 'application/json',
-    'X-Requested-With': 'XMLHttpRequest',
-    'Origin': 'https://aeddi-antsiranana.onrender.com'
+    'Content-Type': 'application/json'
   }
 });
 
