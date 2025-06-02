@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Inscription from './Inscription';
 import Connexion from './Connexion';
-import img1 from '../assets/images/image1.jpg';
-import img2 from '../assets/images/image2.jpg';
-import img3 from '../assets/images/image3.jpg';
+import img1 from '../../assets/images/image1.jpg';
+import img2 from '../../assets/images/image2.jpg';
+import img3 from '../../assets/images/image3.jpg';
 
 function Accueil() {
   const [currentImage, setCurrentImage] = useState(0);

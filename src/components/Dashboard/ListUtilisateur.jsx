@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { fetchUsers } from '../services/api';
+import { fetchUsers } from '../../services/api';
 import { FiSearch, FiUser, FiChevronLeft, FiChevronRight, FiFilter, FiEye, FiX } from 'react-icons/fi';
 
 const API_URL = 'http://localhost:8000';
