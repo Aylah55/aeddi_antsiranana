@@ -1,12 +1,11 @@
 import axios from 'axios';
 
-// Configuration de l'URL de base de l'API en fonction de l'environnement
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'http://localhost:8000';
+const API_PREFIX = '/api';
 
 // Configuration Axios globale
 const apiClient = axios.create({
-  baseURL: API_URL,
-  timeout: 10000,
+  baseURL: API_URL + API_PREFIX,
   withCredentials: true,
   headers: {
     'Accept': 'application/json',
@@ -17,7 +16,7 @@ const apiClient = axios.create({
 // Fonction pour obtenir le CSRF token
 const getCsrfToken = async () => {
   try {
-    await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+    await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
       withCredentials: true
     });
   } catch (error) {
@@ -28,9 +27,6 @@ const getCsrfToken = async () => {
 // Intercepteur pour ajouter le token JWT dans les en-têtes
 apiClient.interceptors.request.use(
   async config => {
-    // Récupérer le CSRF token avant chaque requête
-    await getCsrfToken();
-    
     const token = localStorage.getItem('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -49,11 +45,7 @@ apiClient.interceptors.request.use(
 // Gestion centralisée des erreurs API
 const handleApiError = (error) => {
   if (error.response) {
-    console.error('API Error Response:', {
-      status: error.response.status,
-      data: error.response.data,
-      headers: error.response.headers
-    });
+    console.error('API Error Response:', error.response.data);
     throw error.response.data;
   } else if (error.request) {
     console.error('API Request Error:', error.request);
@@ -67,7 +59,8 @@ const handleApiError = (error) => {
 // Service d'authentification
 export const authService = {
   // Inscription
-  inscription: (formData) => {
+  inscription: async (formData) => {
+    await getCsrfToken();
     return apiClient.post('/inscription', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -76,7 +69,8 @@ export const authService = {
   },
 
   // Connexion
-  login: (credentials) => {
+  login: async (credentials) => {
+    await getCsrfToken();
     return apiClient.post('/login', credentials)
       .catch(handleApiError);
   },
@@ -96,13 +90,51 @@ export const userService = {
       .catch(handleApiError);
   },
 
+  // Récupérer les informations d'un utilisateur
+  getUserInfo: (id) => {
+    return apiClient.get(`/user/${id}`)
+      .catch(handleApiError);
+  },
+
   // Mise à jour du profil utilisateur
-  updateProfile: (id, formData) => {
-    return apiClient.post(`/profile/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+  updateProfile: async (id, formData) => {
+    try {
+      await getCsrfToken();
+      
+      // S'assurer que formData est une instance de FormData
+      const data = formData instanceof FormData ? formData : new FormData();
+      
+      // Si ce n'est pas déjà un FormData, convertir l'objet en FormData
+      if (!(formData instanceof FormData)) {
+        Object.keys(formData).forEach(key => {
+          if (formData[key] !== null && formData[key] !== undefined) {
+            data.append(key, formData[key]);
+          }
+        });
       }
-    }).catch(handleApiError);
+
+      // Debug: Afficher les données avant l'envoi
+      console.log('Données à envoyer via API:', {
+        url: `/user/${id}`,
+        method: 'PUT',
+        formData: Object.fromEntries(data.entries())
+      });
+      
+      // Utiliser la méthode POST avec _method=PUT pour éviter les problèmes avec FormData
+      data.append('_method', 'PUT');
+      
+      const response = await apiClient.post(`/user/${id}`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      console.log('Réponse API reçue:', response.data);
+      return response;
+    } catch (error) {
+      console.error('Erreur API:', error.response || error);
+      throw error;
+    }
   },
 
   // Récupérer tous les utilisateurs
@@ -169,6 +201,7 @@ export const loginUser = authService.login;
 export const logoutUser = authService.logout;
 
 export const getUserProfile = userService.getProfile;
+export const getUserInfo = userService.getUserInfo;
 export const updateUserProfile = userService.updateProfile;
 export const fetchUsers = userService.fetchAll;
 export const updateUser = userService.update;
@@ -182,3 +215,13 @@ export const deleteActivity = activiteService.delete;
 
 // Exporter l'instance Axios si besoin
 export { apiClient };
+
+export const getAllUsers = async () => {
+    const token = localStorage.getItem('auth_token');
+    return await axios.get(`${API_URL}/users`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+        }
+    });
+};

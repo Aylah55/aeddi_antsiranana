@@ -155,6 +155,7 @@ function Inscription({ onSwitch }) {
                     value={formData.nom}
                     onChange={handleChange}
                     required
+                    disabled={isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   />
                 </div>
@@ -167,6 +168,7 @@ function Inscription({ onSwitch }) {
                     value={formData.prenom}
                     onChange={handleChange}
                     required
+                    disabled={isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   />
                 </div>
@@ -178,6 +180,7 @@ function Inscription({ onSwitch }) {
                     value={formData.etablissement}
                     onChange={handleChange}
                     required
+                    disabled={isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   >
                     <option value="">Sélectionner</option>
@@ -194,7 +197,7 @@ function Inscription({ onSwitch }) {
                     value={formData.parcours}
                     onChange={handleChange}
                     required
-                    disabled={!formData.etablissement}
+                    disabled={!formData.etablissement || isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   >
                     <option value="">Sélectionner</option>
@@ -211,11 +214,12 @@ function Inscription({ onSwitch }) {
                     value={formData.niveau}
                     onChange={handleChange}
                     required
+                    disabled={isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   >
                     <option value="">Sélectionner</option>
-                    {niveaux.map(niv => (
-                      <option key={niv} value={niv}>{niv}</option>
+                    {niveaux.map(niveau => (
+                      <option key={niveau} value={niveau}>{niveau}</option>
                     ))}
                   </select>
                 </div>
@@ -227,23 +231,27 @@ function Inscription({ onSwitch }) {
                     value={formData.promotion}
                     onChange={handleChange}
                     required
+                    disabled={isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   >
                     <option value="">Sélectionner</option>
-                    {promotions.map(annee => (
-                      <option key={annee} value={annee}>{annee}</option>
+                    {promotions.map(promo => (
+                      <option key={promo} value={promo}>{promo}</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={handleNext}
-                className="w-full mt-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 shadow-md"
-              >
-                Suivant
-              </button>
+              <div className="flex justify-end mt-6">
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={isLoading}
+                  className={`px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
+                >
+                  Suivant
+                </button>
+              </div>
             </>
           )}
 
@@ -257,6 +265,7 @@ function Inscription({ onSwitch }) {
                     value={formData.role}
                     onChange={handleChange}
                     required
+                    disabled={isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   >
                     <option value="">Sélectionner</option>
@@ -268,12 +277,13 @@ function Inscription({ onSwitch }) {
 
                 {formData.role === 'Membre de bureau' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Fonction</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Sous-rôle</label>
                     <select
                       name="sous_role"
                       value={formData.sous_role}
                       onChange={handleChange}
                       required
+                      disabled={isLoading}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                     >
                       <option value="">Sélectionner</option>
@@ -292,6 +302,7 @@ function Inscription({ onSwitch }) {
                     value={formData.telephone}
                     onChange={handleChange}
                     required
+                    disabled={isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   />
                 </div>
@@ -304,6 +315,7 @@ function Inscription({ onSwitch }) {
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    disabled={isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   />
                 </div>
@@ -316,6 +328,7 @@ function Inscription({ onSwitch }) {
                     value={formData.password}
                     onChange={handleChange}
                     required
+                    disabled={isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   />
                 </div>
@@ -328,41 +341,49 @@ function Inscription({ onSwitch }) {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     required
+                    disabled={isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Photo de profil</label>
                   <input
                     type="file"
                     name="photo"
                     onChange={handleChange}
                     accept="image/*"
-                    className="w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-lg file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-blue-50 file:text-blue-700
-                      hover:file:bg-blue-100 transition-all"
+                    disabled={isLoading}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
                   />
                 </div>
               </div>
 
-              <div className="flex space-x-4 mt-6">
+              <div className="flex justify-between mt-6">
                 <button
                   type="button"
                   onClick={handlePrevious}
-                  className="w-1/2 bg-gray-300 text-gray-800 py-3 px-4 rounded-lg hover:bg-gray-400 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 shadow-md"
+                  disabled={isLoading}
+                  className={`px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  Précédent
+                  Retour
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-1/2 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 shadow-md ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 flex items-center ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
                 >
-                  {isLoading ? 'Inscription en cours...' : 'S\'inscrire'}
+                  {isLoading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Inscription en cours...
+                    </>
+                  ) : (
+                    "S'inscrire"
+                  )}
                 </button>
               </div>
             </>
