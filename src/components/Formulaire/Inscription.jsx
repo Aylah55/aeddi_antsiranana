@@ -40,7 +40,7 @@ function Inscription({ onSwitch }) {
     'Commissaire au compte',
     'Commission logement',
     'Commission sport',
-    'Conseillé'
+    'Conseiller'
   ];
 
   const handleChange = (e) => {
@@ -86,12 +86,18 @@ function Inscription({ onSwitch }) {
 
     const data = new FormData();
     Object.keys(formData).forEach(key => {
-      if (key !== 'confirmPassword' && formData[key] !== null) {
+      if (key !== 'confirmPassword' && formData[key] !== null && formData[key] !== '') {
         data.append(key, formData[key]);
+        console.log(`Sending ${key}:`, formData[key]);
       }
     });
 
+    if (formData.role !== 'Membre de bureau') {
+      data.delete('sous_role');
+    }
+
     try {
+      console.log('Données envoyées:', Object.fromEntries(data.entries()));
       const response = await axios({
         method: 'post',
         url: `${API_URL}/inscription`,
