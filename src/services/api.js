@@ -1,21 +1,36 @@
 import axios from 'axios';
 
 // Configuration de l'URL de base de l'API en fonction de l'environnement
-const API_URL = process.env.REACT_APP_API_URL || 'https://aeddi-backend.onrender.com/api';
+const API_URL = 'http://localhost:8000/api';
 
 // Configuration Axios globale
 const apiClient = axios.create({
   baseURL: API_URL,
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
   }
 });
 
+// Fonction pour obtenir le CSRF token
+const getCsrfToken = async () => {
+  try {
+    await axios.get('http://localhost:8000/sanctum/csrf-cookie', {
+      withCredentials: true
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération du CSRF token:', error);
+  }
+};
+
 // Intercepteur pour ajouter le token JWT dans les en-têtes
 apiClient.interceptors.request.use(
-  config => {
+  async config => {
+    // Récupérer le CSRF token avant chaque requête
+    await getCsrfToken();
+    
     const token = localStorage.getItem('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

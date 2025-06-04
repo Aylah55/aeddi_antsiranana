@@ -12,7 +12,7 @@ function Inscription({ onSwitch }) {
     parcours: '',
     niveau: '',
     role: '',
-    sousRole: '',
+    sous_role: '',
     promotion: '',
     telephone: '',
     email: '',
@@ -57,7 +57,7 @@ function Inscription({ onSwitch }) {
         }
 
         if (name === 'role' && value !== 'Membre de bureau') {
-          newData.sousRole = '';
+          newData.sous_role = '';
         }
 
         return newData;
@@ -98,10 +98,8 @@ function Inscription({ onSwitch }) {
         data: data,
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        withCredentials: true
+          'Accept': 'application/json'
+        }
       });
 
       if (response.data && response.data.status === 'success') {
@@ -266,8 +264,8 @@ function Inscription({ onSwitch }) {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Fonction</label>
                     <select
-                      name="sousRole"
-                      value={formData.sousRole}
+                      name="sous_role"
+                      value={formData.sous_role}
                       onChange={handleChange}
                       required
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
