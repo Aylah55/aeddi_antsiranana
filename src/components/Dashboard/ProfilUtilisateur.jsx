@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserInfo, updateUserProfile } from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-toastify';
 
 function ProfilUtilisateur({ user: initialUser, setUser: setParentUser }) {
     const navigate = useNavigate();
@@ -140,7 +141,7 @@ function ProfilUtilisateur({ user: initialUser, setUser: setParentUser }) {
                     photo: null
                 });
                 setIsEditing(false);
-                setSuccess('Profil mis à jour avec succès');
+                toast.success('Profil mis à jour avec succès');
                 
                 // Forcer le rechargement des données
                 await fetchUserData(user.id);

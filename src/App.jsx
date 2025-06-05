@@ -5,10 +5,13 @@ import ProfilUtilisateur from './components/Dashboard/ProfilUtilisateur';
 import Inscription from './components/Formulaire/Inscription';
 import ProfilDashbord from './components/Dashboard/ProfilDashbord';
 import Connexion from './components/Formulaire/Connexion';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
     return (
         <Router>
+            <ToastContainer />
             <Routes>
                 <Route path="/" element={<Accueil />} />
                 <Route path="/register" element={<Inscription />} />

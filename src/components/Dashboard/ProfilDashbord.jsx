@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react'; // Import de l'icône de déconnexion
 import ProfilUtilisateur from './ProfilUtilisateur';
 import ListeUtilisateur from './ListUtilisateur';
+import ListeActivites from './ListeActivites';
 
 const ProfilDashbord = () => {
     const [dateHeure] = useState(new Date());
@@ -10,9 +12,20 @@ const ProfilDashbord = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
+    // Vérifier si l'utilisateur est admin
+    const isAdmin = user?.role === 'admin';
+
+    // Si c'est un admin, rediriger vers l'accueil et masquer le profil
+    useEffect(() => {
+        if (isAdmin) {
+            setActiveItem('accueil');
+            navigate('/dashbord');
+        }
+    }, [isAdmin, navigate]);
+
     const menuItems = [
         { id: 'accueil', label: 'Accueil', icon: '🏠' },
-        { id: 'profil', label: 'Profil', icon: '👤' },
+        ...(!isAdmin ? [{ id: 'profil', label: 'Profil', icon: '👤' }] : []),
         { id: 'activites', label: 'Activités', icon: '📅' },
         { id: 'membres', label: 'Membres', icon: '👥' },
         { id: 'cotisations', label: 'Cotisations', icon: '💰' }
@@ -45,6 +58,8 @@ const ProfilDashbord = () => {
                 }} />;
             case 'membres':
                 return <ListeUtilisateur />;
+            case 'activites':
+                return <ListeActivites />;
             case 'accueil':
                 return (
                     <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
@@ -89,8 +104,8 @@ const ProfilDashbord = () => {
                                             : 'text-gray-600 hover:bg-blue-50'
                                     }`}
                                 >
-                                    <span className="text-xl mr-3">{item.icon}</span>
-                                    {item.label}
+                                    <span className="mr-3 text-xl">{item.icon}</span>
+                                    <span>{item.label}</span>
                                 </button>
                             </li>
                         ))}
@@ -105,22 +120,22 @@ const ProfilDashbord = () => {
                     <div
                         className={`absolute top-0 left-0 h-full transition-all duration-300 ease-in-out ${
                             isLoading
-                            ? 'bg-red-500 animate-loading-bar'
-                            : 'bg-blue-500 w-full'
+                                ? 'bg-red-500 animate-loading-bar'
+                                : 'bg-blue-500 w-full'
                         }`}
                     ></div>
                 </div>
 
-                <div className="border-b">
-                    <div className="flex justify-between items-center px-6 py-3">
+                {/* En-tête */}
+                <header className="bg-white border-b border-gray-200 py-4 px-6">
+                    <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-2xl font-bold text-blue-800">
-                                {menuItems.find(item => item.id === activeItem)?.label}
+                            <h1 className="text-xl font-semibold text-gray-800">
+                                {menuItems.find(item => item.id === activeItem)?.label || 'Tableau de bord'}
                             </h1>
-                            <p className="text-blue-600 text-sm">AEDDI</p>
                         </div>
                         <div className="flex items-center space-x-4">
-                            <p className="text-gray-700 font-medium">
+                            <p className="text-sm text-gray-700 font-medium">
                                 {dateHeure.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
                                 <span className="ml-2 text-blue-600">
                                     {dateHeure.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
@@ -131,35 +146,22 @@ const ProfilDashbord = () => {
                                 className="flex items-center px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                 title="Déconnexion"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
+                                <LogOut size={18} />
                             </button>
                         </div>
                     </div>
-                </div>
+                </header>
 
-                <div className="flex-1 overflow-y-auto p-4">
-                    {renderContent()}
-                </div>
-            </div>
-
-            {/* Barre de navigation mobile */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-                <div className="flex justify-around p-2">
-                    {menuItems.map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => handleMenuClick(item.id)}
-                            className={`flex flex-col items-center p-2 ${
-                                activeItem === item.id ? 'text-blue-600' : 'text-gray-600'
-                            }`}
-                        >
-                            <span className="text-xl">{item.icon}</span>
-                            <span className="text-xs mt-1">{item.label}</span>
-                        </button>
-                    ))}
-                </div>
+                {/* Contenu */}
+                <main className="flex-1 overflow-y-auto p-6">
+                    {isLoading ? (
+                        <div className="flex items-center justify-center h-64">
+                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                        </div>
+                    ) : (
+                        renderContent()
+                    )}
+                </main>
             </div>
         </div>
     );

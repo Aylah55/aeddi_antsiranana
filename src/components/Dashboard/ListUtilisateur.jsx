@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchUsers } from '../../services/api';
-import { FiUser, FiSearch, FiEye } from 'react-icons/fi';
+import { FiUser, FiSearch, FiEye, FiEdit, FiTrash2 } from 'react-icons/fi';
 
 const API_URL = 'http://localhost:8000';
 
@@ -14,6 +14,7 @@ const ListUtilisateur = () => {
     const [etablissementFilter, setEtablissementFilter] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const usersPerPage = 10;
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
     useEffect(() => {
         const getUsers = async () => {
@@ -47,6 +48,7 @@ const ListUtilisateur = () => {
     }, []);
 
     const filteredUsers = users.filter(user =>
+        user.role !== 'admin' &&
         (user.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
          user.prenom?.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (etablissementFilter === '' || user.etablissement?.toLowerCase() === etablissementFilter.toLowerCase())
@@ -60,9 +62,18 @@ const ListUtilisateur = () => {
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     const handleViewUser = (userId) => {
-        // Ajoutez ici la logique pour gérer l'action "Voir"
         console.log(`Voir l'utilisateur avec l'ID: ${userId}`);
     };
+
+    const handleEditUser = (userId) => {
+        console.log(`Modifier l'utilisateur avec l'ID: ${userId}`);
+    };
+
+    const handleDeleteUser = (userId) => {
+        console.log(`Supprimer l'utilisateur avec l'ID: ${userId}`);
+    };
+
+    const isAdmin = user?.role === 'admin';
 
     if (loading) {
         return (
@@ -104,18 +115,18 @@ const ListUtilisateur = () => {
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50 sticky top-0 z-10">
                                     <tr>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Photo</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prénom</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Établissement</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-lg font-medium text-gray-500 uppercase tracking-wider">Photo</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-lg font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-lg font-medium text-gray-500 uppercase tracking-wider">Prénom</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-lg font-medium text-gray-500 uppercase tracking-wider">Établissement</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-lg font-medium text-gray-500 uppercase tracking-wider">Rôle</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-lg font-medium text-gray-500 uppercase tracking-wider">Téléphone</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-lg font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {currentUsers.map((user) => (
-                                        <tr key={user.id}>
+                                        <tr key={user.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 {user.photo ? (
                                                     <img
@@ -129,20 +140,38 @@ const ListUtilisateur = () => {
                                                     </div>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.nom}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.prenom}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.etablissement}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {user.role === 'membre de bureau' ? user.sous_role : user.role}
+                                            <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{user.nom}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.prenom}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.etablissement}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                                                {user.role === 'membre de bureau' ? `Membre de bureau - ${user.sous_role}` : user.role}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">{user.telephone}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <button
-                                                    onClick={() => handleViewUser(user.id)}
-                                                    className="text-indigo-600 hover:text-indigo-900"
-                                                >
-                                                    <FiEye />
-                                                </button>
+                                            <td className="px-6 py-4 whitespace-nowrap text-base text-blue-600">{user.telephone}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-base font-medium">
+                                                <div className="opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                                    <button
+                                                        onClick={() => handleViewUser(user.id)}
+                                                        className="text-indigo-600 hover:text-indigo-900 mr-2"
+                                                    >
+                                                        <FiEye />
+                                                    </button>
+                                                    {isAdmin && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleEditUser(user.id)}
+                                                                className="text-yellow-600 hover:text-yellow-900 mr-2"
+                                                            >
+                                                                <FiEdit />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteUser(user.id)}
+                                                                className="text-red-600 hover:text-red-900"
+                                                            >
+                                                                <FiTrash2 />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}

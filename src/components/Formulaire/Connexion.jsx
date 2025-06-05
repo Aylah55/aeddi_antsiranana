@@ -22,7 +22,7 @@ function Login({ onSwitch }) {
 
             // Vérifier si l'utilisateur est un administrateur
             if (response.data.user.role === 'admin') {
-                navigate('/administrateur');
+                navigate('/dashbord');
             } else {
                 navigate('/dashbord');
             }
