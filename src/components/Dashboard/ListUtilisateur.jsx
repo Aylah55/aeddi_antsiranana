@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchUsers } from '../../services/api';
 import { FiUser, FiSearch, FiEye, FiEdit, FiTrash2 } from 'react-icons/fi';
+import axios from 'axios';
 
 const API_URL = 'http://localhost:8000';
 
@@ -69,8 +70,30 @@ const ListUtilisateur = () => {
         console.log(`Modifier l'utilisateur avec l'ID: ${userId}`);
     };
 
-    const handleDeleteUser = (userId) => {
-        console.log(`Supprimer l'utilisateur avec l'ID: ${userId}`);
+    const handleDeleteUser = async (userId) => {
+        try {
+            if (window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
+                const response = await axios.delete(`${API_URL}/users/${userId}`);
+                console.log('Utilisateur supprimé:', response.data);
+
+                // Rafraîchir la liste des utilisateurs après suppression
+                const responseAfterDelete = await fetchUsers();
+                let fetchedUsers = [];
+                if (responseAfterDelete && responseAfterDelete.data) {
+                    if (Array.isArray(responseAfterDelete.data)) {
+                        fetchedUsers = responseAfterDelete.data;
+                    } else if (responseAfterDelete.data.users && Array.isArray(responseAfterDelete.data.users)) {
+                        fetchedUsers = responseAfterDelete.data.users;
+                    } else if (responseAfterDelete.data.data && Array.isArray(responseAfterDelete.data.data)) {
+                        fetchedUsers = responseAfterDelete.data.data;
+                    }
+                }
+                setUsers(fetchedUsers);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la suppression de l\'utilisateur:', error);
+            setError(error.response?.data?.message || error.message || 'Une erreur est survenue lors de la suppression de l\'utilisateur');
+        }
     };
 
     const isAdmin = user?.role === 'admin';
