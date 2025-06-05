@@ -241,8 +241,8 @@ function ProfilUtilisateur({ user: initialUser, setUser: setParentUser }) {
                             )}
                         </div>
                         
-                        <h2 className="text-xl font-bold text-gray-800">{user.prenom} {user.nom}</h2>
-                        <p className="text-blue-600 mb-6">{user.email}</p>
+                        <h2 className="text-xl font-bold text-gray-800">{user.nom} {user.prenom}</h2>
+                        <p className="text-blue-600 mb-6">{user.role}</p>
                         
                         {!isEditing ? (
                             <button
