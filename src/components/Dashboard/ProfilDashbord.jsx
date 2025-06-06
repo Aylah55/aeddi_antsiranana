@@ -20,17 +20,14 @@ const ProfilDashbord = () => {
     // Vérifier si l'utilisateur est admin
     const isAdmin = user?.role === 'admin';
 
-    // Si c'est un admin, rediriger vers l'accueil et masquer le profil
+    // Rediriger tous les utilisateurs vers l'accueil après connexion
     useEffect(() => {
-        if (isAdmin) {
-            setActiveItem('accueil');
-            navigate('/dashbord');
-        }
-    }, [isAdmin, navigate]);
+        setActiveItem('accueil');
+        navigate('/dashbord');
+    }, [navigate]);
 
     const menuItems = [
         { id: 'accueil', label: 'Accueil', icon: Home },
-        ...(!isAdmin ? [{ id: 'profil', label: 'Profil', icon: User }] : []),
         { id: 'activites', label: 'Activités', icon: Calendar },
         { id: 'membres', label: 'Membres', icon: Users },
         { id: 'cotisations', label: 'Cotisations', icon: CreditCard }

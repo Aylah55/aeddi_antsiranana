@@ -270,7 +270,7 @@ const ListUtilisateur = () => {
                 const newTotalPages = Math.ceil(updatedUsers.length / usersPerPage);
                 if (currentPage > newTotalPages) {
                     setCurrentPage(Math.max(1, newTotalPages));
-                }
+                    }
                 
                 alert('Utilisateur supprimé avec succès');
             }
@@ -400,34 +400,34 @@ const ListUtilisateur = () => {
 
             {/* Tableau des utilisateurs */}
             <div className="bg-white shadow rounded-lg overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
+                            <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
-                        <tr>
+                                    <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Photo</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prénom</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
                         {currentUsers.map(user => (
-                            <tr key={user.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                        <tr key={user.id} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="w-10 h-10 rounded-full overflow-hidden">
-                                        {user.photo ? (
-                                            <img
-                                                src={getPhotoUrl(user.photo)}
+                                                {user.photo ? (
+                                                    <img
+                                                        src={getPhotoUrl(user.photo)}
                                                 alt={`${user.nom} ${user.prenom}`}
                                                 className="w-full h-full object-cover"
-                                            />
-                                        ) : (
+                                                    />
+                                                ) : (
                                             <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                                                 <FiUser className="text-gray-400" />
-                                            </div>
-                                        )}
+                                                    </div>
+                                                )}
                                     </div>
-                                </td>
+                                            </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.nom}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.prenom}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
@@ -469,38 +469,38 @@ const ListUtilisateur = () => {
                                                         <FiEdit className="mr-3 h-4 w-4 text-yellow-600" />
                                                         Modifier
                                                     </button>
-                                                    <button
+                                                            <button
                                                         onClick={() => {
                                                             handleCotisationsClick(user);
                                                             setActiveDropdown(null);
                                                         }}
                                                         className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                         role="menuitem"
-                                                    >
+                                                            >
                                                         <DollarSign className="mr-3 h-4 w-4 text-green-600" />
                                                         Cotisations
-                                                    </button>
-                                                    <button
+                                                            </button>
+                                                            <button
                                                         onClick={() => {
                                                             handleDeleteClick(user);
                                                             setActiveDropdown(null);
                                                         }}
                                                         className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                         role="menuitem"
-                                                    >
+                                                            >
                                                         <FiTrash2 className="mr-3 h-4 w-4 text-red-600" />
                                                         Supprimer
-                                                    </button>
+                                                            </button>
                                                 </div>
                                             </div>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
             {/* Pagination */}
             {totalPages > 1 && (
@@ -1038,8 +1038,8 @@ const ListUtilisateur = () => {
                                 </table>
                             </div>
                         )}
-                    </div>
                 </div>
+            </div>
             )}
         </div>
     );
