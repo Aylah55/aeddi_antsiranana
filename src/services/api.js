@@ -195,6 +195,33 @@ export const activiteService = {
   }
 };
 
+// Service des cotisations
+export const cotisationService = {
+    // Récupérer toutes les cotisations
+    fetchAll: () => {
+        return apiClient.get('/cotisations')
+            .catch(handleApiError);
+    },
+
+    // Créer une cotisation
+    create: (data) => {
+        return apiClient.post('/cotisations', data)
+            .catch(handleApiError);
+    },
+
+    // Mettre à jour une cotisation
+    update: (id, data) => {
+        return apiClient.put(`/cotisation/${id}`, data)
+            .catch(handleApiError);
+    },
+
+    // Supprimer une cotisation
+    delete: (id) => {
+        return apiClient.delete(`/cotisation/${id}`)
+            .catch(handleApiError);
+    }
+};
+
 // Alias pratiques pour les composants React
 export const registerUser = authService.inscription;
 export const loginUser = authService.login;

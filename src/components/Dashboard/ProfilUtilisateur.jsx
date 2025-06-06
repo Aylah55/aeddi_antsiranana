@@ -187,13 +187,13 @@ function ProfilUtilisateur({ user: initialUser, setUser: setParentUser }) {
     }
 
     return (
-        <div className="max-w-6xl mx-auto p-6">
+        <div className="bg-white h-full">
             {error && (
                 <motion.div 
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg shadow-sm"
+                    className="p-4 bg-red-50 border-l-4 border-red-500 text-red-700"
                 >
                     {error}
                 </motion.div>
@@ -203,16 +203,16 @@ function ProfilUtilisateur({ user: initialUser, setUser: setParentUser }) {
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-lg shadow-sm"
+                    className="p-4 bg-green-50 border-l-4 border-green-500 text-green-700"
                 >
                     {success}
                 </motion.div>
             )}
 
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div className="flex flex-col md:flex-row">
-                    {/* Photo de profil - Partie gauche */}
-                    <div className="md:w-1/3 bg-gray-50 p-8 flex flex-col items-center">
+            <div className="flex flex-col md:flex-row h-full">
+                {/* Photo de profil - Partie gauche */}
+                <div className="md:w-1/3 bg-gray-50 border-r border-gray-200">
+                    <div className="p-6 flex flex-col items-center">
                         <div className="relative w-48 h-48 mb-6 rounded-lg overflow-hidden border-4 border-white shadow-lg">
                             {user.photo ? (
                                 <img
@@ -280,13 +280,12 @@ function ProfilUtilisateur({ user: initialUser, setUser: setParentUser }) {
                             </div>
                         )}
                     </div>
+                </div>
 
-                    {/* Contenu du profil - Partie droite */}
-                    <div className="md:w-2/3 p-8 relative">
-                        {/* Ligne bleue verticale de séparation */}
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-blue-600"></div>
-                        
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Contenu du profil - Partie droite */}
+                <div className="md:w-2/3">
+                    <div className="p-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Informations personnelles */}
                             <div className="space-y-6">
                                 <div className="flex items-center mb-2">
