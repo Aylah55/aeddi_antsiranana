@@ -33,9 +33,13 @@ const ListeCotisation = () => {
         }
     });
 
+    const isAdmin = user && user.role === 'admin';
+
     useEffect(() => {
-        fetchCotisations();
-    }, []);
+        if (user) {
+            fetchCotisations();
+        }
+    }, [user]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -53,7 +57,10 @@ const ListeCotisation = () => {
     const fetchCotisations = async () => {
         setIsLoading(true);
         try {
-            const response = await axiosInstance.get('/cotisations');
+            // Si l'utilisateur est admin, récupérer toutes les cotisations
+            // Sinon, récupérer seulement ses cotisations personnelles
+            const endpoint = isAdmin ? '/cotisations' : '/my-cotisations';
+            const response = await axiosInstance.get(endpoint);
             setCotisations(response.data.data || response.data);
         } catch (error) {
             console.error('Erreur :', error);
@@ -185,138 +192,241 @@ const ListeCotisation = () => {
         }).format(montant);
     };
 
-    const isAdmin = user?.role === 'admin';
+    // Si l'utilisateur n'est pas encore chargé, afficher un loading
+    if (!user) {
+        return (
+            <div className="p-6 bg-white rounded-lg shadow">
+                <div className="flex flex-col items-center justify-center py-12">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Chargement...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Si l'utilisateur n'est pas admin, afficher ses cotisations personnelles
+    if (!isAdmin) {
+        return (
+            <div className="p-6 bg-white rounded-lg shadow">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold">Mes Cotisations</h2>
+                </div>
+
+                {/* En-têtes fixes */}
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50 sticky top-0 z-10">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date début</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date fin</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mon statut</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                {isLoading ? (
+                    <div className="flex justify-center items-center p-4">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+                ) : erreur ? (
+                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+                        <div className="flex items-center">
+                            <svg className="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <h3 className="font-semibold">Erreur</h3>
+                        </div>
+                        <p className="mt-2">{erreur}</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {cotisations.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                                            Aucune cotisation trouvée
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    cotisations.map(item => (
+                                        <tr key={item.id} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{item.nom}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{item.description || "Aucune"}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-base text-gray-900">
+                                                {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA' }).format(item.montant)}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                                                {new Date(item.date_debut).toLocaleDateString('fr-FR')}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                                                {new Date(item.date_fin).toLocaleDateString('fr-FR')}
+                                            </td>
+                                            <td className={`px-6 py-4 whitespace-nowrap text-base font-medium ${
+                                                item.statut_paiement === 'Payé' ? 'text-green-600' : 'text-red-600'
+                                            }`}>
+                                                {item.statut_paiement}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className="p-6 bg-white rounded-lg shadow">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold">Liste des Cotisations</h2>
-                {isAdmin && (
-                    <button
-                        onClick={() => setShowAddModal(true)}
-                        className="flex items-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                    >
-                        <PlusCircle size={18} className="mr-2" />
-                        Ajouter cotisation
-                    </button>
-                )}
+                <button
+                    onClick={() => setShowAddModal(true)}
+                    className="flex items-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                    <PlusCircle size={18} className="mr-2" />
+                    Ajouter cotisation
+                </button>
             </div>
+
+            {erreur && (
+                <div className={`mb-4 p-3 rounded ${
+                    erreur.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                }`}>
+                    {erreur.message}
+                </div>
+            )}
 
             {/* En-têtes fixes */}
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 sticky top-0 z-10">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date début</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date fin</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date début</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date fin</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {cotisations.length === 0 ? (
-                            <tr>
-                                <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
-                                    Aucune cotisation trouvée
-                                </td>
-                            </tr>
-                        ) : (
-                            cotisations.map(item => (
-                                <tr key={item.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 text-sm text-gray-900">{item.nom}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">{item.description || "Aucune"}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA' }).format(item.montant)}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {new Date(item.date_debut).toLocaleDateString('fr-FR')}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">
-                                        {new Date(item.date_fin).toLocaleDateString('fr-FR')}
-                                    </td>
-                                    <td className={`px-6 py-4 text-sm ${
-                                        item.status === 'Payé' ? 'text-green-600' :
-                                        item.status === 'En cours' ? 'text-yellow-600' : 'text-red-600'
-                                    }`}>
-                                        {item.status}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium relative">
-                                        <div className="action-menu">
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setActiveDropdown(activeDropdown === item.id ? null : item.id);
-                                                }}
-                                                className="text-gray-400 hover:text-gray-600"
-                                                title="Actions"
-                                            >
-                                                <MoreVertical className="h-5 w-5" />
-                                            </button>
-
-                                            {activeDropdown === item.id && (
-                                                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                                                    <div className="py-1" role="menu">
-                                                        <button
-                                                            onClick={() => {
-                                                                setSelected(item);
-                                                                setShowModal(true);
-                                                                setActiveDropdown(null);
-                                                            }}
-                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                            role="menuitem"
-                                                        >
-                                                            <Eye className="mr-3 h-4 w-4 text-indigo-600" />
-                                                            Voir
-                                                        </button>
-                                                        {isAdmin && (
-                                                            <>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        setSelected(item);
-                                                                        setFormData({
-                                                                            nom: item.nom,
-                                                                            description: item.description,
-                                                                            montant: item.montant,
-                                                                            date_debut: formatDateForInput(item.date_debut),
-                                                                            date_fin: formatDateForInput(item.date_fin),
-                                                                            status: item.status
-                                                                        });
-                                                                        setShowEditModal(true);
-                                                                        setActiveDropdown(null);
-                                                                    }}
-                                                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                    role="menuitem"
-                                                                >
-                                                                    <Edit className="mr-3 h-4 w-4 text-yellow-600" />
-                                                                    Modifier
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        // Ajouter la logique de suppression ici
-                                                                        setActiveDropdown(null);
-                                                                    }}
-                                                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                    role="menuitem"
-                                                                >
-                                                                    <Trash2 className="mr-3 h-4 w-4 text-red-600" />
-                                                                    Supprimer
-                                                                </button>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
                 </table>
             </div>
+
+            {isLoading ? (
+                <div className="flex justify-center items-center p-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+            ) : (
+                <div className="overflow-x-auto" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {cotisations.length === 0 ? (
+                                <tr>
+                                    <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                                        Aucune cotisation trouvée
+                                    </td>
+                                </tr>
+                            ) : (
+                                cotisations.map(item => (
+                                    <tr key={item.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{item.nom}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{item.description || "Aucune"}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-900">
+                                            {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA' }).format(item.montant)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                                            {new Date(item.date_debut).toLocaleDateString('fr-FR')}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                                            {new Date(item.date_fin).toLocaleDateString('fr-FR')}
+                                        </td>
+                                        <td className={`px-6 py-4 whitespace-nowrap text-base ${
+                                            item.status === 'Payé' ? 'text-green-600' :
+                                            item.status === 'En cours' ? 'text-yellow-600' : 'text-red-600'
+                                        }`}>
+                                            {item.status}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-base font-medium relative">
+                                            <div className="action-menu">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setActiveDropdown(activeDropdown === item.id ? null : item.id);
+                                                    }}
+                                                    className="text-gray-400 hover:text-gray-600"
+                                                    title="Actions"
+                                                >
+                                                    <MoreVertical className="h-5 w-5" />
+                                                </button>
+
+                                                {activeDropdown === item.id && (
+                                                    <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                                                        <div className="py-1" role="menu">
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelected(item);
+                                                                    setShowModal(true);
+                                                                    setActiveDropdown(null);
+                                                                }}
+                                                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                                role="menuitem"
+                                                            >
+                                                                <Eye className="mr-3 h-4 w-4 text-indigo-600" />
+                                                                Voir
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelected(item);
+                                                                    setFormData({
+                                                                        nom: item.nom,
+                                                                        description: item.description,
+                                                                        montant: item.montant,
+                                                                        date_debut: formatDateForInput(item.date_debut),
+                                                                        date_fin: formatDateForInput(item.date_fin),
+                                                                        status: item.status
+                                                                    });
+                                                                    setShowEditModal(true);
+                                                                    setActiveDropdown(null);
+                                                                }}
+                                                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                                role="menuitem"
+                                                            >
+                                                                <Edit className="mr-3 h-4 w-4 text-yellow-600" />
+                                                                Modifier
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    // Ajouter la logique de suppression ici
+                                                                    setActiveDropdown(null);
+                                                                }}
+                                                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                                role="menuitem"
+                                                            >
+                                                                <Trash2 className="mr-3 h-4 w-4 text-red-600" />
+                                                                Supprimer
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {/* Modal de détail */}
             {showModal && selected && (

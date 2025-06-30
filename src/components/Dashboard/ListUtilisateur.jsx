@@ -9,9 +9,8 @@ import { DollarSign } from 'lucide-react';
 // Assurez-vous que cette URL correspond à votre backend
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
-// Ajouter la configuration Axios
 const axiosInstance = axios.create({
-    baseURL: API_URL,
+    baseURL: `${API_URL}/api`,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -259,7 +258,7 @@ const ListUtilisateur = () => {
 
             console.log("Tentative de suppression de l'utilisateur avec l'ID:", userToDelete.id);
             // Utiliser l'URL correcte pour la suppression
-            const response = await axiosInstance.delete(`/api/users/${userToDelete.id}`);
+            const response = await axiosInstance.delete(`/users/${userToDelete.id}`);
             
             if (response.status === 200 || response.status === 204) {
                 // Mise à jour optimiste de la liste
@@ -289,12 +288,12 @@ const ListUtilisateur = () => {
         setUserToDelete(null);
     };
 
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = user && user.role === 'admin';
 
     const handleCotisationsClick = async (user) => {
         setLoadingCotisations(true);
         try {
-            const response = await axiosInstance.get(`/api/user/${user.id}/cotisations`, {
+            const response = await axiosInstance.get(`/user/${user.id}/cotisations`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
                 }
@@ -312,7 +311,7 @@ const ListUtilisateur = () => {
 
     const handleUpdatePaiement = async (cotisationId, userId, nouveauStatut) => {
         try {
-            await axiosInstance.put(`/api/cotisation/${cotisationId}/user/${userId}/paiement`, 
+            await axiosInstance.put(`/cotisation/${cotisationId}/user/${userId}/paiement`, 
                 { statut_paiement: nouveauStatut },
                 {
                     headers: {
@@ -337,41 +336,28 @@ const ListUtilisateur = () => {
         }
     };
 
-    if (loading) {
+    // Si l'utilisateur n'est pas encore chargé, afficher un loading
+    if (!user) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[50vh]">
-                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mb-4"></div>
-                <p className="text-gray-600">Chargement des utilisateurs...</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="max-w-4xl mx-auto p-6">
-                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
-                    <div className="flex items-center">
-                        <svg className="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <h3 className="font-semibold">Erreur</h3>
+            <div className="p-6 bg-white rounded-lg shadow">
+                <div className="flex flex-col items-center justify-center py-12">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Chargement...</p>
                     </div>
-                    <p className="mt-2">{error}</p>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="mt-3 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
-                    >
-                        Réessayer
-                    </button>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col h-screen relative">
+        <div className="p-6 bg-white rounded-lg shadow">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Liste des Utilisateurs</h2>
+            </div>
+
             {/* Barre de recherche et filtres */}
-            <div className="bg-white p-4 shadow rounded-lg mb-4">
+            <div className="mb-4">
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1">
                         <div className="relative">
@@ -398,109 +384,136 @@ const ListUtilisateur = () => {
                 </div>
             </div>
 
-            {/* Tableau des utilisateurs */}
-            <div className="bg-white shadow rounded-lg overflow-hidden">
-                            <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                                    <tr>
+            {/* En-têtes fixes */}
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50 sticky top-0 z-10">
+                        <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Photo</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prénom</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                        {currentUsers.map(user => (
-                                        <tr key={user.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="w-10 h-10 rounded-full overflow-hidden">
-                                                {user.photo ? (
-                                                    <img
-                                                        src={getPhotoUrl(user.photo)}
-                                                alt={`${user.nom} ${user.prenom}`}
-                                                className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                                <FiUser className="text-gray-400" />
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+            {loading ? (
+                <div className="flex justify-center items-center p-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+            ) : error ? (
+                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+                    <div className="flex items-center">
+                        <svg className="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 className="font-semibold">Erreur</h3>
+                    </div>
+                    <p className="mt-2">{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="mt-3 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
+                    >
+                        Réessayer
+                    </button>
+                </div>
+            ) : (
+                <div className="overflow-x-auto" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {currentUsers.map(user => (
+                                <tr key={user.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="w-10 h-10 rounded-full overflow-hidden">
+                                            {user.photo ? (
+                                                <img
+                                                    src={getPhotoUrl(user.photo)}
+                                                    alt={`${user.nom} ${user.prenom}`}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                                    <FiUser className="text-gray-400" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{user.nom}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.prenom}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.email}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-base font-medium relative">
+                                        <div className="action-menu">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setActiveDropdown(activeDropdown === user.id ? null : user.id);
+                                                }}
+                                                className="text-gray-400 hover:text-gray-600"
+                                                title="Actions"
+                                            >
+                                                <FiMoreVertical className="h-5 w-5" />
+                                            </button>
+                                            
+                                            {activeDropdown === user.id && (
+                                                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                                                    <div className="py-1" role="menu">
+                                                        <button
+                                                            onClick={() => {
+                                                                handleViewUser(user);
+                                                                setActiveDropdown(null);
+                                                            }}
+                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                            role="menuitem"
+                                                        >
+                                                            <FiEye className="mr-3 h-4 w-4 text-indigo-600" />
+                                                            Voir
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                handleEditUser(user);
+                                                                setActiveDropdown(null);
+                                                            }}
+                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                            role="menuitem"
+                                                        >
+                                                            <FiEdit className="mr-3 h-4 w-4 text-yellow-600" />
+                                                            Modifier
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                handleCotisationsClick(user);
+                                                                setActiveDropdown(null);
+                                                            }}
+                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                            role="menuitem"
+                                                        >
+                                                            <DollarSign className="mr-3 h-4 w-4 text-green-600" />
+                                                            Cotisations
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                handleDeleteClick(user);
+                                                                setActiveDropdown(null);
+                                                            }}
+                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                            role="menuitem"
+                                                        >
+                                                            <FiTrash2 className="mr-3 h-4 w-4 text-red-600" />
+                                                            Supprimer
+                                                        </button>
                                                     </div>
-                                                )}
-                                    </div>
-                                            </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.nom}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.prenom}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium relative">
-                                    <div className="action-menu">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setActiveDropdown(activeDropdown === user.id ? null : user.id);
-                                            }}
-                                            className="text-gray-400 hover:text-gray-600"
-                                            title="Actions"
-                                        >
-                                            <FiMoreVertical className="h-5 w-5" />
-                                        </button>
-                                        
-                                        {activeDropdown === user.id && (
-                                            <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                                                <div className="py-1" role="menu">
-                                                    <button
-                                                        onClick={() => {
-                                                            handleViewUser(user);
-                                                            setActiveDropdown(null);
-                                                        }}
-                                                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                        role="menuitem"
-                                                    >
-                                                        <FiEye className="mr-3 h-4 w-4 text-indigo-600" />
-                                                        Voir
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            handleEditUser(user);
-                                                            setActiveDropdown(null);
-                                                        }}
-                                                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                        role="menuitem"
-                                                    >
-                                                        <FiEdit className="mr-3 h-4 w-4 text-yellow-600" />
-                                                        Modifier
-                                                    </button>
-                                                            <button
-                                                        onClick={() => {
-                                                            handleCotisationsClick(user);
-                                                            setActiveDropdown(null);
-                                                        }}
-                                                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                        role="menuitem"
-                                                            >
-                                                        <DollarSign className="mr-3 h-4 w-4 text-green-600" />
-                                                        Cotisations
-                                                            </button>
-                                                            <button
-                                                        onClick={() => {
-                                                            handleDeleteClick(user);
-                                                            setActiveDropdown(null);
-                                                        }}
-                                                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                        role="menuitem"
-                                                            >
-                                                        <FiTrash2 className="mr-3 h-4 w-4 text-red-600" />
-                                                        Supprimer
-                                                            </button>
                                                 </div>
-                                            </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             {/* Pagination */}
             {totalPages > 1 && (
@@ -1038,8 +1051,8 @@ const ListUtilisateur = () => {
                                 </table>
                             </div>
                         )}
+                    </div>
                 </div>
-            </div>
             )}
         </div>
     );
