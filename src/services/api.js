@@ -24,11 +24,20 @@ const apiClient = axios.create({
 // Fonction pour obtenir le CSRF token
 const getCsrfToken = async () => {
   try {
-    await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
+    console.log('Tentative de récupération du CSRF token depuis:', `${API_URL}/sanctum/csrf-cookie`);
+    const response = await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
       withCredentials: true
     });
+    console.log('CSRF token récupéré avec succès:', response);
   } catch (error) {
     console.error('Erreur lors de la récupération du CSRF token:', error);
+    console.error('URL tentée:', `${API_URL}/sanctum/csrf-cookie`);
+    console.error('Type d\'erreur:', error.code);
+    console.error('Message d\'erreur:', error.message);
+    
+    // En cas d'erreur réseau, on peut continuer sans CSRF token
+    // car certaines configurations peuvent ne pas l'exiger
+    console.log('Continuing without CSRF token...');
   }
 };
 
@@ -78,7 +87,11 @@ export const authService = {
 
   // Connexion
   login: async (credentials) => {
-    await getCsrfToken();
+    try {
+      await getCsrfToken();
+    } catch (error) {
+      console.log('CSRF token non récupéré, tentative de connexion sans...');
+    }
     return apiClient.post('/login', credentials)
       .catch(handleApiError);
   },
