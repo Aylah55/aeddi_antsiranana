@@ -1,10 +1,14 @@
 import axios from 'axios';
 
 const API_URL = process.env.NODE_ENV === 'development' 
-  ? process.env.REACT_APP_API_URL_LOCAL
-  : process.env.REACT_APP_API_URL_PROD;
+  ? (process.env.REACT_APP_API_URL_LOCAL || 'http://localhost:8000')
+  : (process.env.REACT_APP_API_URL_PROD || 'https://aeddi-back.onrender.com');
 
 const API_PREFIX = '/api';
+
+// Debug: Afficher l'URL de l'API
+console.log('API_URL:', API_URL);
+console.log('Base URL:', API_URL + API_PREFIX);
 
 // Puis le reste comme avant
 const apiClient = axios.create({
