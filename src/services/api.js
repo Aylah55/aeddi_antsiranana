@@ -1,9 +1,12 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = process.env.NODE_ENV === 'development' 
+  ? process.env.REACT_APP_API_URL_LOCAL
+  : process.env.REACT_APP_API_URL_PROD;
+
 const API_PREFIX = '/api';
 
-// Configuration Axios globale
+// Puis le reste comme avant
 const apiClient = axios.create({
   baseURL: API_URL + API_PREFIX,
   withCredentials: true,
@@ -12,6 +15,7 @@ const apiClient = axios.create({
     'Content-Type': 'application/json'
   }
 });
+
 
 // Fonction pour obtenir le CSRF token
 const getCsrfToken = async () => {
