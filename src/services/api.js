@@ -25,19 +25,30 @@ const apiClient = axios.create({
 const getCsrfToken = async () => {
   try {
     console.log('Tentative de récupération du CSRF token depuis:', `${API_URL}/sanctum/csrf-cookie`);
+    console.log('Mode:', process.env.NODE_ENV);
+    console.log('API_URL:', API_URL);
+    
     const response = await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
-      withCredentials: true
+      withCredentials: true,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
     });
     console.log('CSRF token récupéré avec succès:', response);
+    return response;
   } catch (error) {
     console.error('Erreur lors de la récupération du CSRF token:', error);
     console.error('URL tentée:', `${API_URL}/sanctum/csrf-cookie`);
     console.error('Type d\'erreur:', error.code);
     console.error('Message d\'erreur:', error.message);
+    console.error('Response status:', error.response?.status);
+    console.error('Response data:', error.response?.data);
     
     // En cas d'erreur réseau, on peut continuer sans CSRF token
     // car certaines configurations peuvent ne pas l'exiger
     console.log('Continuing without CSRF token...');
+    throw error; // Re-throw pour que la fonction appelante puisse gérer
   }
 };
 
@@ -89,11 +100,26 @@ export const authService = {
   login: async (credentials) => {
     try {
       await getCsrfToken();
+      console.log('CSRF token récupéré, tentative de connexion...');
     } catch (error) {
       console.log('CSRF token non récupéré, tentative de connexion sans...');
     }
-    return apiClient.post('/login', credentials)
-      .catch(handleApiError);
+    
+    try {
+      const response = await apiClient.post('/login', credentials);
+      console.log('Connexion réussie:', response.data);
+      
+      // Stocker le token dans localStorage
+      if (response.data.token) {
+        localStorage.setItem('auth_token', response.data.token);
+        console.log('Token stocké dans localStorage');
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Erreur lors de la connexion:', error);
+      throw error;
+    }
   },
 
   // Déconnexion
