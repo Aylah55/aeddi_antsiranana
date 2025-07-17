@@ -126,6 +126,22 @@ export const authService = {
   logout: () => {
     return apiClient.post('/logout')
       .catch(handleApiError);
+  },
+
+  // Créer un mot de passe pour utilisateur Google
+  setPassword: async (data) => {
+    try {
+      await getCsrfToken();
+      console.log('Tentative de création de mot de passe pour utilisateur Google...');
+      
+      const response = await apiClient.post('/set-password', data);
+      console.log('Mot de passe créé avec succès:', response.data);
+      
+      return response;
+    } catch (error) {
+      console.error('Erreur lors de la création du mot de passe:', error);
+      throw error;
+    }
   }
 };
 
@@ -269,10 +285,23 @@ export const cotisationService = {
     }
 };
 
+// Service des messages
+export const messageService = {
+  // Récupérer l'historique des messages
+  fetchAll: () => {
+    return apiClient.get('/messages').catch(handleApiError);
+  },
+  // Envoyer un message
+  send: (content) => {
+    return apiClient.post('/messages/send', { content }).catch(handleApiError);
+  }
+};
+
 // Alias pratiques pour les composants React
 export const registerUser = authService.inscription;
 export const loginUser = authService.login;
 export const logoutUser = authService.logout;
+export const setPassword = authService.setPassword;
 
 export const getUserProfile = userService.getProfile;
 export const getUserInfo = userService.getUserInfo;
@@ -299,3 +328,38 @@ export const getAllUsers = async () => {
         }
     });
 };
+// Service des notifications
+export const notificationService = {
+  // Récupérer toutes les notifications
+  fetchAll: () => {
+    return apiClient.get('/notifications')
+      .catch(handleApiError);
+  },
+
+  // Marquer toutes les notifications comme lues
+  markAllAsRead: () => {
+    return apiClient.post('/notifications/mark-all-read')
+      .catch(handleApiError);
+  },
+
+  // Supprimer toutes les notifications
+  deleteAll: () => {
+    return apiClient.delete('/notifications')
+      .catch(handleApiError);
+  },
+
+  // Marquer une notification comme lue
+  markAsRead: (id) => {
+    return apiClient.patch(`/notifications/${id}/read`)
+      .catch(handleApiError);
+  }
+};
+
+// Alias pratiques pour les composants React
+export const fetchNotifications = notificationService.fetchAll;
+export const markNotificationsAsRead = notificationService.markAllAsRead;
+export const deleteAllNotifications = notificationService.deleteAll;
+
+// Alias pratiques pour les composants React
+export const fetchMessages = messageService.fetchAll;
+export const sendMessage = messageService.send;

@@ -1,21 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { userService } from '../../services/api';
-import { FiUser, FiSearch, FiEye, FiEdit, FiTrash2, FiX, FiMoreVertical } from 'react-icons/fi';
-import { motion, AnimatePresence } from 'framer-motion';
+import { FiSearch, FiUser, FiEdit, FiTrash2, FiEye, FiMoreVertical, FiX } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import { userService, apiClient } from '../../services/api';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DollarSign } from 'lucide-react';
 
 // Assurez-vous que cette URL correspond à votre backend
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
-const axiosInstance = axios.create({
-    baseURL: `${API_URL}/api`,
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-    }
-});
 
 console.log('URL de l\'API:', API_URL);
 
@@ -257,8 +248,9 @@ const ListUtilisateur = () => {
             }
 
             console.log("Tentative de suppression de l'utilisateur avec l'ID:", userToDelete.id);
+            console.log("Token d'authentification:", localStorage.getItem('auth_token'));
             // Utiliser l'URL correcte pour la suppression
-            const response = await axiosInstance.delete(`/users/${userToDelete.id}`);
+            const response = await apiClient.delete(`/users/${userToDelete.id}`);
             
             if (response.status === 200 || response.status === 204) {
                 // Mise à jour optimiste de la liste
@@ -275,6 +267,7 @@ const ListUtilisateur = () => {
             }
         } catch (error) {
             console.error('Erreur détaillée de la suppression:', error);
+            console.error('Réponse d\'erreur:', error.response?.data);
             alert('Erreur lors de la suppression de l\'utilisateur');
         } finally {
             setShowConfirmDialog(false);
@@ -290,14 +283,17 @@ const ListUtilisateur = () => {
 
     const isAdmin = user && user.role === 'admin';
 
+    // Debug: Vérifier le rôle de l'utilisateur connecté
+    useEffect(() => {
+        console.log('Utilisateur connecté:', user);
+        console.log('Rôle utilisateur:', user?.role);
+        console.log('Est admin?', isAdmin);
+    }, [user, isAdmin]);
+
     const handleCotisationsClick = async (user) => {
         setLoadingCotisations(true);
         try {
-            const response = await axiosInstance.get(`/user/${user.id}/cotisations`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-                }
-            });
+            const response = await apiClient.get(`/user/${user.id}/cotisations`);
             setSelectedUser(user);
             setSelectedUserCotisations(response.data.data);
             setShowCotisationsModal(true);
@@ -311,7 +307,7 @@ const ListUtilisateur = () => {
 
     const handleUpdatePaiement = async (cotisationId, userId, nouveauStatut) => {
         try {
-            await axiosInstance.put(`/cotisation/${cotisationId}/user/${userId}/paiement`, 
+            await apiClient.put(`/cotisation/${cotisationId}/user/${userId}/paiement`, 
                 { statut_paiement: nouveauStatut },
                 {
                     headers: {
@@ -470,39 +466,43 @@ const ListUtilisateur = () => {
                                                             <FiEye className="mr-3 h-4 w-4 text-indigo-600" />
                                                             Voir
                                                         </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                handleEditUser(user);
-                                                                setActiveDropdown(null);
-                                                            }}
-                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                            role="menuitem"
-                                                        >
-                                                            <FiEdit className="mr-3 h-4 w-4 text-yellow-600" />
-                                                            Modifier
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                handleCotisationsClick(user);
-                                                                setActiveDropdown(null);
-                                                            }}
-                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                            role="menuitem"
-                                                        >
-                                                            <DollarSign className="mr-3 h-4 w-4 text-green-600" />
-                                                            Cotisations
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                handleDeleteClick(user);
-                                                                setActiveDropdown(null);
-                                                            }}
-                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                            role="menuitem"
-                                                        >
-                                                            <FiTrash2 className="mr-3 h-4 w-4 text-red-600" />
-                                                            Supprimer
-                                                        </button>
+                                                        {isAdmin && (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        handleEditUser(user);
+                                                                        setActiveDropdown(null);
+                                                                    }}
+                                                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                                    role="menuitem"
+                                                                >
+                                                                    <FiEdit className="mr-3 h-4 w-4 text-yellow-600" />
+                                                                    Modifier
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        handleCotisationsClick(user);
+                                                                        setActiveDropdown(null);
+                                                                    }}
+                                                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                                    role="menuitem"
+                                                                >
+                                                                    <DollarSign className="mr-3 h-4 w-4 text-green-600" />
+                                                                    Cotisations
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        handleDeleteClick(user);
+                                                                        setActiveDropdown(null);
+                                                                    }}
+                                                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                                    role="menuitem"
+                                                                >
+                                                                    <FiTrash2 className="mr-3 h-4 w-4 text-red-600" />
+                                                                    Supprimer
+                                                                </button>
+                                                            </>
+                                                        )}
                                                     </div>
                                                 </div>
                                             )}
@@ -601,372 +601,370 @@ const ListUtilisateur = () => {
 
             {/* Modal d'édition */}
             <AnimatePresence>
-                {showEditModal && editingUser && (
+            {showEditModal && editingUser && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2"
+                >
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2"
+                        initial={{ scale: 0.95 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0.95 }}
+                        className="bg-white rounded-lg shadow-lg overflow-hidden max-w-3xl w-full max-h-[80vh] overflow-y-auto"
                     >
-                        <motion.div
-                            initial={{ scale: 0.95 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0.95 }}
-                            className="bg-white rounded-lg shadow-lg overflow-hidden max-w-3xl w-full max-h-[80vh] overflow-y-auto"
-                        >
-                            <div className="p-4">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-xl font-bold text-gray-800">
-                                        Modifier l'utilisateur
-                                    </h2>
-                                    <button
-                                        onClick={() => setShowEditModal(false)}
-                                        className="text-gray-500 hover:text-gray-700"
-                                    >
-                                        <FiX className="h-5 w-5" />
-                                    </button>
+                        <div className="p-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-bold text-gray-800">
+                                    Modifier l'utilisateur
+                                </h2>
+                                <button
+                                    onClick={() => setShowEditModal(false)}
+                                    className="text-gray-500 hover:text-gray-700"
+                                >
+                                    <FiX className="h-5 w-5" />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Photo de profil */}
+                                <div className="col-span-1 md:col-span-2 flex justify-center">
+                                    <div className="relative w-24 h-24 mb-3">
+                                        {previewImage ? (
+                                            <img
+                                                src={previewImage}
+                                                alt="Prévisualisation"
+                                                className="w-full h-full object-cover rounded-lg"
+                                            />
+                                        ) : editingUser.photo ? (
+                                            <img
+                                                src={getPhotoUrl(editingUser.photo)}
+                                                alt="Photo de profil"
+                                                className="w-full h-full object-cover rounded-lg"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                                                <FiUser className="h-10 w-10 text-gray-400" />
+                                            </div>
+                                        )}
+                                        <label className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg cursor-pointer transition-all hover:bg-opacity-40">
+                                            <input
+                                                type="file"
+                                                name="photo"
+                                                onChange={handleChange}
+                                                accept="image/*"
+                                                className="hidden"
+                                            />
+                                            <span className="text-white text-xs bg-blue-500 px-2 py-1 rounded-full">
+                                                Changer
+                                            </span>
+                                        </label>
+                                    </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Photo de profil */}
-                                    <div className="col-span-1 md:col-span-2 flex justify-center">
-                                        <div className="relative w-24 h-24 mb-3">
-                                            {previewImage ? (
-                                                <img
-                                                    src={previewImage}
-                                                    alt="Prévisualisation"
-                                                    className="w-full h-full object-cover rounded-lg"
-                                                />
-                                            ) : editingUser.photo ? (
-                                                <img
-                                                    src={getPhotoUrl(editingUser.photo)}
-                                                    alt="Photo de profil"
-                                                    className="w-full h-full object-cover rounded-lg"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                                                    <FiUser className="h-10 w-10 text-gray-400" />
-                                                </div>
-                                            )}
-                                            <label className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg cursor-pointer transition-all hover:bg-opacity-40">
-                                                <input
-                                                    type="file"
-                                                    name="photo"
-                                                    onChange={handleChange}
-                                                    accept="image/*"
-                                                    className="hidden"
-                                                />
-                                                <span className="text-white text-xs bg-blue-500 px-2 py-1 rounded-full">
-                                                    Changer
-                                                </span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    {/* Informations personnelles */}
+                                {/* Informations personnelles */}
+                                <div className="space-y-3">
+                                    <h3 className="text-base font-semibold text-gray-700 mb-2">Informations personnelles</h3>
                                     <div className="space-y-3">
-                                        <h3 className="text-base font-semibold text-gray-700 mb-2">Informations personnelles</h3>
-                                        <div className="space-y-3">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-                                                <input
-                                                    type="text"
-                                                    name="nom"
-                                                    value={formData.nom}
-                                                    onChange={handleChange}
-                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
-                                                <input
-                                                    type="text"
-                                                    name="prenom"
-                                                    value={formData.prenom}
-                                                    onChange={handleChange}
-                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                                <input
-                                                    type="email"
-                                                    name="email"
-                                                    value={formData.email}
-                                                    onChange={handleChange}
-                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                                                <input
-                                                    type="tel"
-                                                    name="telephone"
-                                                    value={formData.telephone}
-                                                    onChange={handleChange}
-                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                                />
-                                            </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                                            <input
+                                                type="text"
+                                                name="nom"
+                                                value={formData.nom}
+                                                onChange={handleChange}
+                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                            />
                                         </div>
-                                    </div>
-
-                                    {/* Informations académiques */}
-                                    <div className="space-y-3">
-                                        <h3 className="text-base font-semibold text-gray-700 mb-2">Informations académiques</h3>
-                                        <div className="space-y-3">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Établissement</label>
-                                                <select
-                                                    name="etablissement"
-                                                    value={formData.etablissement}
-                                                    onChange={handleChange}
-                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                                >
-                                                    <option value="">Sélectionner...</option>
-                                                    <option value="ESP">ESP</option>
-                                                    <option value="DEGSP">DEGSP</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Parcours</label>
-                                                <select
-                                                    name="parcours"
-                                                    value={formData.parcours}
-                                                    onChange={handleChange}
-                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                                >
-                                                    <option value="">Sélectionner...</option>
-                                                    <option value="EP">EP</option>
-                                                    <option value="EII">EII</option>
-                                                    <option value="EG">EG</option>
-                                                    <option value="GESTION">GESTION</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Niveau</label>
-                                                <select
-                                                    name="niveau"
-                                                    value={formData.niveau}
-                                                    onChange={handleChange}
-                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                                >
-                                                    <option value="">Sélectionner...</option>
-                                                    <option value="L1">L1</option>
-                                                    <option value="L2">L2</option>
-                                                    <option value="L3">L3</option>
-                                                    <option value="M1">M1</option>
-                                                    <option value="M2">M2</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Promotion</label>
-                                                <select
-                                                    name="promotion"
-                                                    value={formData.promotion}
-                                                    onChange={handleChange}
-                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                                >
-                                                    <option value="">Sélectionner...</option>
-                                                    <option value="2020">2020</option>
-                                                    <option value="2021">2021</option>
-                                                    <option value="2022">2022</option>
-                                                    <option value="2023">2023</option>
-                                                    <option value="2024">2024</option>
-                                                    <option value="2025">2025</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
-                                                <select
-                                                    name="role"
-                                                    value={formData.role}
-                                                    onChange={handleChange}
-                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                                >
-                                                    <option value="">Sélectionner...</option>
-                                                    <option value="President">Président</option>
-                                                    <option value="Membre de bureau">Membre de bureau</option>
-                                                    <option value="Membre">Membre</option>
-                                                </select>
-                                            </div>
-                                            {formData.role === 'Membre de bureau' && (
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Fonction</label>
-                                                    <select
-                                                        name="sous_role"
-                                                        value={formData.sous_role}
-                                                        onChange={handleChange}
-                                                        className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                                    >
-                                                        <option value="">Sélectionner...</option>
-                                                        <option value="Tresoriere">Trésorière</option>
-                                                        <option value="Vice_president">Vice-président</option>
-                                                        <option value="Commissaire au compte">Commissaire au compte</option>
-                                                        <option value="Commission logement">Commission logement</option>
-                                                        <option value="Commission sport">Commission sport</option>
-                                                        <option value="Conseiller">Conseiller</option>
-                                                    </select>
-                                                </div>
-                                            )}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+                                            <input
+                                                type="text"
+                                                name="prenom"
+                                                value={formData.prenom}
+                                                onChange={handleChange}
+                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                                            <input
+                                                type="tel"
+                                                name="telephone"
+                                                value={formData.telephone}
+                                                onChange={handleChange}
+                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                            />
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="mt-4 flex justify-end space-x-2">
-                                    <button
-                                        onClick={() => setShowEditModal(false)}
-                                        className="px-3 py-1.5 text-sm border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
-                                    >
-                                        Annuler
-                                    </button>
-                                    <button
-                                        onClick={handleUpdate}
-                                        disabled={isLoading}
-                                        className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                                    >
-                                        {isLoading ? 'Enregistrement...' : 'Enregistrer'}
-                                    </button>
+                                {/* Informations académiques */}
+                                <div className="space-y-3">
+                                    <h3 className="text-base font-semibold text-gray-700 mb-2">Informations académiques</h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Établissement</label>
+                                            <select
+                                                name="etablissement"
+                                                value={formData.etablissement}
+                                                onChange={handleChange}
+                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                            >
+                                                <option value="">Sélectionner...</option>
+                                                <option value="ESP">ESP</option>
+                                                <option value="DEGSP">DEGSP</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Parcours</label>
+                                            <select
+                                                name="parcours"
+                                                value={formData.parcours}
+                                                onChange={handleChange}
+                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                            >
+                                                <option value="">Sélectionner...</option>
+                                                <option value="EP">EP</option>
+                                                <option value="EII">EII</option>
+                                                <option value="EG">EG</option>
+                                                <option value="GESTION">GESTION</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Niveau</label>
+                                            <select
+                                                name="niveau"
+                                                value={formData.niveau}
+                                                onChange={handleChange}
+                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                            >
+                                                <option value="">Sélectionner...</option>
+                                                <option value="L1">L1</option>
+                                                <option value="L2">L2</option>
+                                                <option value="L3">L3</option>
+                                                <option value="M1">M1</option>
+                                                <option value="M2">M2</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Promotion</label>
+                                            <select
+                                                name="promotion"
+                                                value={formData.promotion}
+                                                onChange={handleChange}
+                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                            >
+                                                <option value="">Sélectionner...</option>
+                                                <option value="2020">2020</option>
+                                                <option value="2021">2021</option>
+                                                <option value="2022">2022</option>
+                                                <option value="2023">2023</option>
+                                                <option value="2024">2024</option>
+                                                <option value="2025">2025</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
+                                            <select
+                                                name="role"
+                                                value={formData.role}
+                                                onChange={handleChange}
+                                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                            >
+                                                <option value="">Sélectionner...</option>
+                                                <option value="President">Président</option>
+                                                <option value="Membre de bureau">Membre de bureau</option>
+                                                <option value="Membre">Membre</option>
+                                            </select>
+                                        </div>
+                                        {formData.role === 'Membre de bureau' && (
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Fonction</label>
+                                                <select
+                                                    name="sous_role"
+                                                    value={formData.sous_role}
+                                                    onChange={handleChange}
+                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                                >
+                                                    <option value="">Sélectionner...</option>
+                                                    <option value="Tresoriere">Trésorière</option>
+                                                    <option value="Vice_president">Vice-président</option>
+                                                    <option value="Commissaire au compte">Commissaire au compte</option>
+                                                    <option value="Commission logement">Commission logement</option>
+                                                    <option value="Commission sport">Commission sport</option>
+                                                    <option value="Conseiller">Conseiller</option>
+                                                </select>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </motion.div>
+
+                            <div className="mt-4 flex justify-end space-x-2">
+                                <button
+                                    onClick={() => setShowEditModal(false)}
+                                    className="px-3 py-1.5 text-sm border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    onClick={handleUpdate}
+                                    disabled={isLoading}
+                                    className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                                >
+                                    {isLoading ? 'Enregistrement...' : 'Enregistrer'}
+                                </button>
+                            </div>
+                        </div>
                     </motion.div>
-                )}
+                </motion.div>
+            )}
             </AnimatePresence>
 
             {/* Modal de visualisation */}
-            <AnimatePresence>
-                {showViewModal && selectedUser && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            {showViewModal && selectedUser && (
+                <div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+                >
+                    <div
+                        initial={{ scale: 0.95 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0.95 }}
+                        className="bg-white rounded-lg shadow-lg overflow-hidden max-w-3xl w-full max-h-[80vh] overflow-y-auto"
                     >
-                        <motion.div
-                            initial={{ scale: 0.95 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0.95 }}
-                            className="bg-white rounded-lg shadow-lg overflow-hidden max-w-3xl w-full max-h-[80vh] overflow-y-auto"
-                        >
-                            <div className="p-4">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-xl font-bold text-gray-800">
-                                        Détails de l'utilisateur
-                                    </h2>
-                                    <button
-                                        onClick={() => setShowViewModal(false)}
-                                        className="text-gray-500 hover:text-gray-700"
-                                    >
-                                        <FiX className="h-5 w-5" />
-                                    </button>
-                                </div>
+                        <div className="p-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-bold text-gray-800">
+                                    Détails de l'utilisateur
+                                </h2>
+                                <button
+                                    onClick={() => setShowViewModal(false)}
+                                    className="text-gray-500 hover:text-gray-700"
+                                >
+                                    <FiX className="h-5 w-5" />
+                                </button>
+                            </div>
 
-                                <div className="flex flex-col md:flex-row">
-                                    {/* Photo de profil - Partie gauche */}
-                                    <div className="md:w-1/3 bg-gray-50 p-4 flex flex-col items-center rounded-lg">
-                                        <div className="w-32 h-32 mb-4 rounded-lg overflow-hidden border-4 border-white shadow-lg">
-                                            {selectedUser.photo ? (
-                                                <img
-                                                    src={getPhotoUrl(selectedUser.photo)}
-                                                    alt="Photo de profil"
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-                                                    <FiUser className="h-12 w-12 text-blue-400" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <h2 className="text-lg font-bold text-gray-800">{selectedUser.nom} {selectedUser.prenom}</h2>
-                                        <p className="text-blue-600 mb-2">{selectedUser.role}</p>
-                                        {selectedUser.sous_role && (
-                                            <p className="text-sm text-gray-600">{selectedUser.sous_role}</p>
+                            <div className="flex flex-col md:flex-row">
+                                {/* Photo de profil - Partie gauche */}
+                                <div className="md:w-1/3 bg-gray-50 p-4 flex flex-col items-center rounded-lg">
+                                    <div className="w-32 h-32 mb-4 rounded-lg overflow-hidden border-4 border-white shadow-lg">
+                                        {selectedUser.photo ? (
+                                            <img
+                                                src={getPhotoUrl(selectedUser.photo)}
+                                                alt="Photo de profil"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+                                                <FiUser className="h-12 w-12 text-blue-400" />
+                                            </div>
                                         )}
                                     </div>
+                                    <h2 className="text-lg font-bold text-gray-800">{selectedUser.nom} {selectedUser.prenom}</h2>
+                                    <p className="text-blue-600 mb-2">{selectedUser.role}</p>
+                                    {selectedUser.sous_role && (
+                                        <p className="text-sm text-gray-600">{selectedUser.sous_role}</p>
+                                    )}
+                                </div>
 
-                                    {/* Informations - Partie droite */}
-                                    <div className="md:w-2/3 p-4">
-                                        <div className="grid grid-cols-1 gap-6">
-                                            {/* Informations personnelles */}
-                                            <div className="space-y-4">
-                                                <div className="flex items-center mb-2">
-                                                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                                        <FiUser className="h-4 w-4 text-blue-600" />
-                                                    </div>
-                                                    <h3 className="text-lg font-semibold text-gray-800">
-                                                        Informations personnelles
-                                                    </h3>
+                                {/* Informations - Partie droite */}
+                                <div className="md:w-2/3 p-4">
+                                    <div className="grid grid-cols-1 gap-6">
+                                        {/* Informations personnelles */}
+                                        <div className="space-y-4">
+                                            <div className="flex items-center mb-2">
+                                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                                    <FiUser className="h-4 w-4 text-blue-600" />
                                                 </div>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-11">
-                                                    <div>
-                                                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Email</span>
-                                                        <span className="text-gray-800">{selectedUser.email || '—'}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</span>
-                                                        <span className={`${selectedUser.telephone ? 'text-gray-800' : 'text-gray-400 italic'}`}>
-                                                            {selectedUser.telephone || 'Non renseigné'}
-                                                        </span>
-                                                    </div>
+                                                <h3 className="text-lg font-semibold text-gray-800">
+                                                    Informations personnelles
+                                                </h3>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-11">
+                                                <div>
+                                                    <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Email</span>
+                                                    <span className="text-gray-800">{selectedUser.email || '—'}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Téléphone</span>
+                                                    <span className={`${selectedUser.telephone ? 'text-gray-800' : 'text-gray-400 italic'}`}>
+                                                        {selectedUser.telephone || 'Non renseigné'}
+                                                    </span>
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            {/* Informations académiques */}
-                                            <div className="space-y-4">
-                                                <div className="flex items-center mb-2">
-                                                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
-                                                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
-                                                        </svg>
-                                                    </div>
-                                                    <h3 className="text-lg font-semibold text-gray-800">
-                                                        Informations académiques
-                                                    </h3>
+                                        {/* Informations académiques */}
+                                        <div className="space-y-4">
+                                            <div className="flex items-center mb-2">
+                                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                                                    </svg>
                                                 </div>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-11">
-                                                    <div>
-                                                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Établissement</span>
-                                                        <span className={`${selectedUser.etablissement ? 'text-gray-800' : 'text-gray-400 italic'}`}>
-                                                            {selectedUser.etablissement || 'Non renseigné'}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Parcours</span>
-                                                        <span className={`${selectedUser.parcours ? 'text-gray-800' : 'text-gray-400 italic'}`}>
-                                                            {selectedUser.parcours || 'Non renseigné'}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Niveau</span>
-                                                        <span className={`${selectedUser.niveau ? 'text-gray-800' : 'text-gray-400 italic'}`}>
-                                                            {selectedUser.niveau || 'Non renseigné'}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Promotion</span>
-                                                        <span className={`${selectedUser.promotion ? 'text-gray-800' : 'text-gray-400 italic'}`}>
-                                                            {selectedUser.promotion || 'Non renseigné'}
-                                                        </span>
-                                                    </div>
+                                                <h3 className="text-lg font-semibold text-gray-800">
+                                                    Informations académiques
+                                                </h3>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-11">
+                                                <div>
+                                                    <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Établissement</span>
+                                                    <span className={`${selectedUser.etablissement ? 'text-gray-800' : 'text-gray-400 italic'}`}>
+                                                        {selectedUser.etablissement || 'Non renseigné'}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Parcours</span>
+                                                    <span className={`${selectedUser.parcours ? 'text-gray-800' : 'text-gray-400 italic'}`}>
+                                                        {selectedUser.parcours || 'Non renseigné'}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Niveau</span>
+                                                    <span className={`${selectedUser.niveau ? 'text-gray-800' : 'text-gray-400 italic'}`}>
+                                                        {selectedUser.niveau || 'Non renseigné'}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider">Promotion</span>
+                                                    <span className={`${selectedUser.promotion ? 'text-gray-800' : 'text-gray-400 italic'}`}>
+                                                        {selectedUser.promotion || 'Non renseigné'}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="mt-4 flex justify-end">
-                                    <button
-                                        onClick={() => setShowViewModal(false)}
-                                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
-                                    >
-                                        Fermer
-                                    </button>
-                                </div>
                             </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
+                            <div className="mt-4 flex justify-end">
+                                <button
+                                    onClick={() => setShowViewModal(false)}
+                                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                                >
+                                    Fermer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Modal des cotisations */}
             {showCotisationsModal && selectedUser && (

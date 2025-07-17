@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Inscription from './Inscription';
 import Connexion from './Connexion';
+import ForgotPassword from './ForgotPassword';
 import img1 from '../../assets/images/image1.jpg';
 import img2 from '../../assets/images/image2.jpg';
 import img3 from '../../assets/images/image3.jpg';
 
 function Accueil() {
   const [currentImage, setCurrentImage] = useState(0);
-  const [showConnexion, setShowConnexion] = useState(true); // Définir à true pour afficher Connexion en premier
+  const [showConnexion, setShowConnexion] = useState(true);
+  const [currentView, setCurrentView] = useState('connexion'); // 'connexion', 'inscription', 'forgot'
   const [isSwitching, setIsSwitching] = useState(false);
   const images = [img1, img2, img3];
 
@@ -24,6 +26,7 @@ function Accueil() {
     setIsSwitching(true);
     setTimeout(() => {
       setShowConnexion(showConnexion);
+      setCurrentView(showConnexion ? 'connexion' : 'inscription');
       setIsSwitching(false);
     }, 300);
   };
@@ -109,16 +112,23 @@ function Accueil() {
           ) : (
             <AnimatePresence mode="wait">
               <motion.div
-                key={showConnexion ? 'connexion' : 'inscription'}
+                key={currentView}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                {showConnexion ? (
-                  <Connexion onSwitch={() => handleSwitch(false)} />
-                ) : (
+                {currentView === 'connexion' && (
+                  <Connexion
+                    onSwitch={() => handleSwitch(false)}
+                    onForgot={() => setCurrentView('forgot')}
+                  />
+                )}
+                {currentView === 'inscription' && (
                   <Inscription onSwitch={() => handleSwitch(true)} />
+                )}
+                {currentView === 'forgot' && (
+                  <ForgotPassword onBack={() => setCurrentView('connexion')} />
                 )}
               </motion.div>
             </AnimatePresence>

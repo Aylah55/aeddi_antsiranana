@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Eye, Edit, Trash2, PlusCircle, X, MoreVertical } from 'lucide-react';
 import { toast } from 'react-toastify';
+import DetailCotisation from './DetailCotisation.jsx';
 
-const ListeCotisation = () => {
+const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
     const [cotisations, setCotisations] = useState([]);
     const [erreur, setErreur] = useState(null);
     const [selected, setSelected] = useState(null);
@@ -53,6 +54,14 @@ const ListeCotisation = () => {
             document.removeEventListener('click', handleClickOutside);
         };
     }, []);
+
+    useEffect(() => {
+        if (cotisationToView) {
+            setSelected(cotisationToView);
+            setShowModal(true);
+            if (setCotisationToView) setCotisationToView(null);
+        }
+    }, [cotisationToView]);
 
     const fetchCotisations = async () => {
         setIsLoading(true);
@@ -192,6 +201,9 @@ const ListeCotisation = () => {
         }).format(montant);
     };
 
+    // Harmoniser la gestion du statut pour le modal
+    const getCotisationStatus = (cotisation) => cotisation.status || cotisation.statut_paiement || '';
+
     // Si l'utilisateur n'est pas encore chargé, afficher un loading
     if (!user) {
         return (
@@ -213,7 +225,6 @@ const ListeCotisation = () => {
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold">Mes Cotisations</h2>
                 </div>
-
                 {/* En-têtes fixes */}
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
@@ -225,59 +236,69 @@ const ListeCotisation = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date début</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date fin</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mon statut</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                    </table>
-                </div>
-
-                {isLoading ? (
-                    <div className="flex justify-center items-center p-4">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                    </div>
-                ) : erreur ? (
-                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
-                        <div className="flex items-center">
-                            <svg className="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <h3 className="font-semibold">Erreur</h3>
-                        </div>
-                        <p className="mt-2">{erreur}</p>
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {cotisations.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                                            Aucune cotisation trouvée
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {cotisations.length === 0 ? (
+                                <tr>
+                                    <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                                        Aucune cotisation trouvée
+                                    </td>
+                                </tr>
+                            ) : (
+                                cotisations.map(item => (
+                                    <tr key={item.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{item.nom}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{item.description || "Aucune"}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-900">
+                                            {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA' }).format(item.montant)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                                            {new Date(item.date_debut).toLocaleDateString('fr-FR')}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                                            {new Date(item.date_fin).toLocaleDateString('fr-FR')}
+                                        </td>
+                                        <td className={`px-6 py-4 whitespace-nowrap text-base font-medium ${
+                                            item.statut_paiement === 'Payé' ? 'text-green-600' : 'text-red-600'
+                                        }`}>
+                                            {item.statut_paiement}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-base font-medium">
+                                            <button
+                                                onClick={() => {
+                                                    setSelected(item);
+                                                    setShowModal(true);
+                                                }}
+                                                className="flex items-center px-3 py-1 text-sm text-indigo-600 hover:underline"
+                                                title="Voir"
+                                            >
+                                                <Eye className="mr-2 h-4 w-4" />
+                                            </button>
                                         </td>
                                     </tr>
-                                ) : (
-                                    cotisations.map(item => (
-                                        <tr key={item.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{item.nom}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{item.description || "Aucune"}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-base text-gray-900">
-                                                {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA' }).format(item.montant)}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
-                                                {new Date(item.date_debut).toLocaleDateString('fr-FR')}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
-                                                {new Date(item.date_fin).toLocaleDateString('fr-FR')}
-                                            </td>
-                                            <td className={`px-6 py-4 whitespace-nowrap text-base font-medium ${
-                                                item.statut_paiement === 'Payé' ? 'text-green-600' : 'text-red-600'
-                                            }`}>
-                                                {item.statut_paiement}
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                {/* Modal de détail */}
+                {showModal && selected && (
+                    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+                            <button
+                                onClick={() => {
+                                    setShowModal(false);
+                                    setSelected(null);
+                                }}
+                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                                title="Fermer"
+                            >
+                                <X size={24} />
+                            </button>
+                            <DetailCotisation cotisation={selected} />
+                        </div>
                     </div>
                 )}
             </div>
@@ -431,34 +452,18 @@ const ListeCotisation = () => {
             {/* Modal de détail */}
             {showModal && selected && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold">{selected.nom}</h3>
-                            <button
-                                onClick={() => {
-                                    setShowModal(false);
-                                    setSelected(null);
-                                }}
-                                className="text-gray-500 hover:text-gray-700"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-                        <div className="space-y-4">
-                            <p><span className="font-semibold">Description :</span> {selected.description || 'Aucune'}</p>
-                            <p><span className="font-semibold">Montant :</span> {formatMontant(selected.montant)}</p>
-                            <p><span className="font-semibold">Date de début :</span> {new Date(selected.date_debut).toLocaleString('fr-FR')}</p>
-                            <p><span className="font-semibold">Date de fin :</span> {new Date(selected.date_fin).toLocaleString('fr-FR')}</p>
-                            <p>
-                                <span className="font-semibold">Statut :</span>
-                                <span className={`ml-2 ${
-                                    selected.status === 'Payé' ? 'text-green-600' :
-                                    selected.status === 'En cours' ? 'text-yellow-600' : 'text-red-600'
-                                }`}>
-                                    {selected.status}
-                                </span>
-                            </p>
-                        </div>
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+                        <button
+                            onClick={() => {
+                                setShowModal(false);
+                                setSelected(null);
+                            }}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                            title="Fermer"
+                        >
+                            <X size={24} />
+                        </button>
+                        <DetailCotisation cotisation={selected} />
                     </div>
                 </div>
             )}
@@ -499,7 +504,7 @@ const ListeCotisation = () => {
                                         name="nom"
                                         value={formData.nom}
                                         onChange={handleChange}
-                                        className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${
+                                        className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline  ${
                                             formErrors.nom ? 'border-red-500' : ''
                                         }`}
                                         required
