@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-const GoogleCallback = () => {
+const FacebookCallback = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -10,15 +10,15 @@ const GoogleCallback = () => {
     const userId = searchParams.get('user_id');
     const error = searchParams.get('error');
 
-    console.log('=== GoogleCallback Debug ===');
+    console.log('=== FacebookCallback Debug ===');
     console.log('Token:', token ? 'Présent' : 'Manquant');
     console.log('UserId:', userId);
     console.log('Error:', error);
     console.log('URL complète:', window.location.href);
 
     if (error) {
-      console.error('Erreur Google OAuth:', error);
-      navigate('/login?error=google_auth_failed');
+      console.error('Erreur Facebook OAuth:', error);
+      navigate('/login?error=facebook_auth_failed');
       return;
     }
 
@@ -38,14 +38,14 @@ const GoogleCallback = () => {
           
           if (data.status === 'success' && data.user) {
             const user = data.user;
-            console.log('Utilisateur récupéré:', user);
+            console.log('Utilisateur récupéré depuis le cache:', user);
             
             // Stocker les informations utilisateur
             localStorage.setItem('user', JSON.stringify(user));
             console.log('Utilisateur stocké dans localStorage:', user);
             
             // Rediriger vers le dashboard
-            console.log('Connexion Google réussie, redirection vers le dashboard...');
+            console.log('Connexion Facebook réussie, redirection vers le dashboard...');
             navigate('/dashbord', { replace: true });
           } else {
             throw new Error(data.message || 'Aucune information utilisateur trouvée');
@@ -57,10 +57,10 @@ const GoogleCallback = () => {
           // En cas d'erreur, créer un utilisateur minimal
           const minimalUser = {
             id: userId,
-            email: 'utilisateur@google.com',
-            nom: 'Utilisateur Google',
+            email: 'utilisateur@facebook.com',
+            nom: 'Utilisateur Facebook',
             prenom: 'Utilisateur',
-            provider: 'google'
+            provider: 'facebook'
           };
           
           localStorage.setItem('user', JSON.stringify(minimalUser));
@@ -71,14 +71,14 @@ const GoogleCallback = () => {
       console.error('Token ou userId manquant');
       console.error('Token:', token);
       console.error('UserId:', userId);
-      navigate('/login?error=google_auth_failed');
+      navigate('/login?error=facebook_auth_failed');
     }
   }, [searchParams, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700 mx-auto mb-4"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <h2 className="text-xl font-semibold text-gray-700 mb-2">Connexion en cours...</h2>
         <p className="text-gray-500">Veuillez patienter pendant que nous vous connectons à votre espace personnel.</p>
         <div className="mt-4 text-xs text-gray-400">
@@ -89,4 +89,4 @@ const GoogleCallback = () => {
   );
 };
 
-export default GoogleCallback; 
+export default FacebookCallback; 

@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FiSearch, FiUser, FiEdit, FiTrash2, FiEye, FiMoreVertical, FiX } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { userService, apiClient } from '../../services/api';
+import { userService, apiClient, API_URL } from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DollarSign } from 'lucide-react';
-
-// Assurez-vous que cette URL correspond à votre backend
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
-console.log('URL de l\'API:', API_URL);
 
 const getPhotoUrl = (photoPath) => `${API_URL}/storage/${photoPath}`;
 

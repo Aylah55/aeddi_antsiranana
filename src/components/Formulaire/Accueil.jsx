@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Inscription from './Inscription';
 import Connexion from './Connexion';
 import ForgotPassword from './ForgotPassword';
 import img1 from '../../assets/images/image1.jpg';
@@ -9,8 +8,7 @@ import img3 from '../../assets/images/image3.jpg';
 
 function Accueil() {
   const [currentImage, setCurrentImage] = useState(0);
-  const [showConnexion, setShowConnexion] = useState(true);
-  const [currentView, setCurrentView] = useState('connexion'); // 'connexion', 'inscription', 'forgot'
+  const [currentView, setCurrentView] = useState('connexion'); // 'connexion', 'forgot'
   const [isSwitching, setIsSwitching] = useState(false);
   const images = [img1, img2, img3];
 
@@ -22,14 +20,14 @@ function Accueil() {
     setCurrentImage((prevIndex) => (prevIndex - 1 + images.length) % images.length);
   };
 
-  const handleSwitch = (showConnexion) => {
+  const handleSwitch = (view) => {
     setIsSwitching(true);
     setTimeout(() => {
-      setShowConnexion(showConnexion);
-      setCurrentView(showConnexion ? 'connexion' : 'inscription');
+      setCurrentView(view);
       setIsSwitching(false);
     }, 300);
   };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
@@ -37,6 +35,7 @@ function Accueil() {
 
     return () => clearInterval(interval);
   }, [images.length]);
+
   return (
     <div className="flex flex-col-reverse lg:flex-row h-auto lg:h-screen">
       <div className="w-full lg:w-1/2 bg-gray-100 p-6 flex flex-col">
@@ -120,15 +119,11 @@ function Accueil() {
               >
                 {currentView === 'connexion' && (
                   <Connexion
-                    onSwitch={() => handleSwitch(false)}
-                    onForgot={() => setCurrentView('forgot')}
+                    onForgot={() => handleSwitch('forgot')}
                   />
                 )}
-                {currentView === 'inscription' && (
-                  <Inscription onSwitch={() => handleSwitch(true)} />
-                )}
                 {currentView === 'forgot' && (
-                  <ForgotPassword onBack={() => setCurrentView('connexion')} />
+                  <ForgotPassword onBack={() => handleSwitch('connexion')} />
                 )}
               </motion.div>
             </AnimatePresence>

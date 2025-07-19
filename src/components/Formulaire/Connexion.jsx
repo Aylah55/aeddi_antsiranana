@@ -1,16 +1,25 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaEye, FaEyeSlash, FaFacebookF } from 'react-icons/fa';
 import { GoogleLogin } from '@react-oauth/google';
 import { loginUser } from '../../services/api';
 
-const Connexion = ({ onSwitch, onForgot }) => {
+const Connexion = ({ onForgot }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Vérifier les erreurs dans l'URL au chargement du composant
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'google_auth_failed') {
+      setError('Erreur lors de la connexion avec Google. Veuillez réessayer.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,20 +126,18 @@ const Connexion = ({ onSwitch, onForgot }) => {
           </div>
         </div>
         <button
+          onClick={() => window.location.href = 'http://localhost:8000/api/auth/facebook/redirect'}
           className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded transition-colors"
         >
           <FaFacebookF size={18} />
           Se connecter avec Facebook
         </button>
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Vous n'avez pas de compte ?{' '}
-          <span
-            onClick={onSwitch}
-            className="text-blue-600 font-medium hover:text-blue-800 cursor-pointer underline transition-colors"
-          >
-            Inscrivez-vous ici
-          </span>
-        </p>
+        <div className="mt-6 text-center text-sm text-gray-600">
+          <p>Nouveau sur AEDDI ?</p>
+          <p className="mt-2">
+            Connectez-vous avec Google pour créer votre compte automatiquement !
+          </p>
+        </div>
       </div>
     </div>
   );

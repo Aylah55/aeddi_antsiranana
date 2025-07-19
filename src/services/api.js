@@ -86,16 +86,6 @@ const handleApiError = (error) => {
 
 // Service d'authentification
 export const authService = {
-  // Inscription
-  inscription: async (formData) => {
-    await getCsrfToken();
-    return apiClient.post('/inscription', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    }).catch(handleApiError);
-  },
-
   // Connexion
   login: async (credentials) => {
     try {
@@ -298,7 +288,6 @@ export const messageService = {
 };
 
 // Alias pratiques pour les composants React
-export const registerUser = authService.inscription;
 export const loginUser = authService.login;
 export const logoutUser = authService.logout;
 export const setPassword = authService.setPassword;
@@ -363,3 +352,39 @@ export const deleteAllNotifications = notificationService.deleteAll;
 // Alias pratiques pour les composants React
 export const fetchMessages = messageService.fetchAll;
 export const sendMessage = messageService.send;
+
+// Fonction utilitaire pour obtenir l'URL d'auth Google
+export const getGoogleAuthUrl = () => `${API_URL}/api/auth/google/redirect`;
+
+// Wrapper générique pour GET (utilisé dans Notification.jsx, etc.)
+export const apiGet = (endpoint, config = {}) => {
+  return apiClient.get(endpoint, config).catch(handleApiError);
+};
+
+// Fonction pour envoyer l'email de réinitialisation du mot de passe
+export const sendResetPasswordEmail = async (email) => {
+  try {
+    await getCsrfToken();
+    return await apiClient.post('/forgot-password', { email });
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+// Fonction pour réinitialiser le mot de passe
+export const resetPassword = async (email, token, password, password_confirmation) => {
+  try {
+    await getCsrfToken();
+    return await apiClient.post('/reset-password', {
+      email,
+      token,
+      password,
+      password_confirmation
+    });
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+// Export explicite de l'URL de l'API
+export { API_URL };

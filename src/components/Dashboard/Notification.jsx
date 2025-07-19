@@ -3,7 +3,8 @@ import { Trash2 } from 'lucide-react';
 import { 
   fetchNotifications,
   markNotificationsAsRead,
-  deleteAllNotifications
+  deleteAllNotifications,
+  apiGet
 } from '../../services/api';
 import axios from 'axios';
 import ListeCotisation from './ListeCotisation';
@@ -75,7 +76,7 @@ export default function Notification({ onCotisationView }) {
   useEffect(() => {
     if (!user) return;
     const endpoint = isAdmin ? '/cotisations' : '/my-cotisations';
-    axios.get(process.env.REACT_APP_API_URL_LOCAL + '/api' + endpoint, {
+    apiGet(endpoint, {
       headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
     })
       .then(res => setCotisations(res.data.data || res.data))

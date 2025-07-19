@@ -34,7 +34,7 @@ const ProfilDashbord = () => {
     const [isCreatingPassword, setIsCreatingPassword] = useState(false);
 
     // Vérifier si l'utilisateur a un mot de passe temporaire (utilisateur Google)
-    const hasTemporaryPassword = user?.provider === 'google' && !user?.password;
+    const hasTemporaryPassword = user?.provider === 'google' && !user?.password_set;
 
     // Fonction pour ouvrir le modal de création de mot de passe
     const handleCreatePassword = () => {
@@ -67,7 +67,7 @@ const ProfilDashbord = () => {
             setPasswordSuccess('Mot de passe créé avec succès !');
             
             // Mettre à jour l'utilisateur localement
-            const updatedUser = { ...user, password: 'set' };
+            const updatedUser = { ...user, password_set: true };
             setUser(updatedUser);
             localStorage.setItem('user', JSON.stringify(updatedUser));
             
