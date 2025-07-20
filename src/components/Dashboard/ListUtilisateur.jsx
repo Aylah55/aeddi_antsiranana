@@ -374,8 +374,8 @@ const ListUtilisateur = () => {
                 </div>
             </div>
 
-            {/* En-têtes fixes */}
-            <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative">
+            {/* Tableau scrollable horizontalement */}
+            <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                 {/* Indicateur mobile */}
                 <div className="md:hidden absolute top-2 right-4 z-20 text-xs text-blue-400 pointer-events-none animate-bounce">
                   ⇠ Glissez pour voir plus ⇢
@@ -390,38 +390,35 @@ const ListUtilisateur = () => {
                             <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                </table>
-            </div>
-
-            {loading ? (
-                <div className="flex justify-center items-center p-4">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                </div>
-            ) : error ? (
-                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
-                    <div className="flex items-center">
-                        <svg className="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <h3 className="font-semibold">Erreur</h3>
-                    </div>
-                    <p className="mt-2">{error}</p>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="mt-3 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
-                    >
-                        Réessayer
-                    </button>
-                </div>
-            ) : (
-                <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                    {/* Indicateur mobile */}
-                    <div className="md:hidden absolute top-2 right-4 z-20 text-xs text-blue-400 pointer-events-none animate-bounce">
-                      ⇠ Glissez pour voir plus ⇢
-                    </div>
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {currentUsers.map(user => (
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {loading ? (
+                            <tr>
+                                <td colSpan="5" className="text-center py-8">
+                                    <div className="flex justify-center items-center">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : error ? (
+                            <tr>
+                                <td colSpan="5" className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+                                    <div className="flex items-center">
+                                        <svg className="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <h3 className="font-semibold">Erreur</h3>
+                                    </div>
+                                    <p className="mt-2">{error}</p>
+                                    <button
+                                        onClick={() => window.location.reload()}
+                                        className="mt-3 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
+                                    >
+                                        Réessayer
+                                    </button>
+                                </td>
+                            </tr>
+                        ) : (
+                            currentUsers.map(user => (
                                 <tr key={user.id} className="hover:bg-gray-50">
                                     <td className="px-2 md:px-6 py-4 whitespace-nowrap">
                                         <div className="w-10 h-10 rounded-full overflow-hidden">
@@ -453,7 +450,6 @@ const ListUtilisateur = () => {
                                             >
                                                 <FiMoreVertical className="h-5 w-5" />
                                             </button>
-                                            
                                             {activeDropdown === user.id && (
                                                 <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
                                                     <div className="py-1" role="menu">
@@ -511,11 +507,11 @@ const ListUtilisateur = () => {
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
             {/* Pagination */}
             {totalPages > 1 && (

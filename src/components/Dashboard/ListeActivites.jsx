@@ -252,42 +252,58 @@ const ListeActivites = () => {
                 </div>
             )}
 
-            <div className="overflow-x-auto">
+            {/* Tableau scrollable horizontalement */}
+            <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                {/* Indicateur mobile */}
+                <div className="md:hidden absolute top-2 right-4 z-20 text-xs text-blue-400 pointer-events-none animate-bounce">
+                  ⇠ Glissez pour voir plus ⇢
+                </div>
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50 sticky top-0 z-10">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de début</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de fin</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de début</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de fin</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                </table>
-            </div>
-
-            {isLoading ? (
-                <div className="flex justify-center items-center p-4">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                </div>
-            ) : (
-                <div className="overflow-x-auto" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {activites.map(item => (
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {isLoading ? (
+                            <tr>
+                                <td colSpan="6">
+                                    <div className="flex flex-col items-center justify-center py-12">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                                        <p className="text-gray-600">Chargement...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : activites.length === 0 ? (
+                            <tr>
+                                <td colSpan="6">
+                                    <div className="flex flex-col items-center justify-center py-12">
+                                        <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2a4 4 0 018 0v2m-4-4v4m0 0v4m0-4H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-7z" />
+                                        </svg>
+                                        <p className="text-gray-500 text-lg">Aucune activité trouvée</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : (
+                            activites.map(item => (
                                 <tr key={item.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{item.nom}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{item.description || "Aucune"}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{new Date(item.date_debut).toLocaleDateString('fr-FR')}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{new Date(item.date_fin).toLocaleDateString('fr-FR')}</td>
-                                    <td className={`px-6 py-4 whitespace-nowrap text-base ${
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{item.nom}</td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{item.description || "Aucune"}</td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{new Date(item.date_debut).toLocaleDateString('fr-FR')}</td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{new Date(item.date_fin).toLocaleDateString('fr-FR')}</td>
+                                    <td className={`px-2 md:px-6 py-4 whitespace-nowrap text-base ${
                                         item.status === 'Terminé' ? 'text-green-600' :
                                         item.status === 'En cours' ? 'text-yellow-600' : 'text-blue-600'
                                     }`}>
                                         {item.status}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-base font-medium relative">
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium relative">
                                         <div className="action-menu">
                                             <button
                                                 onClick={(e) => {
@@ -346,11 +362,11 @@ const ListeActivites = () => {
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
             {/* Modale de détail */}
             {showModal && selected && (

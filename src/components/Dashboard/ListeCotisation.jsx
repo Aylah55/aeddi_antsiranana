@@ -332,123 +332,147 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50 sticky top-0 z-10">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date début</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date fin</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date début</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date fin</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                 </table>
             </div>
 
-            {isLoading ? (
-                <div className="flex justify-center items-center p-4">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            {/* Tableau scrollable horizontalement */}
+            <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                {/* Indicateur mobile */}
+                <div className="md:hidden absolute top-2 right-4 z-20 text-xs text-blue-400 pointer-events-none animate-bounce">
+                  ⇠ Glissez pour voir plus ⇢
                 </div>
-            ) : (
-                <div className="overflow-x-auto" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {cotisations.length === 0 ? (
-                                <tr>
-                                    <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
-                                        Aucune cotisation trouvée
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50 sticky top-0 z-10">
+                        <tr>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date début</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date fin</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {isLoading ? (
+                            <tr>
+                                <td colSpan="7">
+                                    <div className="flex flex-col items-center justify-center py-12">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                                        <p className="text-gray-600">Chargement...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : cotisations.length === 0 ? (
+                            <tr>
+                                <td colSpan="7">
+                                    <div className="flex flex-col items-center justify-center py-12">
+                                        <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2a4 4 0 018 0v2m-4-4v4m0 0v4m0-4H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-7z" />
+                                        </svg>
+                                        <p className="text-gray-500 text-lg">Aucune cotisation trouvée</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : (
+                            cotisations.map(item => (
+                                <tr key={item.id} className="hover:bg-gray-50">
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{item.nom}</td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{item.description || "Aucune"}</td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-900">
+                                        {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA' }).format(item.montant)}
+                                    </td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                                        {new Date(item.date_debut).toLocaleDateString('fr-FR')}
+                                    </td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                                        {new Date(item.date_fin).toLocaleDateString('fr-FR')}
+                                    </td>
+                                    <td className={`px-2 md:px-6 py-4 whitespace-nowrap text-base ${
+                                        item.status === 'Payé' ? 'text-green-600' :
+                                        item.status === 'En cours' ? 'text-yellow-600' : 'text-red-600'
+                                    }`}>
+                                        {item.status}
+                                    </td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium relative">
+                                        <div className="action-menu">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setActiveDropdown(activeDropdown === item.id ? null : item.id);
+                                                }}
+                                                className="text-gray-400 hover:text-gray-600"
+                                                title="Actions"
+                                            >
+                                                <MoreVertical className="h-5 w-5" />
+                                            </button>
+
+                                            {activeDropdown === item.id && (
+                                                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                                                    <div className="py-1" role="menu">
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelected(item);
+                                                                setShowModal(true);
+                                                                setActiveDropdown(null);
+                                                            }}
+                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                            role="menuitem"
+                                                        >
+                                                            <Eye className="mr-3 h-4 w-4 text-indigo-600" />
+                                                            Voir
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelected(item);
+                                                                setFormData({
+                                                                    nom: item.nom,
+                                                                    description: item.description,
+                                                                    montant: item.montant,
+                                                                    date_debut: formatDateForInput(item.date_debut),
+                                                                    date_fin: formatDateForInput(item.date_fin),
+                                                                    status: item.status
+                                                                });
+                                                                setShowEditModal(true);
+                                                                setActiveDropdown(null);
+                                                            }}
+                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                            role="menuitem"
+                                                        >
+                                                            <Edit className="mr-3 h-4 w-4 text-yellow-600" />
+                                                            Modifier
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                // Ajouter la logique de suppression ici
+                                                                setActiveDropdown(null);
+                                                            }}
+                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                            role="menuitem"
+                                                        >
+                                                            <Trash2 className="mr-3 h-4 w-4 text-red-600" />
+                                                            Supprimer
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
-                            ) : (
-                                cotisations.map(item => (
-                                    <tr key={item.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{item.nom}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{item.description || "Aucune"}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-900">
-                                            {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA' }).format(item.montant)}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
-                                            {new Date(item.date_debut).toLocaleDateString('fr-FR')}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
-                                            {new Date(item.date_fin).toLocaleDateString('fr-FR')}
-                                        </td>
-                                        <td className={`px-6 py-4 whitespace-nowrap text-base ${
-                                            item.status === 'Payé' ? 'text-green-600' :
-                                            item.status === 'En cours' ? 'text-yellow-600' : 'text-red-600'
-                                        }`}>
-                                            {item.status}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-base font-medium relative">
-                                            <div className="action-menu">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setActiveDropdown(activeDropdown === item.id ? null : item.id);
-                                                    }}
-                                                    className="text-gray-400 hover:text-gray-600"
-                                                    title="Actions"
-                                                >
-                                                    <MoreVertical className="h-5 w-5" />
-                                                </button>
-
-                                                {activeDropdown === item.id && (
-                                                    <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                                                        <div className="py-1" role="menu">
-                                                            <button
-                                                                onClick={() => {
-                                                                    setSelected(item);
-                                                                    setShowModal(true);
-                                                                    setActiveDropdown(null);
-                                                                }}
-                                                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                role="menuitem"
-                                                            >
-                                                                <Eye className="mr-3 h-4 w-4 text-indigo-600" />
-                                                                Voir
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setSelected(item);
-                                                                    setFormData({
-                                                                        nom: item.nom,
-                                                                        description: item.description,
-                                                                        montant: item.montant,
-                                                                        date_debut: formatDateForInput(item.date_debut),
-                                                                        date_fin: formatDateForInput(item.date_fin),
-                                                                        status: item.status
-                                                                    });
-                                                                    setShowEditModal(true);
-                                                                    setActiveDropdown(null);
-                                                                }}
-                                                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                role="menuitem"
-                                                            >
-                                                                <Edit className="mr-3 h-4 w-4 text-yellow-600" />
-                                                                Modifier
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    // Ajouter la logique de suppression ici
-                                                                    setActiveDropdown(null);
-                                                                }}
-                                                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                role="menuitem"
-                                                            >
-                                                                <Trash2 className="mr-3 h-4 w-4 text-red-600" />
-                                                                Supprimer
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
             {/* Modal de détail */}
             {showModal && selected && (
