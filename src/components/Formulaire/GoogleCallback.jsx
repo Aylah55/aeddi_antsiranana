@@ -7,6 +7,11 @@ const GoogleCallback = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    console.log('=== GoogleCallback Component Mounted ===');
+    console.log('Current URL:', window.location.href);
+    console.log('Pathname:', window.location.pathname);
+    console.log('Search params:', window.location.search);
+    
     const token = searchParams.get('token');
     const userId = searchParams.get('user_id');
     const error = searchParams.get('error');
@@ -16,6 +21,7 @@ const GoogleCallback = () => {
     console.log('UserId:', userId);
     console.log('Error:', error);
     console.log('URL complète:', window.location.href);
+    console.log('API_URL:', process.env.REACT_APP_API_URL_PROD || 'Non défini');
 
     if (error) {
       console.error('Erreur Google OAuth:', error);

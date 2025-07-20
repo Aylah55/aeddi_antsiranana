@@ -17,6 +17,11 @@ export default function CreatePassword() {
 
   // Récupérer les informations utilisateur depuis localStorage ou URL
   useEffect(() => {
+    console.log('=== CreatePassword Component Mounted ===');
+    console.log('Current URL:', window.location.href);
+    console.log('Pathname:', window.location.pathname);
+    console.log('Search params:', window.location.search);
+    
     const userData = localStorage.getItem('user');
     const token = searchParams.get('token');
     const userId = searchParams.get('user_id');
@@ -30,6 +35,7 @@ export default function CreatePassword() {
     console.log('CreatePassword - UserData URL:', userDataEncoded ? 'Présent' : 'Manquant');
     console.log('CreatePassword - Email URL:', email);
     console.log('CreatePassword - New User:', newUserParam);
+    console.log('API_URL:', process.env.REACT_APP_API_URL_PROD || 'Non défini');
 
     if (userData) {
       try {
