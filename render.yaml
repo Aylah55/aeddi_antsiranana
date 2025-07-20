@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: aeddi-front
-    env: static
-    plan: free
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./build 
