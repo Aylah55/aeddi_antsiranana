@@ -367,7 +367,8 @@ export const apiGet = (endpoint, config = {}) => {
 // Fonction pour envoyer l'email de réinitialisation du mot de passe
 export const sendResetPasswordEmail = async (email) => {
   try {
-    await getCsrfToken();
+    // Désactiver temporairement la récupération du CSRF token
+    // await getCsrfToken();
     return await apiClient.post('/forgot-password', { email });
   } catch (error) {
     return handleApiError(error);
@@ -377,7 +378,8 @@ export const sendResetPasswordEmail = async (email) => {
 // Fonction pour réinitialiser le mot de passe
 export const resetPassword = async (email, token, password, password_confirmation) => {
   try {
-    await getCsrfToken();
+    // Désactiver temporairement la récupération du CSRF token
+    // await getCsrfToken();
     return await apiClient.post('/reset-password', {
       email,
       token,
