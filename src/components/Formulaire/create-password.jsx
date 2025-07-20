@@ -21,7 +21,7 @@ export default function CreatePassword() {
     console.log('Current URL:', window.location.href);
     console.log('Pathname:', window.location.pathname);
     console.log('Search params:', window.location.search);
-    
+
     const userData = localStorage.getItem('user');
     const token = searchParams.get('token');
     const userId = searchParams.get('user_id');
@@ -54,16 +54,16 @@ export default function CreatePassword() {
       try {
         const decodedData = atob(userDataEncoded);
         console.log('Données décodées (raw):', decodedData);
-        
+
         const user = JSON.parse(decodedData);
         console.log('Utilisateur décodé depuis URL:', user);
-        
+
         setUser(user);
         setIsNewUser(newUserParam === 'true' || user.provider === 'google');
-        
+
         // Stocker le token dans localStorage
         localStorage.setItem('auth_token', token);
-        
+
         setIsLoading(false);
       } catch (decodeError) {
         console.error('Erreur lors du décodage des données utilisateur:', decodeError);
@@ -79,17 +79,17 @@ export default function CreatePassword() {
         })
         .then(data => {
           console.log('Données utilisateur reçues:', data);
-          
+
           if (data.status === 'success' && data.user) {
             const user = data.user;
             console.log('Utilisateur récupéré depuis le cache:', user);
-            
+
             setUser(user);
             setIsNewUser(newUserParam === 'true' || user.provider === 'google');
-            
+
             // Stocker le token dans localStorage
             localStorage.setItem('auth_token', token);
-            
+
             setIsLoading(false);
           } else {
             throw new Error(data.message || 'Aucune information utilisateur trouvée');
@@ -97,7 +97,7 @@ export default function CreatePassword() {
         })
         .catch(err => {
           console.error('Erreur lors de la récupération des données utilisateur:', err);
-          
+
           // Fallback vers un utilisateur minimal
           const tempUser = {
             id: userId,
@@ -106,11 +106,11 @@ export default function CreatePassword() {
             prenom: 'Utilisateur',
             provider: 'google'
           };
-          
+
           setUser(tempUser);
           setIsNewUser(newUserParam === 'true');
           localStorage.setItem('auth_token', token);
-          
+
           console.log('Utilisateur minimal créé:', tempUser);
           setIsLoading(false);
         });
@@ -163,12 +163,26 @@ export default function CreatePassword() {
       });
 
       if (response.data) {
-        // Mettre à jour l'utilisateur dans localStorage
-        const updatedUser = { ...user, password_set: true };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        
-        alert('Mot de passe créé avec succès ! Vous pouvez maintenant vous connecter avec email/mot de passe.');
-        navigate('/dashbord');
+        // Après création du mot de passe, login automatique
+        try {
+          const loginRes = await fetch(`${API_URL}/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: user.email, password })
+          });
+          const loginData = await loginRes.json();
+          if (loginData.token) {
+            localStorage.setItem('auth_token', loginData.token);
+            localStorage.setItem('user', JSON.stringify(loginData.user));
+            navigate('/dashbord', { replace: true });
+          } else {
+            setError("Mot de passe changé, mais connexion automatique impossible. Merci de vous connecter manuellement.");
+            navigate('/connexion');
+          }
+        } catch (e) {
+          setError("Mot de passe changé, mais connexion automatique impossible. Merci de vous connecter manuellement.");
+          navigate('/connexion');
+        }
       }
     } catch (err) {
       console.error('Erreur lors de la création du mot de passe:', err);
@@ -178,7 +192,6 @@ export default function CreatePassword() {
     }
   };
 
-  // Afficher le chargement initial
   if (isLoading) {
     return (
       <div className="max-w-md mx-auto mt-10 p-4 bg-white rounded shadow">
@@ -218,12 +231,12 @@ export default function CreatePassword() {
       <h2 className="text-2xl font-bold mb-4 text-center">
         {isNewUser ? 'Bienvenue ! Créez votre mot de passe' : 'Créer votre mot de passe'}
       </h2>
-      
+
       {isNewUser ? (
         <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded mb-4">
           <p className="text-sm">
-            <strong>Bienvenue {user.prenom} !</strong> Pour finaliser votre inscription, 
-            créez un mot de passe pour votre compte. Vous pourrez ensuite vous connecter 
+            <strong>Bienvenue {user.prenom} !</strong> Pour finaliser votre inscription,
+            créez un mot de passe pour votre compte. Vous pourrez ensuite vous connecter
             avec votre email et ce mot de passe.
           </p>
         </div>
@@ -232,13 +245,13 @@ export default function CreatePassword() {
           Bienvenue {user.prenom} ! Créez un mot de passe pour votre compte.
         </p>
       )}
-      
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -249,7 +262,7 @@ export default function CreatePassword() {
             className="w-full p-3 border rounded bg-gray-100 text-gray-600"
           />
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Nouveau mot de passe</label>
           <input
@@ -263,7 +276,7 @@ export default function CreatePassword() {
           />
           <p className="text-xs text-gray-500 mt-1">Le mot de passe doit contenir au moins 8 caractères</p>
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Confirmer le mot de passe</label>
           <input
@@ -276,7 +289,7 @@ export default function CreatePassword() {
             minLength={8}
           />
         </div>
-        
+
         <button
           type="submit"
           disabled={loading}
@@ -285,7 +298,7 @@ export default function CreatePassword() {
           {loading ? 'Création en cours...' : (isNewUser ? 'Finaliser l\'inscription' : 'Créer le mot de passe')}
         </button>
       </form>
-      
+
       <div className="mt-4 text-center">
         <button
           onClick={() => navigate('/dashbord')}

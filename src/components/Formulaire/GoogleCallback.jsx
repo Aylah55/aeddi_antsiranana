@@ -22,46 +22,61 @@ const GoogleCallback = () => {
     console.log('Error:', error);
     console.log('URL complète:', window.location.href);
     console.log('API_URL:', process.env.REACT_APP_API_URL_PROD || 'Non défini');
-
     if (error) {
       console.error('Erreur Google OAuth:', error);
       navigate('/login?error=google_auth_failed');
       return;
     }
-
     if (token && userId) {
-      // Stocker le token d'authentification
       localStorage.setItem('auth_token', token);
-      console.log('Token stocké dans localStorage');
-      
-      // Récupérer les données utilisateur depuis l'API
+      const userDataEncoded = searchParams.get('user_data');
+      const isNewUser = searchParams.get('new_user') === 'true';
+      console.log('userDataEncoded:', userDataEncoded, 'isNewUser:', isNewUser);
+      if (userDataEncoded && isNewUser) {
+        // Nouvel utilisateur : décoder et stocker directement
+        try {
+          const decodedData = atob(userDataEncoded);
+          const user = JSON.parse(decodedData);
+          localStorage.setItem('user', JSON.stringify(user));
+          navigate('/dashbord', { replace: true });
+          return;
+        } catch (decodeError) {
+          console.error('Erreur lors du décodage des données utilisateur:', decodeError);
+        }
+      }
+      // Utilisateur existant : récupérer via l'API
       fetch(`${API_URL}/api/temp-user-data/${userId}`)
-        .then(response => {
-          console.log('Réponse API temp-user-data - Status:', response.status);
+        .then(async response => {
+          if (response.status === 404) {
+            // Fallback utilisateur minimal si données temporaires non trouvées
+            console.info('Aucune donnée temporaire trouvée (404), fallback utilisateur minimal.');
+            const minimalUser = {
+              id: userId,
+              email: 'utilisateur@google.com',
+              nom: 'Utilisateur Google',
+              prenom: 'Utilisateur',
+              provider: 'google'
+            };
+            localStorage.setItem('user', JSON.stringify(minimalUser));
+            navigate('/dashbord', { replace: true });
+            return;
+          }
+          // Si autre erreur, lever une exception pour catch
+          if (!response.ok) throw new Error('Erreur API temp-user-data');
           return response.json();
         })
         .then(data => {
-          console.log('Données utilisateur reçues:', data);
-          
+          if (!data) return; // déjà géré plus haut
           if (data.status === 'success' && data.user) {
-            const user = data.user;
-            console.log('Utilisateur récupéré:', user);
-            
-            // Stocker les informations utilisateur
-            localStorage.setItem('user', JSON.stringify(user));
-            console.log('Utilisateur stocké dans localStorage:', user);
-            
-            // Rediriger vers le dashboard
-            console.log('Connexion Google réussie, redirection vers le dashboard...');
+            localStorage.setItem('user', JSON.stringify(data.user));
             navigate('/dashbord', { replace: true });
           } else {
             throw new Error(data.message || 'Aucune information utilisateur trouvée');
           }
         })
         .catch(err => {
-          console.error('Erreur lors de la récupération des données utilisateur:', err);
-          
-          // En cas d'erreur, créer un utilisateur minimal
+          // Fallback utilisateur minimal pour toute autre erreur
+          console.warn('Erreur inattendue lors de la récupération des données utilisateur, fallback minimal utilisé.', err);
           const minimalUser = {
             id: userId,
             email: 'utilisateur@google.com',
@@ -69,9 +84,7 @@ const GoogleCallback = () => {
             prenom: 'Utilisateur',
             provider: 'google'
           };
-          
           localStorage.setItem('user', JSON.stringify(minimalUser));
-          console.log('Utilisateur minimal créé, redirection vers dashboard...');
           navigate('/dashbord', { replace: true });
         });
     } else {
