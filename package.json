@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.4",
     "chart.js": "^4.4.9",
+    "dayjs": "^1.11.13",
     "express": "^4.21.2",
     "framer-motion": "^12.10.5",
     "lucide-react": "^0.503.0",

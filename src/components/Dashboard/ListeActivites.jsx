@@ -252,8 +252,8 @@ const ListeActivites = () => {
                 </div>
             )}
 
-            {/* Tableau scrollable horizontalement */}
-            <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+            {/* Tableau scrollable horizontalement (desktop) */}
+            <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative hidden md:block" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                 {/* Indicateur mobile */}
                 <div className="md:hidden absolute top-2 right-4 z-20 text-xs text-blue-400 pointer-events-none animate-bounce">
                   ⇠ Glissez pour voir plus ⇢
@@ -366,6 +366,66 @@ const ListeActivites = () => {
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Affichage responsive en mode 'cards' sur mobile */}
+            <div className="block md:hidden space-y-4 mb-6">
+                {isLoading ? (
+                    <div className="flex flex-col gap-3">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="bg-white rounded-xl shadow p-4 flex items-center gap-4 animate-pulse">
+                                <div className="w-12 h-12 rounded-full bg-blue-100" />
+                                <div className="flex-1 space-y-2">
+                                    <div className="h-4 bg-blue-50 rounded w-1/2" />
+                                    <div className="h-3 bg-blue-50 rounded w-1/3" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : erreur ? (
+                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">{erreur}</div>
+                ) : (
+                    activites.map((activite, idx) => (
+                        <div key={activite.id} className="bg-white rounded-xl shadow p-4 flex flex-col gap-2 relative">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-blue-600 font-bold text-lg">
+                                    {activite.nom?.[0] || 'A'}
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-base font-bold text-gray-900">{activite.nom}</span>
+                                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold shadow ${activite.status === 'En cours' ? 'bg-yellow-100 text-yellow-700' : activite.status === 'À venir' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>{activite.status}</span>
+                                    </div>
+                                    <div className="text-xs text-gray-400">{activite.date_debut} - {activite.date_fin}</div>
+                                </div>
+                                {/* Bouton trois points */}
+                                <button onClick={() => setActiveDropdown(activeDropdown === activite.id ? null : activite.id)} className="p-2 rounded-full hover:bg-gray-100 transition-colors action-menu" title="Actions">
+                                    <MoreVertical className="h-5 w-5 text-gray-500" />
+                                </button>
+                            </div>
+                            {/* Menu d'actions flottant */}
+                            {activeDropdown === activite.id && (
+                                <div className="absolute right-4 top-16 z-20 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 action-menu">
+                                    <div className="py-1">
+                                        <button onClick={() => { openModal(activite); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 action-menu">
+                                            <Eye className="mr-2 h-4 w-4 text-indigo-600" /> Voir
+                                        </button>
+                                        {isAdmin && (
+                                            <>
+                                                <button onClick={() => { openEditModal(activite); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 action-menu">
+                                                    <Edit className="mr-2 h-4 w-4 text-yellow-600" /> Modifier
+                                                </button>
+                                                <button onClick={() => { /* Ajouter la logique de suppression ici */ setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-red-50 action-menu">
+                                                    <Trash2 className="mr-2 h-4 w-4 text-red-600" /> Supprimer
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))
+                )}
             </div>
 
             {/* Modale de détail */}

@@ -293,9 +293,9 @@ export const cotisationService = {
 
 // Service des messages
 export const messageService = {
-  // Récupérer l'historique des messages
-  fetchAll: () => {
-    return apiClient.get('/messages').catch(handleApiError);
+  // Récupérer l'historique des messages (avec pagination)
+  fetchAll: (page = 1, limit = 20) => {
+    return apiClient.get(`/messages?page=${page}&limit=${limit}`).catch(handleApiError);
   },
   // Envoyer un message
   send: (content) => {

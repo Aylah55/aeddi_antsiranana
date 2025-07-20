@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_URL, getPhotoUrl } from '../../services/api';
-import { LogOut, Bell, Settings, Home, User, Calendar, Users, CreditCard, Trash2, Menu } from 'lucide-react';
+import { LogOut, Bell, Settings, Home, User, Calendar, Users, CreditCard, Trash2, Menu, Mail } from 'lucide-react';
 import ProfilUtilisateur from './ProfilUtilisateur';
 import ListeUtilisateur from './ListUtilisateur';
 import ListeActivites from './ListeActivites';
@@ -11,6 +11,8 @@ import logo from '../../assets/logo/aeddi.png';
 import Notification from './Notification';
 import { fetchNotifications, markNotificationsAsRead, setPassword } from '../../services/api';
 import Message from './Message';
+import { toast } from 'react-toastify';
+import { Info, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 
 const ProfilDashbord = () => {
     const [dateHeure] = useState(new Date());
@@ -34,6 +36,9 @@ const ProfilDashbord = () => {
     const [passwordSuccess, setPasswordSuccess] = useState('');
     const [isCreatingPassword, setIsCreatingPassword] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isMobileMenuVisible, setIsMobileMenuVisible] = useState(false);
+    const [showMessage, setShowMessage] = useState(false);
+    const [isNotifLoading, setIsNotifLoading] = useState(true);
 
     // Vérifier si l'utilisateur a un mot de passe temporaire (utilisateur Google)
     const hasTemporaryPassword = user?.provider === 'google' && !user?.password_set;
@@ -103,19 +108,63 @@ const ProfilDashbord = () => {
 
     // Charger les notifications
     useEffect(() => {
+        let previousIds = [];
         const loadNotifications = async () => {
+            setIsNotifLoading(true);
             try {
                 const response = await fetchNotifications();
                 const unread = response.data.filter(notif => !notif.is_read).length;
                 setUnreadCount(unread);
                 setNotifications(response.data);
+                // Toast pour nouvelle notification
+                const newNotifs = response.data.filter(n => !previousIds.includes(n.id));
+                if (previousIds.length > 0 && newNotifs.length > 0) {
+                  newNotifs.forEach(n => {
+                    let icon, color;
+                    switch (n.type) {
+                      case 'success':
+                        icon = CheckCircle;
+                        color = '#22c55e';
+                        break;
+                      case 'error':
+                        icon = XCircle;
+                        color = '#ef4444';
+                        break;
+                      case 'warning':
+                        icon = AlertTriangle;
+                        color = '#f59e42';
+                        break;
+                      default:
+                        icon = Info;
+                        color = '#3b82f6';
+                    }
+                    toast(<div style={{display:'flex',alignItems:'center',gap:8}}>
+                      {icon && React.createElement(icon, {size:24, color})}
+                      <div>
+                        <div style={{fontWeight:'bold'}}>{n.title || 'Notification'}</div>
+                        <div style={{fontSize:13}}>{n.message}</div>
+                      </div>
+                    </div>, {
+                      position: 'top-right',
+                      autoClose: 5000,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      progress: undefined,
+                      style: {background:'#fff',borderLeft:`4px solid ${color}`}
+                    });
+                  });
+                }
+                previousIds = response.data.map(n => n.id);
             } catch (error) {
                 console.error("Erreur de chargement des notifications", error);
+            } finally {
+                setIsNotifLoading(false);
             }
         };
 
         loadNotifications();
-        
         // Recharger périodiquement
         const interval = setInterval(loadNotifications, 60000);
         return () => clearInterval(interval);
@@ -238,6 +287,17 @@ const ProfilDashbord = () => {
         }
     };
 
+    // Ouvrir le menu mobile avec animation
+    const openMobileMenu = () => {
+        setIsMobileMenuVisible(true);
+        setTimeout(() => setIsMobileMenuOpen(true), 10); // Légère attente pour déclencher la transition
+    };
+    // Fermer le menu mobile avec animation
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false);
+        setTimeout(() => setIsMobileMenuVisible(false), 300); // Durée de la transition
+    };
+
     return (
         <>
             {/* Header fixe en haut */}
@@ -246,7 +306,7 @@ const ProfilDashbord = () => {
                     {/* Hamburger menu pour mobile */}
                     <div className="md:hidden flex items-center">
                                 <button
-                            onClick={() => setIsMobileMenuOpen(true)}
+                            onClick={openMobileMenu}
                             className="p-2 focus:outline-none"
                             aria-label="Ouvrir le menu"
                         >
@@ -265,7 +325,7 @@ const ProfilDashbord = () => {
                             className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors"
                             onClick={handleProfileClick}
                         >
-                            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-100">
+                            <div className="w-14 h-14 rounded-full overflow-hidden border-4 border-blue-300 shadow-lg transition-transform duration-200 hover:scale-105">
                                 {(user?.photo_url || user?.photo) ? (
                                     <img
                                         src={user.photo_url || getPhotoUrl(user.photo)}
@@ -274,11 +334,11 @@ const ProfilDashbord = () => {
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-blue-50 flex items-center justify-center">
-                                        <span className="text-xl text-blue-400">👤</span>
+                                        <span className="text-2xl text-blue-400">👤</span>
                                     </div>
                     )}
                 </div>
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-base font-semibold text-gray-700">
                                 {user?.nom} {user?.prenom}
                             </span>
                         </div>
@@ -309,7 +369,13 @@ const ProfilDashbord = () => {
                                     </div>
                                 </div>
                             )}
-                            <Message />
+                            <button
+                                className="relative focus:outline-none"
+                                onClick={() => setShowMessage(true)}
+                                title="Messages"
+                            >
+                                <Mail className="w-7 h-7 text-blue-600" />
+                            </button>
                             <div className="relative" ref={notificationRef}>
                                 <div className="w-6 h-6 cursor-pointer" onClick={toggleNotifications}>
                                     <Bell className="w-6 h-6 text-gray-700" />
@@ -319,17 +385,6 @@ const ProfilDashbord = () => {
                                         </span>
                                     )}
                                 </div>
-                                {showNotifications && (
-                                    <Notification 
-                                        notifications={notifications}
-                                        onClose={() => setShowNotifications(false)}
-                                        onCotisationView={(cotisation) => {
-                                            setActiveItem('cotisations');
-                                            setCotisationToView(cotisation);
-                                            setShowNotifications(false);
-                                        }}
-                                    />
-                                )}
                             </div>
                             <button
                                 onClick={handleLogout}
@@ -428,41 +483,40 @@ const ProfilDashbord = () => {
                 </div>
             </div>
 
-            {/* Menu mobile latéral */}
-            {isMobileMenuOpen && (
+            {/* Menu mobile latéral avec transition améliorée */}
+            {isMobileMenuVisible && (
                 <div className="fixed inset-0 z-50 flex">
                     {/* Overlay */}
-                    <div className="fixed inset-0 bg-black bg-opacity-40" onClick={() => setIsMobileMenuOpen(false)}></div>
+                    <div
+                        className={`fixed inset-0 bg-black bg-opacity-40 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+                        onClick={closeMobileMenu}
+                    ></div>
                     {/* Menu latéral */}
-                    <div className="relative bg-white w-64 max-w-full h-full shadow-xl animate-slide-in-left flex flex-col p-6">
+                    <div
+                        className={`relative bg-white w-64 max-w-full h-full shadow-xl flex flex-col p-6 transition-transform duration-300 ease-in-out
+                            ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                        style={{ willChange: 'transform' }}
+                    >
                         <button
                             className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-                            onClick={() => setIsMobileMenuOpen(false)}
+                            onClick={closeMobileMenu}
                             aria-label="Fermer le menu"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
+                        {/* Logo AEDDI centré */}
                         <div className="flex flex-col items-center mt-8 mb-6">
-                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-200 mb-2">
-                                {(user?.photo_url || user?.photo) ? (
-                                    <img
-                                        src={user.photo_url || getPhotoUrl(user.photo)}
-                                        alt="Photo de profil"
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full bg-blue-50 flex items-center justify-center">
-                                        <span className="text-2xl text-blue-400">👤</span>
-                        </div>
-                    )}
-                            </div>
-                            <span className="text-lg font-semibold text-gray-800">{user?.nom} {user?.prenom}</span>
+                            <img
+                                src={logo}
+                                alt="Logo AEDDI"
+                                className="w-20 h-20 object-contain mb-2"
+                            />
                         </div>
                         <div className="flex flex-col space-y-4 mt-4">
                             <button
-                                onClick={() => { setIsMobileMenuOpen(false); toggleNotifications(); }}
+                                onClick={() => { closeMobileMenu(); toggleNotifications(); }}
                                 className="flex items-center px-4 py-3 rounded-lg hover:bg-blue-50 transition-colors text-blue-700 font-medium"
                             >
                                 <Bell className="mr-3" size={22} /> Notifications
@@ -473,10 +527,10 @@ const ProfilDashbord = () => {
                                 )}
                             </button>
                             <button
-                                onClick={() => { setIsMobileMenuOpen(false); }}
+                                onClick={() => { closeMobileMenu(); setShowMessage(true); }}
                                 className="flex items-center px-4 py-3 rounded-lg hover:bg-blue-50 transition-colors text-blue-700 font-medium"
                             >
-                                <Message className="mr-3" size={22} /> Messages
+                                <Mail className="mr-3" size={22} /> Messages
                             </button>
                             <button
                                 onClick={handleLogout}
@@ -486,9 +540,24 @@ const ProfilDashbord = () => {
                             </button>
                         </div>
                     </div>
-            </div>
-        )}
-    </>
+                </div>
+            )}
+            {showNotifications && (
+                <Notification
+                    notifications={notifications}
+                    loading={isNotifLoading}
+                    onClose={() => setShowNotifications(false)}
+                    onCotisationView={(cotisation) => {
+                        setActiveItem('cotisations');
+                        setCotisationToView(cotisation);
+                        setShowNotifications(false);
+                    }}
+                />
+            )}
+            {showMessage && (
+                <Message open={showMessage} onClose={() => setShowMessage(false)} />
+            )}
+        </>
     );
 };
 

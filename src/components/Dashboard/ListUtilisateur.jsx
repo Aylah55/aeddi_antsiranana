@@ -340,6 +340,16 @@ const ListUtilisateur = () => {
         );
     }
 
+    // Palette de couleurs pour les rôles
+    const ROLE_COLORS = {
+      'President': 'bg-blue-500 text-white',
+      'Membre de bureau': 'bg-green-500 text-white',
+      'Membre': 'bg-gray-400 text-white',
+    };
+    function getInitials(nom, prenom) {
+      return ((nom?.[0] || '') + (prenom?.[0] || '')).toUpperCase();
+    }
+
     return (
         <div className="p-6 bg-white rounded-lg shadow">
             <div className="flex justify-between items-center mb-4">
@@ -374,8 +384,98 @@ const ListUtilisateur = () => {
                 </div>
             </div>
 
-            {/* Tableau scrollable horizontalement */}
-            <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+            {/* Affichage responsive en mode 'cards' sur mobile */}
+            <div className="block md:hidden space-y-4 mb-6">
+                <AnimatePresence initial={false}>
+                    {loading ? (
+                        <div className="flex flex-col gap-3">
+                            {[...Array(3)].map((_, i) => (
+                                <div key={i} className="bg-white rounded-xl shadow p-4 flex items-center gap-4 animate-pulse">
+                                    <div className="w-14 h-14 rounded-full bg-blue-100" />
+                                    <div className="flex-1 space-y-2">
+                                        <div className="h-4 bg-blue-50 rounded w-1/2" />
+                                        <div className="h-3 bg-blue-50 rounded w-1/3" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : error ? (
+                        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+                            <div className="flex items-center">
+                                <svg className="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <h3 className="font-semibold">Erreur</h3>
+                            </div>
+                            <p className="mt-2">{error}</p>
+                        </div>
+                    ) : (
+                        currentUsers.map((user, idx) => (
+                            <motion.div
+                                key={user.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.25 }}
+                                className="bg-white rounded-xl shadow p-4 flex flex-col gap-2 relative"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-full overflow-hidden shadow-lg border-4 border-white bg-gray-100 flex items-center justify-center">
+                                        {(user.photo_url || user.photo) ? (
+                                            <img
+                                                src={user.photo_url || getPhotoUrl(user.photo)}
+                                                alt={`${user.nom} ${user.prenom}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="text-lg font-bold" style={{ background: 'linear-gradient(135deg, #60a5fa 0%, #818cf8 100%)', color: 'white', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                {getInitials(user.nom, user.prenom)}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-base font-bold text-gray-900">{user.nom} {user.prenom}</span>
+                                            <span className={`px-2 py-0.5 rounded-full text-xs font-semibold shadow ${ROLE_COLORS[user.role] || 'bg-gray-300 text-gray-700'}`}>{user.role}</span>
+                                        </div>
+                                        <div className="text-sm text-gray-500">{user.email}</div>
+                                    </div>
+                                </div>
+                                {/* Bouton trois points */}
+                                <button onClick={() => setActiveDropdown(activeDropdown === user.id ? null : user.id)} className="p-2 rounded-full hover:bg-gray-100 transition-colors action-menu" title="Actions">
+                                    <FiMoreVertical className="h-5 w-5 text-gray-500" />
+                                </button>
+                                {/* Menu d'actions flottant */}
+                                {activeDropdown === user.id && (
+                                    <div className="absolute right-4 top-16 z-20 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 action-menu">
+                                        <div className="py-1">
+                                            <button onClick={() => { handleViewUser(user); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 action-menu">
+                                                <FiEye className="mr-2 h-4 w-4 text-indigo-600" /> Voir
+                                            </button>
+                                            {isAdmin && (
+                                                <>
+                                                    <button onClick={() => { handleEditUser(user); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 action-menu">
+                                                        <FiEdit className="mr-2 h-4 w-4 text-yellow-600" /> Modifier
+                                                    </button>
+                                                    <button onClick={() => { handleCotisationsClick(user); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-green-50 action-menu">
+                                                        <DollarSign className="mr-2 h-4 w-4 text-green-600" /> Cotisations
+                                                    </button>
+                                                    <button onClick={() => { handleDeleteClick(user); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-red-50 action-menu">
+                                                        <FiTrash2 className="mr-2 h-4 w-4 text-red-600" /> Supprimer
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </motion.div>
+                        ))
+                    )}
+                </AnimatePresence>
+            </div>
+
+            {/* Tableau scrollable horizontalement (desktop) */}
+            <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative hidden md:block" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                 {/* Indicateur mobile */}
                 <div className="md:hidden absolute top-2 right-4 z-20 text-xs text-blue-400 pointer-events-none animate-bounce">
                   ⇠ Glissez pour voir plus ⇢
@@ -391,124 +491,104 @@ const ListUtilisateur = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {loading ? (
-                            <tr>
-                                <td colSpan="5" className="text-center py-8">
-                                    <div className="flex justify-center items-center">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-                                    </div>
-                                </td>
-                            </tr>
-                        ) : error ? (
-                            <tr>
-                                <td colSpan="5" className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
-                                    <div className="flex items-center">
-                                        <svg className="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        <h3 className="font-semibold">Erreur</h3>
-                                    </div>
-                                    <p className="mt-2">{error}</p>
-                                    <button
-                                        onClick={() => window.location.reload()}
-                                        className="mt-3 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
-                                    >
-                                        Réessayer
-                                    </button>
-                                </td>
-                            </tr>
-                        ) : (
-                            currentUsers.map(user => (
-                                <tr key={user.id} className="hover:bg-gray-50">
-                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap">
-                                        <div className="w-10 h-10 rounded-full overflow-hidden">
-                                            {(user.photo_url || user.photo) ? (
-                                                <img
-                                                    src={user.photo_url || getPhotoUrl(user.photo)}
-                                                    alt={`${user.nom} ${user.prenom}`}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                                    <FiUser className="text-gray-400" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{user.nom}</td>
-                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.prenom}</td>
-                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.email}</td>
-                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium relative">
-                                        <div className="action-menu">
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setActiveDropdown(activeDropdown === user.id ? null : user.id);
-                                                }}
-                                                className="text-gray-400 hover:text-gray-600"
-                                                title="Actions"
-                                            >
-                                                <FiMoreVertical className="h-5 w-5" />
-                                            </button>
-                                            {activeDropdown === user.id && (
-                                                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                                                    <div className="py-1" role="menu">
-                                                        <button
-                                                            onClick={() => {
-                                                                handleViewUser(user);
-                                                                setActiveDropdown(null);
-                                                            }}
-                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                            role="menuitem"
-                                                        >
-                                                            <FiEye className="mr-3 h-4 w-4 text-indigo-600" />
-                                                            Voir
-                                                        </button>
-                                                        {isAdmin && (
-                                                            <>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        handleEditUser(user);
-                                                                        setActiveDropdown(null);
-                                                                    }}
-                                                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                    role="menuitem"
-                                                                >
-                                                                    <FiEdit className="mr-3 h-4 w-4 text-yellow-600" />
-                                                                    Modifier
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        handleCotisationsClick(user);
-                                                                        setActiveDropdown(null);
-                                                                    }}
-                                                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                    role="menuitem"
-                                                                >
-                                                                    <DollarSign className="mr-3 h-4 w-4 text-green-600" />
-                                                                    Cotisations
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        handleDeleteClick(user);
-                                                                        setActiveDropdown(null);
-                                                                    }}
-                                                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                    role="menuitem"
-                                                                >
-                                                                    <FiTrash2 className="mr-3 h-4 w-4 text-red-600" />
-                                                                    Supprimer
-                                                                </button>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
+                        <AnimatePresence initial={false}>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="5" className="text-center py-8">
+                                        <div className="flex justify-center items-center">
+                                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
                                         </div>
                                     </td>
                                 </tr>
-                            ))
-                        )}
+                            ) : error ? (
+                                <tr>
+                                    <td colSpan="5" className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+                                        <div className="flex items-center">
+                                            <svg className="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <h3 className="font-semibold">Erreur</h3>
+                                        </div>
+                                        <p className="mt-2">{error}</p>
+                                        <button
+                                            onClick={() => window.location.reload()}
+                                            className="mt-3 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
+                                        >
+                                            Réessayer
+                                        </button>
+                                    </td>
+                                </tr>
+                            ) : (
+                                currentUsers.map((user, idx) => (
+                                    <motion.tr
+                                        key={user.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        transition={{ duration: 0.25 }}
+                                        className={`group hover:bg-blue-50 transition-colors duration-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-blue-50/40'}`}
+                                    >
+                                        <td className="px-2 md:px-6 py-4 whitespace-nowrap">
+                                            <div className="w-14 h-14 rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:scale-105 transition-transform duration-200 bg-gray-100 flex items-center justify-center">
+                                                {(user.photo_url || user.photo) ? (
+                                                    <img
+                                                        src={user.photo_url || getPhotoUrl(user.photo)}
+                                                        alt={`${user.nom} ${user.prenom}`}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <span className="text-lg font-bold" style={{ background: 'linear-gradient(135deg, #60a5fa 0%, #818cf8 100%)', color: 'white', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        {getInitials(user.nom, user.prenom)}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900 flex items-center gap-2">
+                                            {user.nom}
+                                            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold shadow ${ROLE_COLORS[user.role] || 'bg-gray-300 text-gray-700'}`}>{user.role}</span>
+                                        </td>
+                                        <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.prenom}</td>
+                                        <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.email}</td>
+                                        <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium relative">
+                                            <div className="flex gap-2 items-center">
+                                                <button
+                                                    onClick={() => handleViewUser(user)}
+                                                    className="p-2 rounded-full hover:bg-blue-100 transition-colors"
+                                                    title="Voir"
+                                                >
+                                                    <FiEye className="h-5 w-5 text-indigo-600" />
+                                                </button>
+                                                {isAdmin && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleEditUser(user)}
+                                                            className="p-2 rounded-full hover:bg-yellow-100 transition-colors"
+                                                            title="Modifier"
+                                                        >
+                                                            <FiEdit className="h-5 w-5 text-yellow-600" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleCotisationsClick(user)}
+                                                            className="p-2 rounded-full hover:bg-green-100 transition-colors"
+                                                            title="Cotisations"
+                                                        >
+                                                            <DollarSign className="h-5 w-5 text-green-600" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteClick(user)}
+                                                            className="p-2 rounded-full hover:bg-red-100 transition-colors"
+                                                            title="Supprimer"
+                                                        >
+                                                            <FiTrash2 className="h-5 w-5 text-red-600" />
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </motion.tr>
+                                ))
+                            )}
+                        </AnimatePresence>
                     </tbody>
                 </table>
             </div>
