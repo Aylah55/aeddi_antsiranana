@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaEye, FaEyeSlash, FaFacebookF } from 'react-icons/fa';
 import { GoogleLogin } from '@react-oauth/google';
 import { loginUser } from '../../services/api';
+import { API_URL } from '../../services/api';
 
 const Connexion = ({ onForgot }) => {
   const [email, setEmail] = useState('');
@@ -39,7 +40,7 @@ const Connexion = ({ onForgot }) => {
 
   const handleGoogleLogin = async (credentialResponse) => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/google/callback', {
+              const response = await fetch(`${API_URL}/api/auth/google/callback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential: credentialResponse.credential }),
@@ -115,7 +116,7 @@ const Connexion = ({ onForgot }) => {
         <div className="mt-4 w-full flex justify-center">
           <div className="w-full">
             <a
-              href="http://localhost:8000/api/auth/google/redirect"
+                              href={`${API_URL}/api/auth/google/redirect`}
               className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded transition-colors"
               style={{ textDecoration: 'none' }}
             >
@@ -126,7 +127,7 @@ const Connexion = ({ onForgot }) => {
           </div>
         </div>
         <button
-          onClick={() => window.location.href = 'http://localhost:8000/api/auth/facebook/redirect'}
+                          onClick={() => window.location.href = `${API_URL}/api/auth/facebook/redirect`}
           className="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded transition-colors"
         >
           <FaFacebookF size={18} />

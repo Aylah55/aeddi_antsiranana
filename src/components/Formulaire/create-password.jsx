@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { setPassword } from '../../services/api';
+import { API_URL } from '../../services/api';
 
 export default function CreatePassword() {
   const location = useLocation();
@@ -65,7 +66,7 @@ export default function CreatePassword() {
       }
     } else if (token && userId) {
       // Récupérer les données utilisateur depuis le cache via l'API
-      fetch(`http://localhost:8000/api/temp-user-data/${userId}`)
+      fetch(`${API_URL}/api/temp-user-data/${userId}`)
         .then(response => {
           console.log('Réponse API temp-user-data - Status:', response.status);
           return response.json();

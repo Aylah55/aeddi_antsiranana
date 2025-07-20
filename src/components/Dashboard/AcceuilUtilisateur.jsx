@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../services/api';
 import { BarChart, DollarSign, Users, Calendar } from 'lucide-react';
 import {
     Chart as ChartJS,
@@ -49,7 +50,7 @@ const AcceuilUtilisateur = () => {
     const [error, setError] = useState(null);
 
     const axiosInstance = axios.create({
-        baseURL: 'http://localhost:8000/api',
+        baseURL: `${API_URL}/api`,
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
             'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.NODE_ENV === 'development' 
+export const API_URL = process.env.NODE_ENV === 'development' 
   ? (process.env.REACT_APP_API_URL_LOCAL || 'http://localhost:8000')
   : (process.env.REACT_APP_API_URL_PROD || 'https://aeddi-back.onrender.com');
 
@@ -89,8 +89,9 @@ export const authService = {
   // Connexion
   login: async (credentials) => {
     try {
-      await getCsrfToken();
-      console.log('CSRF token récupéré, tentative de connexion...');
+      // Désactiver temporairement la récupération du CSRF token
+      // await getCsrfToken();
+      console.log('Tentative de connexion sans CSRF token...');
     } catch (error) {
       console.log('CSRF token non récupéré, tentative de connexion sans...');
     }
@@ -121,7 +122,8 @@ export const authService = {
   // Créer un mot de passe pour utilisateur Google
   setPassword: async (data) => {
     try {
-      await getCsrfToken();
+      // Désactiver temporairement la récupération du CSRF token
+      // await getCsrfToken();
       console.log('Tentative de création de mot de passe pour utilisateur Google...');
       
       const response = await apiClient.post('/set-password', data);
@@ -152,7 +154,8 @@ export const userService = {
   // Mise à jour du profil utilisateur
   updateProfile: async (id, formData) => {
     try {
-      await getCsrfToken();
+      // Désactiver temporairement la récupération du CSRF token
+      // await getCsrfToken();
       
       // S'assurer que formData est une instance de FormData
       const data = formData instanceof FormData ? formData : new FormData();

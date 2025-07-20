@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { API_URL } from '../../services/api';
 
 const GoogleCallback = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const GoogleCallback = () => {
       console.log('Token stocké dans localStorage');
       
       // Récupérer les données utilisateur depuis l'API
-      fetch(`http://localhost:8000/api/temp-user-data/${userId}`)
+      fetch(`${API_URL}/api/temp-user-data/${userId}`)
         .then(response => {
           console.log('Réponse API temp-user-data - Status:', response.status);
           return response.json();

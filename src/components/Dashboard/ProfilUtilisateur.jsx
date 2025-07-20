@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUserInfo, updateUserProfile } from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
+import { API_URL } from '../../services/api';
 
 function ProfilUtilisateur({ user: initialUser, setUser: setParentUser }) {
     const navigate = useNavigate();
@@ -216,7 +217,7 @@ function ProfilUtilisateur({ user: initialUser, setUser: setParentUser }) {
                         <div className="relative w-48 h-48 mb-6 rounded-lg overflow-hidden border-4 border-white shadow-lg">
                             {user.photo ? (
                                 <img
-                                    src={`http://localhost:8000/storage/${user.photo}`}
+                                    src={`${API_URL}/storage/${user.photo}`}
                                     alt="Photo de profil"
                                     className="w-full h-full object-cover"
                                 />

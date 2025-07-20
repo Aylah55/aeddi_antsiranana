@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Eye, Edit, Trash2, PlusCircle, X, MoreVertical } from 'lucide-react';
 import { toast } from 'react-toastify';
 import DetailCotisation from './DetailCotisation.jsx';
+import { API_URL } from '../../services/api';
 
 const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
     const [cotisations, setCotisations] = useState([]);
@@ -26,7 +27,7 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
     const [activeDropdown, setActiveDropdown] = useState(null);
 
     const axiosInstance = axios.create({
-        baseURL: 'http://localhost:8000/api',
+        baseURL: `${API_URL}/api`,
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
             'Content-Type': 'application/json',
