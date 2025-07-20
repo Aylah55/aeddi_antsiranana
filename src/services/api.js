@@ -6,6 +6,19 @@ export const API_URL = process.env.NODE_ENV === 'development'
 
 const API_PREFIX = '/api';
 
+// Fonction utilitaire pour obtenir l'URL complète d'une photo
+export const getPhotoUrl = (photoPath) => {
+  if (!photoPath) return null;
+  
+  // Si c'est déjà une URL complète, la retourner
+  if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) {
+    return photoPath;
+  }
+  
+  // Si c'est un chemin relatif, construire l'URL complète
+  return `${API_URL}/storage/${photoPath}`;
+};
+
 // Debug: Afficher l'URL de l'API
 console.log('API_URL:', API_URL);
 console.log('Base URL:', API_URL + API_PREFIX);

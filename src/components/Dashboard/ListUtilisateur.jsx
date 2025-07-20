@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FiSearch, FiUser, FiEdit, FiTrash2, FiEye, FiMoreVertical, FiX } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { userService, apiClient, API_URL } from '../../services/api';
+import { userService, apiClient, API_URL, getPhotoUrl } from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DollarSign } from 'lucide-react';
-
-const getPhotoUrl = (photoPath) => `${API_URL}/storage/${photoPath}`;
 
 const ListUtilisateur = () => {
     const [users, setUsers] = useState([]);
@@ -64,7 +62,8 @@ const ListUtilisateur = () => {
                         parcours: user.parcours || '',
                         niveau: user.niveau || '',
                         promotion: user.promotion || '',
-                        photo: user.photo || null
+                        photo: user.photo || null,
+                        photo_url: user.photo_url || null
                     }));
 
                 console.log('Utilisateurs nettoyés:', cleanedUsers);
@@ -418,9 +417,9 @@ const ListUtilisateur = () => {
                                 <tr key={user.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="w-10 h-10 rounded-full overflow-hidden">
-                                            {user.photo ? (
+                                            {(user.photo_url || user.photo) ? (
                                                 <img
-                                                    src={getPhotoUrl(user.photo)}
+                                                    src={user.photo_url || getPhotoUrl(user.photo)}
                                                     alt={`${user.nom} ${user.prenom}`}
                                                     className="w-full h-full object-cover"
                                                 />
@@ -632,9 +631,9 @@ const ListUtilisateur = () => {
                                                 alt="Prévisualisation"
                                                 className="w-full h-full object-cover rounded-lg"
                                             />
-                                        ) : editingUser.photo ? (
+                                        ) : (editingUser.photo_url || editingUser.photo) ? (
                                             <img
-                                                src={getPhotoUrl(editingUser.photo)}
+                                                src={editingUser.photo_url || getPhotoUrl(editingUser.photo)}
                                                 alt="Photo de profil"
                                                 className="w-full h-full object-cover rounded-lg"
                                             />
@@ -859,9 +858,9 @@ const ListUtilisateur = () => {
                                 {/* Photo de profil - Partie gauche */}
                                 <div className="md:w-1/3 bg-gray-50 p-4 flex flex-col items-center rounded-lg">
                                     <div className="w-32 h-32 mb-4 rounded-lg overflow-hidden border-4 border-white shadow-lg">
-                                        {selectedUser.photo ? (
+                                        {(selectedUser.photo_url || selectedUser.photo) ? (
                                             <img
-                                                src={getPhotoUrl(selectedUser.photo)}
+                                                src={selectedUser.photo_url || getPhotoUrl(selectedUser.photo)}
                                                 alt="Photo de profil"
                                                 className="w-full h-full object-cover"
                                             />

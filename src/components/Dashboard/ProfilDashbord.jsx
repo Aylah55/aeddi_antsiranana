@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../../services/api';
+import { API_URL, getPhotoUrl } from '../../services/api';
 import { LogOut, Bell, Settings, Home, User, Calendar, Users, CreditCard, Trash2 } from 'lucide-react';
 import ProfilUtilisateur from './ProfilUtilisateur';
 import ListeUtilisateur from './ListUtilisateur';
@@ -322,9 +322,9 @@ const ProfilDashbord = () => {
                                 onClick={handleProfileClick}
                             >
                                 <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-100">
-                                    {user?.photo ? (
+                                    {(user?.photo_url || user?.photo) ? (
                                         <img
-                                            src={user.photo}
+                                            src={user.photo_url || getPhotoUrl(user.photo)}
                                             alt="Photo de profil"
                                             className="w-full h-full object-cover"
                                         />

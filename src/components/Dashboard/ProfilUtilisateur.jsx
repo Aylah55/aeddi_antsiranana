@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserInfo, updateUserProfile } from '../../services/api';
+import { getUserInfo, updateUserProfile, getPhotoUrl } from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { API_URL } from '../../services/api';
@@ -215,9 +215,9 @@ function ProfilUtilisateur({ user: initialUser, setUser: setParentUser }) {
                 <div className="md:w-1/3 bg-gray-50 border-r border-gray-200">
                     <div className="p-6 flex flex-col items-center">
                         <div className="relative w-48 h-48 mb-6 rounded-lg overflow-hidden border-4 border-white shadow-lg">
-                            {user.photo ? (
+                            {(user.photo_url || user.photo) ? (
                                 <img
-                                    src={user.photo}
+                                    src={user.photo_url || getPhotoUrl(user.photo)}
                                     alt="Photo de profil"
                                     className="w-full h-full object-cover"
                                 />
