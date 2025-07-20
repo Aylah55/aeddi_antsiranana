@@ -217,7 +217,7 @@ function ProfilUtilisateur({ user: initialUser, setUser: setParentUser }) {
                         <div className="relative w-48 h-48 mb-6 rounded-lg overflow-hidden border-4 border-white shadow-lg">
                             {user.photo ? (
                                 <img
-                                    src={`${API_URL}/storage/${user.photo}`}
+                                    src={user.photo}
                                     alt="Photo de profil"
                                     className="w-full h-full object-cover"
                                 />

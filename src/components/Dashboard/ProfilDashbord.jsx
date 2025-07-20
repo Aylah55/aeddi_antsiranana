@@ -324,7 +324,7 @@ const ProfilDashbord = () => {
                                 <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-100">
                                     {user?.photo ? (
                                         <img
-                                            src={`${API_URL}/storage/${user.photo}`}
+                                            src={user.photo}
                                             alt="Photo de profil"
                                             className="w-full h-full object-cover"
                                         />
