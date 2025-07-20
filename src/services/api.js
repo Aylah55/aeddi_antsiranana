@@ -388,6 +388,3 @@ export const resetPassword = async (email, token, password, password_confirmatio
     return handleApiError(error);
   }
 };
-
-// Export explicite de l'URL de l'API
-export { API_URL };
