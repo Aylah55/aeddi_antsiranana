@@ -375,11 +375,9 @@ export const sendResetPasswordEmail = async (email) => {
   }
 };
 
-// Fonction pour réinitialiser le mot de passe
+
 export const resetPassword = async (email, token, password, password_confirmation) => {
   try {
-    // Désactiver temporairement la récupération du CSRF token
-    // await getCsrfToken();
     return await apiClient.post('/reset-password', {
       email,
       token,
