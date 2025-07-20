@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: aeddi-front
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://aeddi-back.onrender.com
+      - key: REACT_APP_GOOGLE_CLIENT_ID
+        value: 221609391832-tl7g674a6gi76lge0gqq1p6i6ckj6qga.apps.googleusercontent.com
+      - key: REACT_APP_FRONTEND_URL
+        value: https://aeddi-front.onrender.com 
