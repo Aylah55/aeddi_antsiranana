@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_URL, getPhotoUrl } from '../../services/api';
-import { LogOut, Bell, Settings, Home, User, Calendar, Users, CreditCard, Trash2 } from 'lucide-react';
+import { LogOut, Bell, Settings, Home, User, Calendar, Users, CreditCard, Trash2, Menu } from 'lucide-react';
 import ProfilUtilisateur from './ProfilUtilisateur';
 import ListeUtilisateur from './ListUtilisateur';
 import ListeActivites from './ListeActivites';
@@ -33,6 +33,7 @@ const ProfilDashbord = () => {
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
     const [isCreatingPassword, setIsCreatingPassword] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Vérifier si l'utilisateur a un mot de passe temporaire (utilisateur Google)
     const hasTemporaryPassword = user?.provider === 'google' && !user?.password_set;
@@ -284,39 +285,24 @@ const ProfilDashbord = () => {
                 {/* En-tête */}
                 <header className="bg-white border-b border-gray-200">
                     <div className="flex justify-between items-center h-16 px-4">
-                        <div>
+                        {/* Hamburger menu pour mobile */}
+                        <div className="md:hidden flex items-center">
+                            <button
+                                onClick={() => setIsMobileMenuOpen(true)}
+                                className="p-2 focus:outline-none"
+                                aria-label="Ouvrir le menu"
+                            >
+                                <Menu className="w-7 h-7 text-blue-700" />
+                            </button>
+                        </div>
+                        {/* Titre (masqué sur mobile) */}
+                        <div className="hidden md:block">
                             <h1 className="text-xl font-semibold text-gray-800">
                                 {menuItems.find(item => item.id === activeItem)?.label || 'Tableau de bord'}
                             </h1>
                         </div>
-                        <div className="flex items-center space-x-6">
-                            <p className="text-sm text-gray-700 font-medium">
-                                {formatDate(dateHeure)}
-                            </p>
-
-                            {/* Message d'alerte pour mot de passe temporaire */}
-                            {hasTemporaryPassword && (
-                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 shadow-sm">
-                                    <div className="flex items-center space-x-3">
-                                        <svg className="w-5 h-5 text-yellow-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-                                            <span className="text-sm text-yellow-800 font-medium">
-                                                Votre mot de passe est temporaire
-                                            </span>
-                                            <button
-                                                onClick={handleCreatePassword}
-                                                className="text-sm text-yellow-700 underline hover:text-yellow-800 font-medium transition-colors"
-                                            >
-                                                Créer un mot de passe
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Photo de profil et nom */}
+                        {/* Profil et nom toujours visibles */}
+                        <div className="flex items-center space-x-3 ml-auto">
                             <div
                                 className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors"
                                 onClick={handleProfileClick}
@@ -338,10 +324,34 @@ const ProfilDashbord = () => {
                                     {user?.nom} {user?.prenom}
                                 </span>
                             </div>
-
-                            {/* Icône Message avant Notification */}
+                        </div>
+                        {/* Section droite (date, notifications, etc.) masquée sur mobile */}
+                        <div className="hidden md:flex items-center space-x-6">
+                            <p className="text-sm text-gray-700 font-medium">
+                                {formatDate(dateHeure)}
+                            </p>
+                            {/* Message d'alerte pour mot de passe temporaire */}
+                            {hasTemporaryPassword && (
+                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 shadow-sm">
+                                    <div className="flex items-center space-x-3">
+                                        <svg className="w-5 h-5 text-yellow-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        </svg>
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+                                            <span className="text-sm text-yellow-800 font-medium">
+                                                Votre mot de passe est temporaire
+                                            </span>
+                                            <button
+                                                onClick={handleCreatePassword}
+                                                className="text-sm text-yellow-700 underline hover:text-yellow-800 font-medium transition-colors"
+                                            >
+                                                Créer un mot de passe
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                             <Message />
-                            {/* Icône de Notification */}
                             <div className="relative" ref={notificationRef}>
                                 <div className="w-6 h-6 cursor-pointer" onClick={toggleNotifications}>
                                     <Bell className="w-6 h-6 text-gray-700" />
@@ -363,8 +373,6 @@ const ProfilDashbord = () => {
                                     />
                                 )}
                             </div>
-
-                            {/* Bouton de déconnexion */}
                             <button
                                 onClick={handleLogout}
                                 className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
@@ -525,6 +533,67 @@ const ProfilDashbord = () => {
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+        )}
+
+        {/* Menu mobile latéral */}
+        {isMobileMenuOpen && (
+            <div className="fixed inset-0 z-50 flex">
+                {/* Overlay */}
+                <div className="fixed inset-0 bg-black bg-opacity-40" onClick={() => setIsMobileMenuOpen(false)}></div>
+                {/* Menu latéral */}
+                <div className="relative bg-white w-64 max-w-full h-full shadow-xl animate-slide-in-left flex flex-col p-6">
+                    <button
+                        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        aria-label="Fermer le menu"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <div className="flex flex-col items-center mt-8 mb-6">
+                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-200 mb-2">
+                            {(user?.photo_url || user?.photo) ? (
+                                <img
+                                    src={user.photo_url || getPhotoUrl(user.photo)}
+                                    alt="Photo de profil"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-blue-50 flex items-center justify-center">
+                                    <span className="text-2xl text-blue-400">👤</span>
+                                </div>
+                            )}
+                        </div>
+                        <span className="text-lg font-semibold text-gray-800">{user?.nom} {user?.prenom}</span>
+                    </div>
+                    <div className="flex flex-col space-y-4 mt-4">
+                        <button
+                            onClick={() => { setIsMobileMenuOpen(false); toggleNotifications(); }}
+                            className="flex items-center px-4 py-3 rounded-lg hover:bg-blue-50 transition-colors text-blue-700 font-medium"
+                        >
+                            <Bell className="mr-3" size={22} /> Notifications
+                            {unreadCount > 0 && (
+                                <span className="ml-2 bg-red-500 w-5 h-5 text-xs flex items-center justify-center text-white rounded-full border-2 border-white">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => { setIsMobileMenuOpen(false); }}
+                            className="flex items-center px-4 py-3 rounded-lg hover:bg-blue-50 transition-colors text-blue-700 font-medium"
+                        >
+                            <Message className="mr-3" size={22} /> Messages
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center px-4 py-3 rounded-lg hover:bg-red-50 transition-colors text-red-600 font-medium"
+                        >
+                            <LogOut className="mr-3" size={22} /> Déconnexion
+                        </button>
+                    </div>
                 </div>
             </div>
         )}

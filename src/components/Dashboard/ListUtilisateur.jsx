@@ -375,15 +375,19 @@ const ListUtilisateur = () => {
             </div>
 
             {/* En-têtes fixes */}
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative">
+                {/* Indicateur mobile */}
+                <div className="md:hidden absolute top-2 right-4 z-20 text-xs text-blue-400 pointer-events-none animate-bounce">
+                  ⇠ Glissez pour voir plus ⇢
+                </div>
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50 sticky top-0 z-10">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Photo</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prénom</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Photo</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prénom</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                 </table>
@@ -410,12 +414,16 @@ const ListUtilisateur = () => {
                     </button>
                 </div>
             ) : (
-                <div className="overflow-x-auto" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                    {/* Indicateur mobile */}
+                    <div className="md:hidden absolute top-2 right-4 z-20 text-xs text-blue-400 pointer-events-none animate-bounce">
+                      ⇠ Glissez pour voir plus ⇢
+                    </div>
                     <table className="min-w-full divide-y divide-gray-200">
                         <tbody className="bg-white divide-y divide-gray-200">
                             {currentUsers.map(user => (
                                 <tr key={user.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap">
                                         <div className="w-10 h-10 rounded-full overflow-hidden">
                                             {(user.photo_url || user.photo) ? (
                                                 <img
@@ -430,10 +438,10 @@ const ListUtilisateur = () => {
                                             )}
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{user.nom}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.prenom}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.email}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-base font-medium relative">
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{user.nom}</td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.prenom}</td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.email}</td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium relative">
                                         <div className="action-menu">
                                             <button
                                                 onClick={(e) => {
