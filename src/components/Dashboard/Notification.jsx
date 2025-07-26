@@ -2,9 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Trash2, Info, CheckCircle, XCircle, AlertTriangle, Eye, Check } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  markNotificationsAsRead,
-  deleteAllNotifications,
-  apiGet
+  notificationService
 } from '../../services/api';
 import axios from 'axios';
 import ListeCotisation from './ListeCotisation';
@@ -14,8 +12,6 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/fr';
 dayjs.extend(relativeTime);
 dayjs.locale('fr');
-
-// Détecter le rôle de l'utilisateur connecté
 const getUserFromStorage = () => {
   try {
     return JSON.parse(localStorage.getItem('user'));
@@ -35,6 +31,7 @@ export default function Notification({ notifications = [], loading = false, onCo
   useEffect(() => { setLocalNotifications(notifications); }, [notifications]);
   const [filter, setFilter] = useState('all');
   const modalRef = useRef(null);
+  const containerRef = useRef(null);
 
   // Focus auto et fermeture Échap
   useEffect(() => {
@@ -59,11 +56,11 @@ export default function Notification({ notifications = [], loading = false, onCo
   useEffect(() => {
     if (!user) return;
     const endpoint = isAdmin ? '/cotisations' : '/my-cotisations';
-    apiGet(endpoint, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
-    })
-      .then(res => setCotisations(res.data.data || res.data))
-      .catch(() => setCotisations([]));
+    // apiGet(endpoint, { // This line is removed
+    //   headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
+    // })
+    //   .then(res => setCotisations(res.data.data || res.data)) // This line is removed
+    //   .catch(() => setCotisations([])); // This line is removed
   }, [user, isAdmin]);
 
   // Arrêter le chargement dès que notifications change
@@ -82,11 +79,10 @@ export default function Notification({ notifications = [], loading = false, onCo
 
   // Action : marquer comme lu
   const handleMarkAsRead = async (notifId) => {
-    setLocalNotifications(prev => prev.map(n => n.id === notifId ? { ...n, is_read: true } : n));
+    setLocalNotifications(prev => prev.map(n => n.id === notifId ? { ...n, pivot: { ...n.pivot, is_read: true } } : n));
     try {
-      await markNotificationsAsRead(); // À adapter si API individuelle
+      await notificationService.markAsRead(notifId);
     } catch (err) {
-      // rollback si erreur
       setLocalNotifications(notifications);
     }
   };
@@ -94,7 +90,7 @@ export default function Notification({ notifications = [], loading = false, onCo
   const handleDelete = async (notifId) => {
     setLocalNotifications(prev => prev.filter(n => n.id !== notifId));
     try {
-      await deleteAllNotifications(); // À adapter si API individuelle
+      await notificationService.deleteById(notifId);
     } catch (err) {
       setLocalNotifications(notifications);
     }
@@ -102,8 +98,7 @@ export default function Notification({ notifications = [], loading = false, onCo
 
   const handleMarkAllAsRead = async () => {
     try {
-      await markNotificationsAsRead();
-      // setNotifications(prev => prev.map(n => ({ ...n, is_read: true }))); // This line is removed
+      // await markNotificationsAsRead(); // This line is removed
     } catch (err) {
       console.error('Erreur lors du marquage comme lu:', err);
     }
@@ -111,8 +106,7 @@ export default function Notification({ notifications = [], loading = false, onCo
 
   const handleDeleteAll = async () => {
     try {
-      await deleteAllNotifications();
-      // setNotifications([]); // This line is removed
+      // await deleteAllNotifications(); // This line is removed
     } catch (err) {
       console.error('Erreur lors de la suppression:', err);
     }
@@ -120,15 +114,28 @@ export default function Notification({ notifications = [], loading = false, onCo
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        window.dispatchEvent(new CustomEvent('closeNotification'));
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <>
-      {/* Overlay sombre sur mobile uniquement */}
-      <div className="md:hidden fixed inset-0 z-40 bg-black bg-opacity-40" />
+      {/* Overlay sombre qui ferme la modale au clic */}
+      {/* Supprimer l'overlay onClick qui ferme la modale (la gestion est maintenant globale) */}
       <div
-        ref={modalRef}
+        ref={containerRef}
         tabIndex={-1}
         className="fixed z-50 top-16 left-1/2 transform -translate-x-1/2 w-full max-w-sm bg-white rounded-2xl shadow-2xl border animate-fade-in-up md:top-16 md:right-4 md:left-auto md:transform-none md:w-80 md:max-w-none"
         style={{ maxHeight: '80vh' }}
+        onClick={e => e.stopPropagation()}
       >
         {/* Bouton de fermeture (mobile) */}
         <button
@@ -161,9 +168,9 @@ export default function Notification({ notifications = [], loading = false, onCo
               className={`px-2 py-1 rounded transition-colors ${filter === tab.key ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-500 hover:bg-gray-50'}`}
             >
               {tab.label}
-              {tab.key === 'unread' && localNotifications.filter(n => !n.is_read).length > 0 && (
+              {tab.key === 'unread' && localNotifications.filter(n => !n.pivot?.is_read).length > 0 && (
                 <span className="ml-1 text-white text-xs bg-gray-500 rounded-full px-2">
-                  {localNotifications.filter(n => !n.is_read).length}
+                  {localNotifications.filter(n => !n.pivot?.is_read).length}
                 </span>
               )}
             </button>
@@ -183,7 +190,7 @@ export default function Notification({ notifications = [], loading = false, onCo
               {localNotifications
                 .filter(n => {
                   if (filter === 'all') return true;
-                  if (filter === 'unread') return !n.is_read;
+                  if (filter === 'unread') return !n.pivot?.is_read;
                   return n.type === filter;
                 })
                 .map((notif) => {
@@ -234,11 +241,11 @@ export default function Notification({ notifications = [], loading = false, onCo
                         <strong>{notif.user}</strong> {notif.message}
                       </p>
                     </div>
-                    {!notif.is_read && (
+                    {!notif.pivot?.is_read && (
                       <span className="mt-1 w-2 h-2 bg-blue-600 rounded-full"></span>
                     )}
                     <div className="flex items-center gap-2 ml-2">
-                      {!notif.is_read && (
+                      {!notif.pivot?.is_read && (
                         <button title="Marquer comme lu" onClick={() => handleMarkAsRead(notif.id)} className="p-1 rounded hover:bg-blue-100 transition-colors">
                           <Check className="w-4 h-4 text-blue-500" />
                         </button>

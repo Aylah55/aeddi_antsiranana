@@ -23,6 +23,9 @@ const ListeActivites = () => {
     const [formErrors, setFormErrors] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [activeDropdown, setActiveDropdown] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [activiteToDelete, setActiviteToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const axiosInstance = axios.create({
         baseURL: `${API_URL}/api`,
@@ -229,6 +232,32 @@ const ListeActivites = () => {
 
     const isAdmin = user?.role === 'admin';
 
+    // Suppression d'une activité (admin)
+    const handleDeleteActivite = (activite) => {
+        setActiviteToDelete(activite);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteActivite = async () => {
+        if (!activiteToDelete) return;
+        setIsDeleting(true);
+        try {
+            await axiosInstance.delete(`/activite/${activiteToDelete.id}`);
+            setActivites(activites.filter(a => a.id !== activiteToDelete.id));
+            toast.success('Activité supprimée avec succès !');
+            setShowDeleteModal(false);
+            setActiviteToDelete(null);
+        } catch (error) {
+            let errorMessage = "Erreur lors de la suppression de l'activité";
+            if (error.response && error.response.data && error.response.data.message) {
+                errorMessage = error.response.data.message;
+            }
+            toast.error(errorMessage);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     return (
         <div className="p-6 bg-white rounded-lg shadow">
             <div className="flex justify-between items-center mb-4">
@@ -243,7 +272,6 @@ const ListeActivites = () => {
                     </button>
                 )}
             </div>
-
             {erreur && (
                 <div className={`mb-4 p-3 rounded ${
                     erreur.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
@@ -345,7 +373,7 @@ const ListeActivites = () => {
                                                                 </button>
                                                                 <button
                                                                     onClick={() => {
-                                                                        // Ajouter la logique de suppression ici
+                                                                        handleDeleteActivite(item);
                                                                         setActiveDropdown(null);
                                                                     }}
                                                                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -415,7 +443,7 @@ const ListeActivites = () => {
                                                 <button onClick={() => { openEditModal(activite); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 action-menu">
                                                     <Edit className="mr-2 h-4 w-4 text-yellow-600" /> Modifier
                                                 </button>
-                                                <button onClick={() => { /* Ajouter la logique de suppression ici */ setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-red-50 action-menu">
+                                                <button onClick={() => { handleDeleteActivite(activite); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-red-50 action-menu">
                                                     <Trash2 className="mr-2 h-4 w-4 text-red-600" /> Supprimer
                                                 </button>
                                             </>
@@ -727,6 +755,54 @@ const ListeActivites = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de confirmation de suppression */}
+            {showDeleteModal && activiteToDelete && (
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+                        <button
+                            onClick={() => {
+                                setShowDeleteModal(false);
+                                setActiviteToDelete(null);
+                            }}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                            title="Fermer"
+                            disabled={isDeleting}
+                        >
+                            <X size={24} />
+                        </button>
+                        <div className="mb-4">
+                            <h3 className="text-lg font-bold mb-2 text-red-600">Confirmer la suppression</h3>
+                            <p>Voulez-vous vraiment supprimer l'activité <span className="font-semibold">"{activiteToDelete.nom}"</span> ? Cette action est irréversible.</p>
+                        </div>
+                        <div className="flex justify-end gap-3 mt-6">
+                            <button
+                                onClick={() => {
+                                    setShowDeleteModal(false);
+                                    setActiviteToDelete(null);
+                                }}
+                                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                                disabled={isDeleting}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={confirmDeleteActivite}
+                                className={`px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={isDeleting}
+                            >
+                                {isDeleting && (
+                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                )}
+                                Supprimer
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

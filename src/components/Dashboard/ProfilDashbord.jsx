@@ -7,9 +7,9 @@ import ListeUtilisateur from './ListUtilisateur';
 import ListeActivites from './ListeActivites';
 import ListeCotisation from './ListeCotisation';
 import AcceuilUtilisateur from './AcceuilUtilisateur';
+import { fetchNotifications, markNotificationsAsRead } from '../../services/api';
 import logo from '../../assets/logo/aeddi.png';
 import Notification from './Notification';
-import { fetchNotifications, markNotificationsAsRead, setPassword } from '../../services/api';
 import Message from './Message';
 import { toast } from 'react-toastify';
 import { Info, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
@@ -27,77 +27,11 @@ const ProfilDashbord = () => {
     const [notifications, setNotifications] = useState([]);
     const notificationRef = useRef(null);
     const [cotisationToView, setCotisationToView] = useState(null);
-    const [showPasswordModal, setShowPasswordModal] = useState(false);
-    const [passwordData, setPasswordData] = useState({
-        password: '',
-        password_confirmation: ''
-    });
-    const [passwordError, setPasswordError] = useState('');
-    const [passwordSuccess, setPasswordSuccess] = useState('');
-    const [isCreatingPassword, setIsCreatingPassword] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isMobileMenuVisible, setIsMobileMenuVisible] = useState(false);
     const [showMessage, setShowMessage] = useState(false);
     const [isNotifLoading, setIsNotifLoading] = useState(true);
-
-    // Vérifier si l'utilisateur a un mot de passe temporaire (utilisateur Google)
-    const hasTemporaryPassword = user?.provider === 'google' && !user?.password_set;
-
-    // Fonction pour ouvrir le modal de création de mot de passe
-    const handleCreatePassword = () => {
-        setShowPasswordModal(true);
-        setPasswordError('');
-        setPasswordSuccess('');
-        setPasswordData({ password: '', password_confirmation: '' });
-    };
-
     // Fonction pour gérer la soumission du formulaire de mot de passe
-    const handlePasswordSubmit = async (e) => {
-        e.preventDefault();
-        setIsCreatingPassword(true);
-        setPasswordError('');
-        setPasswordSuccess('');
-
-        if (passwordData.password !== passwordData.password_confirmation) {
-            setPasswordError('Les mots de passe ne correspondent pas');
-            setIsCreatingPassword(false);
-            return;
-        }
-
-        try {
-            await setPassword({
-                email: user.email,
-                password: passwordData.password,
-                password_confirmation: passwordData.password_confirmation
-            });
-            
-            setPasswordSuccess('Mot de passe créé avec succès !');
-            
-            // Mettre à jour l'utilisateur localement
-            const updatedUser = { ...user, password_set: true };
-            setUser(updatedUser);
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-            
-            // Fermer le modal après 2 secondes
-            setTimeout(() => {
-                setShowPasswordModal(false);
-                setPasswordSuccess('');
-            }, 2000);
-        } catch (err) {
-            setPasswordError(err.response?.data?.message || 'Erreur lors de la création du mot de passe');
-        } finally {
-            setIsCreatingPassword(false);
-        }
-    };
-
-    // Fonction pour fermer le modal
-    const handleClosePasswordModal = () => {
-        setShowPasswordModal(false);
-        setPasswordError('');
-        setPasswordSuccess('');
-        setPasswordData({ password: '', password_confirmation: '' });
-    };
-
     // Vérifier si l'utilisateur est admin
     const isAdmin = user?.role === 'admin';
 
@@ -328,8 +262,7 @@ const ProfilDashbord = () => {
                             <div className="w-14 h-14 rounded-full overflow-hidden border-4 border-blue-300 shadow-lg transition-transform duration-200 hover:scale-105">
                                 {(user?.photo_url || user?.photo) ? (
                                     <img
-                                        src={user.photo_url || getPhotoUrl(user.photo)}
-                                        alt="Photo de profil"
+                                        src={user.photo_url || getPhotoUrl(user.photo)}                               
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
@@ -339,7 +272,7 @@ const ProfilDashbord = () => {
                     )}
                 </div>
                             <span className="text-base font-semibold text-gray-700">
-                                {user?.nom} {user?.prenom}
+                                 {user?.prenom}
                             </span>
                         </div>
                     </div>
@@ -348,27 +281,7 @@ const ProfilDashbord = () => {
                             <p className="text-sm text-gray-700 font-medium">
                                 {formatDate(dateHeure)}
                             </p>
-                            {/* Message d'alerte pour mot de passe temporaire */}
-                            {hasTemporaryPassword && (
-                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3 shadow-sm">
-                                    <div className="flex items-center space-x-3">
-                                        <svg className="w-5 h-5 text-yellow-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-                                            <span className="text-sm text-yellow-800 font-medium">
-                                                Votre mot de passe est temporaire
-                                            </span>
-                                            <button
-                                                onClick={handleCreatePassword}
-                                                className="text-sm text-yellow-700 underline hover:text-yellow-800 font-medium transition-colors"
-                                            >
-                                                Créer un mot de passe
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+                            {/* Message d'alerte pour mot de passe temporaire */}                      
                             <button
                                 className="relative focus:outline-none"
                                 onClick={() => setShowMessage(true)}
@@ -430,34 +343,7 @@ const ProfilDashbord = () => {
                 <div className="flex-1 flex flex-col" style={{ minHeight: '100vh', marginLeft: 0 }}>
                     <div className="h-16 md:h-16" />
                     <main className="flex-1 overflow-y-auto overflow-x-hidden px-2 md:px-6 pb-20 md:ml-64 pt-0">
-                        {/* Message d'alerte principal pour mot de passe temporaire */}
-                        {hasTemporaryPassword && (
-                            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-b border-yellow-200 px-4 py-3">
-                                <div className="max-w-7xl mx-auto">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-3">
-                                            <svg className="w-6 h-6 text-yellow-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                            </svg>
-                                            <div>
-                                                <h3 className="text-sm font-semibold text-yellow-800">
-                                                    Mot de passe temporaire détecté
-                                                </h3>
-                                                <p className="text-sm text-yellow-700">
-                                                    Pour une meilleure sécurité, créez un mot de passe permanent.
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={handleCreatePassword}
-                                            className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
-                                        >
-                                            Créer un mot de passe
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        {/* Message d'alerte principal pour mot de passe temporaire */}                     
                         {renderContent()}
                     </main>
                     {/* Espace pour la barre de navigation fixe en bas */}
@@ -491,7 +377,6 @@ const ProfilDashbord = () => {
                         className={`fixed inset-0 bg-black bg-opacity-40 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
                         onClick={closeMobileMenu}
                     ></div>
-                    {/* Menu latéral */}
                     <div
                         className={`relative bg-white w-64 max-w-full h-full shadow-xl flex flex-col p-6 transition-transform duration-300 ease-in-out
                             ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
@@ -543,16 +428,18 @@ const ProfilDashbord = () => {
                 </div>
             )}
             {showNotifications && (
-                <Notification
-                    notifications={notifications}
-                    loading={isNotifLoading}
-                    onClose={() => setShowNotifications(false)}
-                    onCotisationView={(cotisation) => {
-                        setActiveItem('cotisations');
-                        setCotisationToView(cotisation);
-                        setShowNotifications(false);
-                    }}
-                />
+                <div ref={notificationRef}>
+                    <Notification
+                        notifications={notifications}
+                        loading={isNotifLoading}
+                        onClose={() => setShowNotifications(false)}
+                        onCotisationView={(cotisation) => {
+                            setActiveItem('cotisations');
+                            setCotisationToView(cotisation);
+                            setShowNotifications(false);
+                        }}
+                    />
+                </div>
             )}
             {showMessage && (
                 <Message open={showMessage} onClose={() => setShowMessage(false)} />

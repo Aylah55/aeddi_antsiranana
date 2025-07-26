@@ -335,27 +335,21 @@ export const getAllUsers = async () => {
 };
 // Service des notifications
 export const notificationService = {
-  // Récupérer toutes les notifications
+  // Récupérer toutes les notifications de l'utilisateur
   fetchAll: () => {
-    return apiClient.get('/notifications')
-      .catch(handleApiError);
-  },
-
-  // Marquer toutes les notifications comme lues
-  markAllAsRead: () => {
-    return apiClient.post('/notifications/mark-all-read')
-      .catch(handleApiError);
-  },
-
-  // Supprimer toutes les notifications
-  deleteAll: () => {
-    return apiClient.delete('/notifications')
+    return apiClient.get('/user/notifications')
       .catch(handleApiError);
   },
 
   // Marquer une notification comme lue
   markAsRead: (id) => {
-    return apiClient.patch(`/notifications/${id}/read`)
+    return apiClient.patch(`/user/notifications/${id}/read`)
+      .catch(handleApiError);
+  },
+
+  // Supprimer une notification par son ID pour l'utilisateur
+  deleteById: (id) => {
+    return apiClient.delete(`/user/notifications/${id}`)
       .catch(handleApiError);
   }
 };
@@ -364,6 +358,7 @@ export const notificationService = {
 export const fetchNotifications = notificationService.fetchAll;
 export const markNotificationsAsRead = notificationService.markAllAsRead;
 export const deleteAllNotifications = notificationService.deleteAll;
+export const deleteNotificationById = notificationService.deleteById;
 
 // Alias pratiques pour les composants React
 export const fetchMessages = messageService.fetchAll;

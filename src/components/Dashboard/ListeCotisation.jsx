@@ -25,6 +25,9 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
     const [formErrors, setFormErrors] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [activeDropdown, setActiveDropdown] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [cotisationToDelete, setCotisationToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const axiosInstance = axios.create({
         baseURL: `${API_URL}/api`,
@@ -205,7 +208,27 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
     // Harmoniser la gestion du statut pour le modal
     const getCotisationStatus = (cotisation) => cotisation.status || cotisation.statut_paiement || '';
 
-    // Si l'utilisateur n'est pas encore chargé, afficher un loading
+    // Suppression d'une cotisation (admin)
+    const handleDeleteCotisation = async (cotisation) => {
+        setCotisationToDelete(cotisation);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteCotisation = async () => {
+        if (!cotisationToDelete) return;
+        setIsDeleting(true);
+        try {
+            await axiosInstance.delete(`/cotisation/${cotisationToDelete.id}`);
+            setCotisations(cotisations.filter(c => c.id !== cotisationToDelete.id));
+            toast.success('Cotisation supprimée avec succès !');
+            setShowDeleteModal(false);
+            setCotisationToDelete(null);
+        } catch (error) {
+            handleError(error, "Erreur lors de la suppression de la cotisation");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
     if (!user) {
         return (
             <div className="p-6 bg-white rounded-lg shadow">
@@ -392,7 +415,7 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
                                                 <button onClick={() => { setSelected(cotisation); setFormData({ nom: cotisation.nom, description: cotisation.description, montant: cotisation.montant, date_debut: formatDateForInput(cotisation.date_debut), date_fin: formatDateForInput(cotisation.date_fin), status: cotisation.status }); setShowEditModal(true); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 action-menu">
                                                     <Edit className="mr-2 h-4 w-4 text-yellow-600" /> Modifier
                                                 </button>
-                                                <button onClick={() => { /* Ajouter la logique de suppression ici */ setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-red-50 action-menu">
+                                                <button onClick={() => { handleDeleteCotisation(cotisation); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-red-50 action-menu">
                                                     <Trash2 className="mr-2 h-4 w-4 text-red-600" /> Supprimer
                                                 </button>
                                             </>
@@ -514,7 +537,8 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
                                                         </button>
                                                         <button
                                                             onClick={() => {
-                                                                // Ajouter la logique de suppression ici
+                                                                setCotisationToDelete(item);
+                                                                setShowDeleteModal(true);
                                                                 setActiveDropdown(null);
                                                             }}
                                                             className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -722,6 +746,54 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de confirmation de suppression */}
+            {showDeleteModal && cotisationToDelete && (
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+                        <button
+                            onClick={() => {
+                                setShowDeleteModal(false);
+                                setCotisationToDelete(null);
+                            }}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                            title="Fermer"
+                            disabled={isDeleting}
+                        >
+                            <X size={24} />
+                        </button>
+                        <div className="mb-4">
+                            <h3 className="text-lg font-bold mb-2 text-red-600">Confirmer la suppression</h3>
+                            <p>Voulez-vous vraiment supprimer la cotisation <span className="font-semibold">"{cotisationToDelete.nom}"</span> ? Cette action est irréversible.</p>
+                        </div>
+                        <div className="flex justify-end gap-3 mt-6">
+                            <button
+                                onClick={() => {
+                                    setShowDeleteModal(false);
+                                    setCotisationToDelete(null);
+                                }}
+                                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                                disabled={isDeleting}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={confirmDeleteCotisation}
+                                className={`px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={isDeleting}
+                            >
+                                {isDeleting && (
+                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                )}
+                                Supprimer
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
