@@ -337,6 +337,11 @@ export const getAllUsers = async () => {
 export const notificationService = {
   // Récupérer toutes les notifications de l'utilisateur
   fetchAll: () => {
+    // Log pour debug
+    const token = localStorage.getItem('auth_token');
+    console.log('Token d\'authentification:', token ? 'Présent' : 'Absent');
+    console.log('URL appelée:', '/user/notifications');
+    
     return apiClient.get('/user/notifications')
       .catch(handleApiError);
   },
@@ -347,9 +352,39 @@ export const notificationService = {
       .catch(handleApiError);
   },
 
+  // Marquer toutes les notifications comme lues
+  markAllAsRead: () => {
+    return apiClient.post('/notifications/mark-all-read')
+      .catch(handleApiError);
+  },
+
   // Supprimer une notification par son ID pour l'utilisateur
   deleteById: (id) => {
     return apiClient.delete(`/user/notifications/${id}`)
+      .catch(handleApiError);
+  },
+
+  // Supprimer toutes les notifications de l'utilisateur
+  deleteAll: () => {
+    return apiClient.delete('/notifications')
+      .catch(handleApiError);
+  },
+
+  // Créer une notification pour tous les utilisateurs (admin seulement)
+  createForAllUsers: (data) => {
+    return apiClient.post('/notifications/create-for-all', data)
+      .catch(handleApiError);
+  },
+
+  // Créer une notification pour des utilisateurs spécifiques (admin seulement)
+  createForUsers: (data) => {
+    return apiClient.post('/notifications/create-for-users', data)
+      .catch(handleApiError);
+  },
+
+  // Créer une notification pour un utilisateur spécifique (admin seulement)
+  createForUser: (data) => {
+    return apiClient.post('/notifications/create-for-user', data)
       .catch(handleApiError);
   }
 };

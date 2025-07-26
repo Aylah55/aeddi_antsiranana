@@ -53,42 +53,42 @@ const ProfilDashbord = () => {
                 // Toast pour nouvelle notification
                 const newNotifs = response.data.filter(n => !previousIds.includes(n.id));
                 if (previousIds.length > 0 && newNotifs.length > 0) {
-                  newNotifs.forEach(n => {
-                    let icon, color;
-                    switch (n.type) {
-                      case 'success':
-                        icon = CheckCircle;
-                        color = '#22c55e';
-                        break;
-                      case 'error':
-                        icon = XCircle;
-                        color = '#ef4444';
-                        break;
-                      case 'warning':
-                        icon = AlertTriangle;
-                        color = '#f59e42';
-                        break;
-                      default:
-                        icon = Info;
-                        color = '#3b82f6';
-                    }
-                    toast(<div style={{display:'flex',alignItems:'center',gap:8}}>
-                      {icon && React.createElement(icon, {size:24, color})}
-                      <div>
-                        <div style={{fontWeight:'bold'}}>{n.title || 'Notification'}</div>
-                        <div style={{fontSize:13}}>{n.message}</div>
-                      </div>
-                    </div>, {
-                      position: 'top-right',
-                      autoClose: 5000,
-                      hideProgressBar: false,
-                      closeOnClick: true,
-                      pauseOnHover: true,
-                      draggable: true,
-                      progress: undefined,
-                      style: {background:'#fff',borderLeft:`4px solid ${color}`}
+                    newNotifs.forEach(n => {
+                        let icon, color;
+                        switch (n.type) {
+                            case 'success':
+                                icon = CheckCircle;
+                                color = '#22c55e';
+                                break;
+                            case 'error':
+                                icon = XCircle;
+                                color = '#ef4444';
+                                break;
+                            case 'warning':
+                                icon = AlertTriangle;
+                                color = '#f59e42';
+                                break;
+                            default:
+                                icon = Info;
+                                color = '#3b82f6';
+                        }
+                        toast(<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {icon && React.createElement(icon, { size: 24, color })}
+                            <div>
+                                <div style={{ fontWeight: 'bold' }}>{n.title || 'Notification'}</div>
+                                <div style={{ fontSize: 13 }}>{n.message}</div>
+                            </div>
+                        </div>, {
+                            position: 'top-right',
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            style: { background: '#fff', borderLeft: `4px solid ${color}` }
+                        });
                     });
-                  });
                 }
                 previousIds = response.data.map(n => n.id);
             } catch (error) {
@@ -181,17 +181,22 @@ const ProfilDashbord = () => {
         }} />;
     };
 
-    const toggleNotifications = async () => {
-        if (!showNotifications && unreadCount > 0) {
-            try {
-                await markNotificationsAsRead();
-                setUnreadCount(0);
-                setNotifications(notifications.map(n => ({ ...n, is_read: true })));
-            } catch (error) {
-                console.error("Erreur de marquage comme lu", error);
-            }
-        }
+    const toggleNotifications = () => {
+        // Afficher immédiatement l'interface des notifications
         setShowNotifications(!showNotifications);
+
+        // Si on ouvre les notifications et qu'il y a des notifications non lues, les marquer comme lues en arrière-plan
+        if (!showNotifications && unreadCount > 0) {
+            // Marquer comme lu en arrière-plan sans bloquer l'affichage
+            markNotificationsAsRead()
+                .then(() => {
+                    setUnreadCount(0);
+                    setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+                })
+                .catch(error => {
+                    console.error("Erreur de marquage comme lu", error);
+                });
+        }
     };
 
     const renderContent = () => {
@@ -239,20 +244,20 @@ const ProfilDashbord = () => {
                 <div className="flex justify-between items-center h-16 px-4">
                     {/* Hamburger menu pour mobile */}
                     <div className="md:hidden flex items-center">
-                                <button
+                        <button
                             onClick={openMobileMenu}
                             className="p-2 focus:outline-none"
                             aria-label="Ouvrir le menu"
                         >
                             <Menu className="w-7 h-7 text-blue-700" />
-                                </button>
+                        </button>
                     </div>
                     {/* Titre (masqué sur mobile) */}
                     <div className="hidden md:block">
                         <h1 className="text-xl font-semibold text-gray-800">
                             {menuItems.find(item => item.id === activeItem)?.label || 'Tableau de bord'}
                         </h1>
-            </div>
+                    </div>
                     {/* Profil et nom toujours visibles */}
                     <div className="flex items-center space-x-3 ml-auto">
                         <div
@@ -262,53 +267,57 @@ const ProfilDashbord = () => {
                             <div className="w-14 h-14 rounded-full overflow-hidden border-4 border-blue-300 shadow-lg transition-transform duration-200 hover:scale-105">
                                 {(user?.photo_url || user?.photo) ? (
                                     <img
-                                        src={user.photo_url || getPhotoUrl(user.photo)}                               
+                                        src={user.photo_url || getPhotoUrl(user.photo)}
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-blue-50 flex items-center justify-center">
                                         <span className="text-2xl text-blue-400">👤</span>
                                     </div>
-                    )}
-                </div>
+                                )}
+                            </div>
                             <span className="text-base font-semibold text-gray-700">
-                                 {user?.prenom}
+                                {user?.prenom}
                             </span>
                         </div>
                     </div>
                     {/* Section droite (date, notifications, etc.) masquée sur mobile */}
                     <div className="hidden md:flex items-center space-x-6">
-                            <p className="text-sm text-gray-700 font-medium">
-                                {formatDate(dateHeure)}
-                            </p>
-                            {/* Message d'alerte pour mot de passe temporaire */}                      
+                        <p className="text-sm text-gray-700 font-medium">
+                            {formatDate(dateHeure)}
+                        </p>
+                        {/* Message d'alerte pour mot de passe temporaire */}
+                        <button
+                            className="relative focus:outline-none"
+                            onClick={() => setShowMessage(true)}
+                            title="Messages"
+                        >
+                            <Mail className="w-7 h-7 text-blue-600" />
+                        </button>
+                        <div className="relative" ref={notificationRef}>
                             <button
-                                className="relative focus:outline-none"
-                                onClick={() => setShowMessage(true)}
-                                title="Messages"
+                                className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                                onClick={toggleNotifications}
+                                title="Notifications"
                             >
-                                <Mail className="w-7 h-7 text-blue-600" />
-                            </button>
-                            <div className="relative" ref={notificationRef}>
-                                <div className="w-6 h-6 cursor-pointer" onClick={toggleNotifications}>
-                                    <Bell className="w-6 h-6 text-gray-700" />
-                                    {unreadCount > 0 && (
-                                        <span className="absolute -top-1 -right-1 bg-red-500 w-4 h-4 text-[10px] flex items-center justify-center text-white rounded-full border-2 border-white">
-                                            {unreadCount > 9 ? '9+' : unreadCount}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-                            <button
-                                onClick={handleLogout}
-                                className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Déconnexion"
-                            >
-                                <LogOut size={20} />
+                                <Bell className="w-6 h-6 text-gray-700" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 bg-red-500 w-4 h-4 text-[10px] flex items-center justify-center text-white rounded-full border-2 border-white animate-pulse">
+                                        {unreadCount > 9 ? '9+' : unreadCount}
+                                    </span>
+                                )}
                             </button>
                         </div>
+                        <button
+                            onClick={handleLogout}
+                            className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Déconnexion"
+                        >
+                            <LogOut size={20} />
+                        </button>
                     </div>
-                </header>
+                </div>
+            </header>
 
             <div className="flex flex-col min-h-screen bg-gray-50 md:flex-row">
                 {/* Sidebar pour grands écrans */}
@@ -343,7 +352,7 @@ const ProfilDashbord = () => {
                 <div className="flex-1 flex flex-col" style={{ minHeight: '100vh', marginLeft: 0 }}>
                     <div className="h-16 md:h-16" />
                     <main className="flex-1 overflow-y-auto overflow-x-hidden px-2 md:px-6 pb-20 md:ml-64 pt-0">
-                        {/* Message d'alerte principal pour mot de passe temporaire */}                     
+                        {/* Message d'alerte principal pour mot de passe temporaire */}
                         {renderContent()}
                     </main>
                     {/* Espace pour la barre de navigation fixe en bas */}
@@ -428,18 +437,16 @@ const ProfilDashbord = () => {
                 </div>
             )}
             {showNotifications && (
-                <div ref={notificationRef}>
-                    <Notification
-                        notifications={notifications}
-                        loading={isNotifLoading}
-                        onClose={() => setShowNotifications(false)}
-                        onCotisationView={(cotisation) => {
-                            setActiveItem('cotisations');
-                            setCotisationToView(cotisation);
-                            setShowNotifications(false);
-                        }}
-                    />
-                </div>
+                <Notification
+                    notifications={notifications}
+                    loading={isNotifLoading}
+                    onClose={() => setShowNotifications(false)}
+                    onCotisationView={(cotisation) => {
+                        setActiveItem('cotisations');
+                        setCotisationToView(cotisation);
+                        setShowNotifications(false);
+                    }}
+                />
             )}
             {showMessage && (
                 <Message open={showMessage} onClose={() => setShowMessage(false)} />

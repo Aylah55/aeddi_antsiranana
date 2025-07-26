@@ -144,9 +144,18 @@ const Message = ({ open, onClose }) => {
             <div className="text-center text-gray-400 py-2">Chargement...</div>
           )}
           {loading ? (
-            <div className="text-center text-gray-400 py-4">Chargement...</div>
+            <div className="flex flex-col items-center justify-center py-8">
+              <svg className="animate-spin h-8 w-8 text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+              <span className="text-blue-500 text-sm">Chargement des messages...</span>
+            </div>
           ) : messages.length === 0 ? (
-            <div className="text-center text-gray-400 py-4">Aucun message</div>
+            <div className="flex flex-col items-center justify-center py-12 px-4">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <Mail className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-gray-500 text-center font-medium mb-2">Aucun message</p>
+              <p className="text-gray-400 text-sm text-center">Vous n'avez pas encore de messages</p>
+            </div>
           ) : (
             messages.map((msg, idx) => {
               const isMine = msg.sender_id === user?.id;
