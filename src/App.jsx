@@ -12,23 +12,7 @@ import Message from './components/Dashboard/Message';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import CreatePassword from './components/Formulaire/create-password';
 import ForgotPassword from './components/Formulaire/ForgotPassword';
-import TestRoute from './components/TestRoute';
-
-// 🟨 Ajoute ce log ici
-console.log('GOOGLE_CLIENT_ID:', process.env.REACT_APP_GOOGLE_CLIENT_ID);
-
 function App() {
-    console.log('=== App Component Mounted ===');
-    console.log('Available routes:', [
-        '/',
-        '/login', 
-        '/google-callback',
-        '/facebook-callback',
-        '/profile/:id',
-        '/dashbord',
-        '/create-password',
-        '/forgot-password'
-    ]);
     console.log('Current pathname:', window.location.pathname);
     console.log('Google Client ID:', process.env.REACT_APP_GOOGLE_CLIENT_ID ? 'Défini' : 'Non défini');
     
@@ -45,7 +29,6 @@ function App() {
                     <Route path="/dashbord" element={<ProfilDashbord />} />
                     <Route path="/create-password" element={<CreatePassword />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/test-route" element={<TestRoute />} />
                 </Routes>
                 <Message />
             </Router>
