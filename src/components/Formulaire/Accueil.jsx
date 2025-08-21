@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Connexion from './Connexion';
 import ForgotPassword from './ForgotPassword';
+import CercleEtude from './CercleEtude';
+import Social from './Social';
 import img1 from '../../assets/images/image1.jpg';
 import img2 from '../../assets/images/image2.jpg';
 import img3 from '../../assets/images/image3.jpg';
@@ -10,6 +12,7 @@ function Accueil() {
   const [currentImage, setCurrentImage] = useState(0);
   const [currentView, setCurrentView] = useState('connexion'); // 'connexion', 'forgot'
   const [isSwitching, setIsSwitching] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null); // 'cercle', 'social', 'sport', 'logement'
   const images = [img1, img2, img3];
 
   const nextImage = () => {
@@ -64,11 +67,39 @@ function Accueil() {
     },
   ];
 
+  // Données détaillées fictives pour chaque catégorie
+  const details = {
+    cercle: {
+      nom: "Cercle d'étude",
+      description: "Un groupe d'entraide pour progresser en mathématiques.",
+      membres: ["Alice", "Bob", "Charlie"],
+      image: 'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=400&q=80'
+    },
+    social: {
+      nom: "Soirée d'intégration",
+      description: "Un événement pour rencontrer les nouveaux membres.",
+      date: "2024-06-15",
+      image: 'https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=400&q=80'
+    },
+    sport: {
+      nom: "Tournoi de foot",
+      description: "Compétition amicale entre étudiants.",
+      date: "2024-07-01",
+      image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=400&q=80'
+    },
+    logement: {
+      nom: "Aide au logement",
+      description: "Conseils et réseau pour trouver un logement étudiant.",
+      image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80'
+    }
+  };
   return (
     <div className="flex flex-col-reverse lg:flex-row h-auto lg:h-screen">
-      <div className="w-full lg:w-1/2 bg-gray-100 p-6 flex flex-col">
+      <div className="w-full lg:w-1/2 bg-gray-100 p-6 flex flex-col h-full min-h-0 overflow-y-auto">
+        {selectedCategory === null ? (
+          <>
         {/* Carousel d'images */}
-        <div className="relative h-[320px] md:h-[500px] rounded-3xl overflow-hidden shadow-2xl mb-6 group">
+        <div className="relative h-[300px] md:h-[700px] lg:h-[700px] xl:h-[960px] 2xl:h-[1040px] rounded-3xl overflow-hidden shadow-2xl mb-6 group">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentImage}
@@ -115,54 +146,137 @@ function Accueil() {
           </div>
         </div>
         {/* Qui sommes-nous ? juste en bas du carousel */}
-        <div className="flex flex-col justify-center items-center text-center mb-8">
+        <div className="flex flex-col justify-center items-center text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Qui sommes-nous ?</h2>
           <p className="text-gray-600 mb-4 px-4">Associations des Etudiants Dynamiques de Diego AEDDI.</p>
-          <div className="flex space-x-4 mb-2">
-            {['📱', '📧', '📞'].map((icon, i) => (
-              <button key={i} className="text-2xl hover:scale-110 transition">
-                {icon}
-              </button>
-            ))}
-          </div>
         </div>
         {/* Avantages */}
         <div className="mt-6">
           <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 text-center">Nos grands avantages</h3>
-          <div className="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-4 md:gap-6 md:overflow-x-visible">
+          <div className="flex gap-6 overflow-x-auto pb-4 -mx-2 px-2 snap-x snap-mandatory">
             {avantages.map((av, idx) => (
-              <div key={idx} className="min-w-[220px] md:min-w-0 bg-white rounded-2xl shadow-lg flex flex-col items-center p-4 transition hover:scale-105 hover:shadow-2xl cursor-pointer">
-                <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden mb-3 border-4 border-blue-100 flex items-center justify-center bg-blue-50">
+              <div
+                key={idx}
+                className="min-w-[260px] md:min-w-[320px] bg-white rounded-2xl shadow-lg flex flex-col items-center p-1 transition hover:scale-105 hover:shadow-2xl cursor-pointer snap-start"
+                onClick={() => {
+                  if (av.titre.toLowerCase().includes('cercle')) setSelectedCategory('cercle');
+                  else if (av.titre.toLowerCase().includes('social')) setSelectedCategory('social');
+                  else if (av.titre.toLowerCase().includes('sport')) setSelectedCategory('sport');
+                  else if (av.titre.toLowerCase().includes('logement')) setSelectedCategory('logement');
+                }}
+              >
+                <div className="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-22 rounded-2xl overflow-hidden mb-2 border-4 border-blue-100 flex items-center justify-center bg-blue-50">
                   <img src={av.image} alt={av.titre} className="w-full h-full object-cover" />
                 </div>
-                <div className="text-3xl mb-1">{av.icone}</div>
-                <div className="font-bold text-lg text-blue-700 mb-1">{av.titre}</div>
-                <div className="text-gray-500 text-sm text-center">{av.texte}</div>
+                <div className="text-2xl mb-1">{av.icone}</div>
+                <div className="font-semibold text-base text-blue-700 mb-1 text-center">{av.titre}</div>
+                <div className="text-gray-500 text-xs text-center px-2">{av.texte}</div>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Contenu texte */}
-        <div className="flex-1 flex flex-col justify-center items-center text-center">
-          {/* The original "Qui sommes-nous ?" section was moved to the top */}
-          {/* <h2 className="text-2xl font-bold text-gray-800 mb-4">Qui sommes-nous ?</h2> */}
-          {/* <p className="text-gray-600 mb-6 px-4">
-            Associations des Etudiants Dynamiques de Diego AEDDI.
-          </p> */}
-          {/* <div className="flex space-x-4">
-            {['📱', '📧', '📞'].map((icon, i) => (
-              <button key={i} className="text-2xl hover:scale-110 transition">
-                {icon}
-              </button>
-            ))}
-          </div> */}
+          </>
+        ) : (
+          <div className="w-full h-full flex flex-col justify-center items-center">
+            <button className="mb-4 text-blue-600 hover:underline self-start" onClick={() => setSelectedCategory(null)}>&larr; Retour</button>
+            {selectedCategory === 'cercle' && <CercleEtude data={details.cercle} />}
+            {selectedCategory === 'social' && <Social data={details.social} />}
+            {selectedCategory === 'sport' && (
+              <div className="bg-white rounded-3xl shadow-xl p-0 flex flex-col items-center w-full h-full">
+                <div className="mb-8 w-full px-8 pt-8">
+                  <h2 className="text-3xl font-bold text-green-700 mb-4 text-center">Activités sportives</h2>
+                  <p className="text-gray-700 text-center text-lg">
+                    Le sport est un excellent moyen de se défouler, de renforcer l'esprit d'équipe et de rester en bonne santé.<br/>
+                    Les activités sportives organisées par l'association favorisent la cohésion et la motivation de tous.<br/>
+                    Découvrez ci-dessous les différents aspects du sport en association !
+                  </p>
+                </div>
+                {/* Galerie verticale sport */}
+                <div className="w-full px-4 pb-8" style={{ maxWidth: 700 }}>
+                  {[
+                    {
+                      url: details.sport.image,
+                      legende: 'Tournoi de foot',
+                      explication: "Les tournois sportifs créent une ambiance compétitive et amicale, où chacun peut se dépasser."
+                    },
+                    {
+                      url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+                      legende: 'Esprit d’équipe',
+                      explication: "Le sport développe la solidarité, l'entraide et la confiance entre les membres."
+                    },
+                    {
+                      url: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=800&q=80',
+                      legende: 'Bien-être physique',
+                      explication: "Pratiquer une activité physique régulière améliore la santé et réduit le stress."
+                    },
+                  ].map((img, idx) => (
+                    <div key={idx} className="mb-10">
+                      <div className="w-full h-72 md:h-[24rem] lg:h-[28rem] rounded-2xl overflow-hidden shadow-lg mb-3">
+                        <img src={img.url} alt={img.legende} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="text-xl font-semibold text-green-700 mb-1 text-center">{img.legende}</div>
+                      <div className="text-gray-600 text-base text-center mb-2">{img.explication}</div>
+                    </div>
+                  ))}
+                </div>
+                {/* Détails sport */}
+                <div className="w-full px-8 pb-8">
+                  <h3 className="text-xl font-semibold text-green-700 mb-1">{details.sport.nom}</h3>
+                  <p className="text-gray-600 text-center mb-4">{details.sport.description}</p>
+                  <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium shadow-sm mb-2">Date : {details.sport.date}</span>
+                </div>
+              </div>
+            )}
+            {selectedCategory === 'logement' && (
+              <div className="bg-white rounded-3xl shadow-xl p-0 flex flex-col items-center w-full h-full">
+                <div className="mb-8 w-full px-8 pt-8">
+                  <h2 className="text-3xl font-bold text-yellow-700 mb-4 text-center">Aide au logement</h2>
+                  <p className="text-gray-700 text-center text-lg">
+                    Trouver un logement étudiant peut être un vrai défi. L'association propose un accompagnement et des conseils pour faciliter cette étape.<br/>
+                    Découvrez ci-dessous les différents aspects de l'aide au logement !
+                  </p>
+                </div>
+                {/* Galerie verticale logement */}
+                <div className="w-full px-4 pb-8" style={{ maxWidth: 700 }}>
+                  {[
+                    {
+                      url: details.logement.image,
+                      legende: 'Réseau de solidarité',
+                      explication: "Profitez du réseau de l’association pour trouver plus facilement un logement."
+                    },
+                    {
+                      url: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80',
+                      legende: 'Conseils pratiques',
+                      explication: "Des astuces et des conseils pour bien choisir son logement et éviter les pièges."
+                    },
+                    {
+                      url: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80',
+                      legende: 'Accompagnement personnalisé',
+                      explication: "L’association accompagne chaque étudiant dans ses démarches administratives."
+                    },
+                  ].map((img, idx) => (
+                    <div key={idx} className="mb-10">
+                      <div className="w-full h-72 md:h-[24rem] lg:h-[28rem] rounded-2xl overflow-hidden shadow-lg mb-3">
+                        <img src={img.url} alt={img.legende} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="text-xl font-semibold text-yellow-700 mb-1 text-center">{img.legende}</div>
+                      <div className="text-gray-600 text-base text-center mb-2">{img.explication}</div>
+                    </div>
+                  ))}
+                </div>
+                {/* Détails logement */}
+                <div className="w-full px-8 pb-8">
+                  <h3 className="text-xl font-semibold text-yellow-700 mb-1">{details.logement.nom}</h3>
+                  <p className="text-gray-600 text-center mb-4">{details.logement.description}</p>
+                </div>
+              </div>
+            )}
         </div>
+        )}
       </div>
-
-      {/* Partie droite - Formulaire (50% de largeur) */}
+      {/* Partie droite - Formulaire (connexion/inscription) inchangée */}
       <div className="w-full lg:w-1/2 bg-white p-8 flex items-center justify-center">
-        <div className="w-full max-w-md">
+        <div className="w-full">
           {isSwitching ? (
             <div className="flex justify-center py-12">
               <motion.div
@@ -181,9 +295,7 @@ function Accueil() {
                 transition={{ duration: 0.3 }}
               >
                 {currentView === 'connexion' && (
-                  <Connexion
-                    onForgot={() => handleSwitch('forgot')}
-                  />
+                  <Connexion onForgot={() => handleSwitch('forgot')} />
                 )}
                 {currentView === 'forgot' && (
                   <ForgotPassword onBack={() => handleSwitch('connexion')} />

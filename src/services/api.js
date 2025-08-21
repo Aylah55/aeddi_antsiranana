@@ -290,7 +290,6 @@ export const cotisationService = {
             .catch(handleApiError);
     }
 };
-
 // Service des messages
 export const messageService = {
   // Récupérer l'historique des messages (avec pagination)
