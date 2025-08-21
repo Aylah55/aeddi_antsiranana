@@ -6,6 +6,7 @@ import { loginUser } from '../../services/api';
 import { API_URL } from '../../services/api';
 import logo from '../../assets/logo/aeddi.png';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 
 const Connexion = ({ onForgot }) => {
   const [email, setEmail] = useState('');
@@ -29,6 +30,10 @@ const Connexion = ({ onForgot }) => {
     setError('');
     setLoading(true);
     try {
+      // 1. Récupère le cookie CSRF AVANT de faire le login
+      await axios.get('https://aeddi-back.onrender.com/sanctum/csrf-cookie', { withCredentials: true });
+
+      // 2. Appelle la fonction de login (qui doit utiliser withCredentials: true côté axios)
       const response = await loginUser({ email, password });
       localStorage.setItem('auth_token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
