@@ -43,12 +43,12 @@ const DevenirMembre = ({ onBack, onSubmit, isLoading }) => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-3xl shadow-xl w-full mx-auto">
+    <div className="p-4 sm:p-6 bg-white rounded-3xl shadow-xl w-full mx-auto">
       <div className="flex items-center mb-6">
         <button onClick={onBack} className="text-blue-600 hover:bg-blue-50 rounded-full p-2 mr-2" title="Retour">
           <FiArrowLeft size={22} />
         </button>
-        <h2 className="text-2xl font-bold text-blue-700 text-center flex-1">Devenir membre AEDDI</h2>
+        <h2 className="text-lg sm:text-2xl font-bold text-blue-700 text-center flex-1">Devenir membre AEDDI</h2>
       </div>
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Photo de profil */}
@@ -102,7 +102,7 @@ const DevenirMembre = ({ onBack, onSubmit, isLoading }) => {
               </select>
             </div>
             <div>
-              <label className="block text sm font-medium text-gray-700 mb-1">Parcours</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Parcours</label>
               <select name="parcours" value={formData.parcours} onChange={handleChange} className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500" required>
                 <option value="">Sélectionner...</option>
                 <option value="EP">EP</option>
@@ -148,9 +148,9 @@ const DevenirMembre = ({ onBack, onSubmit, isLoading }) => {
           </div>
         </div>
         {/* Erreur */}
-        {error && <div className="col-span-2 text-red-600 text-center font-semibold animate-pulse">{error}</div>}
+        {error && <div className="col-span-1 md:col-span-2 text-red-600 text-center font-semibold animate-pulse">{error}</div>}
         {/* Bouton */}
-        <div className="col-span-2 flex justify-end mt-4">
+        <div className="col-span-1 md:col-span-2 flex justify-center md:justify-end mt-4">
           <button type="submit" disabled={isLoading} className="px-5 py-2 bg-blue-600 text-white rounded-xl font-semibold shadow hover:bg-blue-700 disabled:opacity-50">
             {isLoading ? 'Inscription...' : 'Devenir membre'}
           </button>

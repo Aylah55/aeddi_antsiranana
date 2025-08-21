@@ -161,6 +161,7 @@ const Connexion = ({ onForgot }) => {
                 <FaFacebookF size={18} />
                 Se connecter avec Facebook
               </button>
+              {/*
               <button
                 onClick={() => setShowDevenirMembre(true)}
                 className="w-full mt-2 text-pink-500 hover:underline font-semibold text-center"
@@ -168,6 +169,7 @@ const Connexion = ({ onForgot }) => {
               >
                 Devenir membre
               </button>
+              */}
             </div>
             <div className="mt-6 text-center text-sm text-gray-600">
               <p>Nouveau sur AEDDI ?</p>
