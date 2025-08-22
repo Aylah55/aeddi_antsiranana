@@ -242,6 +242,14 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
         );
     }
 
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-full py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
+
     // Si l'utilisateur n'est pas admin, afficher ses cotisations personnelles
     if (!isAdmin) {
         return (
@@ -330,7 +338,7 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
     }
 
     return (
-        <div className="p-6 bg-white rounded-lg shadow">
+        <div className="p-0 md:p-4 lg:p-6 bg-white rounded-3xl shadow-xl w-full">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold">Liste des Cotisations</h2>
                 <button
@@ -350,8 +358,8 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
                 </div>
             )}
 
-            {/* En-têtes fixes */}
-            <div className="overflow-x-auto">
+            {/* En-têtes fixes (tableau desktop uniquement) */}
+            <div className="overflow-x-auto hidden md:block">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50 sticky top-0 z-10">
                         <tr>
@@ -366,7 +374,6 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
                     </thead>
                 </table>
             </div>
-
             {/* Affichage responsive en mode 'cards' sur mobile */}
             <div className="block md:hidden space-y-4 mb-6">
                 {isLoading ? (
@@ -581,7 +588,7 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
             {/* Modal d'ajout/modification */}
             {(showAddModal || showEditModal) && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                    <div className="bg-white p-4 rounded-3xl shadow-xl w-full max-w-md md:max-w-lg">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-xl font-bold">
                                 {showAddModal ? 'Ajouter une cotisation' : 'Modifier la cotisation'}
@@ -749,7 +756,6 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
                     </div>
                 </div>
             )}
-
             {/* Modal de confirmation de suppression */}
             {showDeleteModal && cotisationToDelete && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">

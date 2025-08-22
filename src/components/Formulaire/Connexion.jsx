@@ -74,8 +74,17 @@ const Connexion = ({ onForgot }) => {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className={`bg-white/80 backdrop-blur-lg p-8 rounded-3xl shadow-md w-full ${showDevenirMembre ? '' : 'max-w-md'} flex flex-col items-center relative`}
-        style={{ boxShadow: '0 4px 16px 0 rgba(31, 38, 135, 0.08)' }}
+        whileHover={{
+          boxShadow: '0 4px 24px 0 rgba(124, 58, 237, 0.25)',
+          borderColor: '#7c3aed',
+        }}
+        style={{
+          boxShadow: '0 2px 16px 0 rgba(124, 58, 237, 0.15)',
+          borderColor: '#a78bfa',
+          borderWidth: 2,
+          borderStyle: 'solid',
+        }}
+        className={`bg-white/80 backdrop-blur-lg rounded-3xl w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl flex flex-col items-center relative transition-all duration-300 p-4 sm:p-6 md:p-8 ${showDevenirMembre ? '' : ''}`}
       >
         {showDevenirMembre ? (
           <div className="w-full">
@@ -84,7 +93,7 @@ const Connexion = ({ onForgot }) => {
         ) : (
           <>
             <img src={logo} alt="AEDDI" className="w-20 h-20 object-contain mb-4 drop-shadow-lg" />
-            <h1 className="text-3xl font-extrabold mb-6 text-center text-gray-800 tracking-tight">Connexion à AEDDI</h1>
+            <h1 className="text-3xl font-extrabold mb-4 text-center text-gray-800 tracking-tight">Connexion à AEDDI</h1>
             <form className="space-y-4 w-full" onSubmit={handleSubmit} autoComplete="on">
               {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-600 text-center font-semibold animate-pulse">{error}</motion.p>}
               <div>
@@ -137,7 +146,7 @@ const Connexion = ({ onForgot }) => {
                 {loading ? 'Connexion...' : 'Se connecter'}
               </button>
             </form>
-            <div className="flex justify-between items-center mt-4 text-sm w-full">
+            <div className="flex justify-between items-center mt-2 text-sm w-full">
               <button
                 onClick={onForgot}
                 className="text-pink-500 hover:underline font-semibold"
@@ -145,7 +154,7 @@ const Connexion = ({ onForgot }) => {
                 Mot de passe oublié ?
               </button>
             </div>
-            <div className="mt-6 w-full flex flex-col gap-3">
+            <div className="mt-4 w-full flex flex-col gap-3">
               <a
                 href={`${API_URL}/api/auth/google/redirect`}
                 className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl shadow transition-all duration-150 active:scale-95"
@@ -171,7 +180,7 @@ const Connexion = ({ onForgot }) => {
               </button>
               */}
             </div>
-            <div className="mt-6 text-center text-sm text-gray-600">
+            <div className="mt-4 text-center text-sm text-gray-600">
               <p>Nouveau sur AEDDI ?</p>
               <p className="mt-2">
                 Connectez-vous avec Google pour créer votre compte automatiquement !

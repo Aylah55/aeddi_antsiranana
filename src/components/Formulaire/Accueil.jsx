@@ -95,7 +95,7 @@ function Accueil() {
   };
   return (
     <div className="flex flex-col-reverse lg:flex-row h-auto lg:h-screen">
-      <div className="w-full lg:w-1/2 bg-gray-100 p-6 flex flex-col h-full min-h-0 overflow-y-auto">
+      <div className="w-full lg:w-1/2 bg-gray-100 p-0 md:p-4 lg:p-6 flex flex-col h-full min-h-0 overflow-y-auto">
         {selectedCategory === null ? (
           <>
         {/* Carousel d'images */}
@@ -275,7 +275,7 @@ function Accueil() {
         )}
       </div>
       {/* Partie droite - Formulaire (connexion/inscription) inchangée */}
-      <div className="w-full lg:w-1/2 bg-white p-8 flex items-center justify-center">
+      <div className="w-full lg:w-1/2 bg-white p-0 md:p-4 lg:p-8 flex items-center justify-center">
         <div className="w-full">
           {isSwitching ? (
             <div className="flex justify-center py-12">

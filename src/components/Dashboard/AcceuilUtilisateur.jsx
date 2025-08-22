@@ -72,14 +72,11 @@ const AcceuilUtilisateur = () => {
 
             // Traitement des données des membres
             const users = usersResponse.data.users || [];
-            console.log('Users data:', users); // Debug log
-            
+            const usersSansAdmin = users.filter(user => user.role !== 'admin');
             const membresStats = {
-                total: users.length,
-                bureau: users.filter(user => 
-                    user.role === 'President' || user.role === 'Membre de bureau'
-                ).length,
-                membres: users.filter(user => user.role === 'Membre').length
+                total: usersSansAdmin.length,
+                bureau: usersSansAdmin.filter(user => user.role === 'President' || user.role === 'Membre de bureau').length,
+                membres: usersSansAdmin.filter(user => user.role === 'Membre').length
             };
             console.log('Membres stats:', membresStats); // Debug log
 
