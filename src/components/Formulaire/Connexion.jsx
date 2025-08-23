@@ -67,7 +67,6 @@ const Connexion = ({ onForgot }) => {
       setError('Erreur lors de la connexion Google');
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
       {/* Bouton de thème en haut à droite */}
@@ -88,7 +87,7 @@ const Connexion = ({ onForgot }) => {
           borderWidth: 2,
           borderStyle: 'solid',
         }}
-                 className={`bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl flex flex-col items-center relative transition-all duration-300 p-4 sm:p-6 md:p-8 ${showDevenirMembre ? '' : ''}`}
+        className={`bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl flex flex-col items-center relative transition-all duration-300 p-0 sm:p-6 md:p-8 ${showDevenirMembre ? '' : ''}`}
       >
         {showDevenirMembre ? (
           <div className="w-full">
