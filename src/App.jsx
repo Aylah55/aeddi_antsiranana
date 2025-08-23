@@ -8,31 +8,35 @@ import GoogleCallback from './components/Formulaire/GoogleCallback';
 import FacebookCallback from './components/Formulaire/FacebookCallback';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './styles/darkMode.css';
 import Message from './components/Dashboard/Message';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import CreatePassword from './components/Formulaire/create-password';
 import ForgotPassword from './components/Formulaire/ForgotPassword';
+import { ThemeProvider } from './contexts/ThemeContext';
 function App() {
     console.log('Current pathname:', window.location.pathname);
     console.log('Google Client ID:', process.env.REACT_APP_GOOGLE_CLIENT_ID ? 'Défini' : 'Non défini');
     
     return (
-        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-            <Router>
-                <ToastContainer />
-                <Routes>
-                    <Route path="/" element={<Accueil />} />
-                    <Route path="/login" element={<Accueil />} />
-                    <Route path="/google-callback" element={<GoogleCallback />} />
-                    <Route path="/facebook-callback" element={<FacebookCallback />} />
-                    <Route path="/profile/:id" element={<ProfilUtilisateur />} />
-                    <Route path="/dashbord" element={<ProfilDashbord />} />
-                    <Route path="/create-password" element={<CreatePassword />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                </Routes>
-                <Message />
-            </Router>
-        </GoogleOAuthProvider>
+        <ThemeProvider>
+            <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+                <Router>
+                    <ToastContainer />
+                    <Routes>
+                        <Route path="/" element={<Accueil />} />
+                        <Route path="/login" element={<Accueil />} />
+                        <Route path="/google-callback" element={<GoogleCallback />} />
+                        <Route path="/facebook-callback" element={<FacebookCallback />} />
+                        <Route path="/profile/:id" element={<ProfilUtilisateur />} />
+                        <Route path="/dashbord" element={<ProfilDashbord />} />
+                        <Route path="/create-password" element={<CreatePassword />} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                    </Routes>
+                    <Message />
+                </Router>
+            </GoogleOAuthProvider>
+        </ThemeProvider>
     );
 }
 

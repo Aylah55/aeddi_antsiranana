@@ -231,11 +231,11 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
     };
     if (!user) {
         return (
-            <div className="p-6 bg-white rounded-lg shadow">
+            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                 <div className="flex flex-col items-center justify-center py-12">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                        <p className="text-gray-600">Chargement...</p>
+                        <p className="text-gray-600 dark:text-gray-300">Chargement...</p>
                     </div>
                 </div>
             </div>
@@ -253,9 +253,9 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
     // Si l'utilisateur n'est pas admin, afficher ses cotisations personnelles
     if (!isAdmin) {
         return (
-            <div className="p-6 bg-white rounded-lg shadow">
+            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold">Mes Cotisations</h2>
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-white">Mes Cotisations</h2>
                 </div>
                 {/* En-têtes fixes */}
                 <div className="overflow-x-auto">

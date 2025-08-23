@@ -199,7 +199,7 @@ const AcceuilUtilisateur = () => {
 
     if (error) {
         return (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded relative" role="alert">
                 <strong className="font-bold">Erreur!</strong>
                 <span className="block sm:inline"> {error}</span>
             </div>
@@ -211,77 +211,77 @@ const AcceuilUtilisateur = () => {
             {/* En-tête avec les statistiques principales */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Carte des membres */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">Total Membres</p>
-                            <h3 className="text-2xl font-bold text-gray-800">{stats.membres.total}</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Membres</p>
+                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white">{stats.membres.total}</h3>
                         </div>
-                        <div className="bg-blue-100 p-3 rounded-full">
-                            <Users className="h-6 w-6 text-blue-600" />
+                        <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                            <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                         </div>
                     </div>
                     <div className="mt-4 flex justify-between text-sm">
-                        <span className="text-gray-600">Bureau: {stats.membres.bureau}</span>
-                        <span className="text-gray-600">Membres: {stats.membres.membres}</span>
+                        <span className="text-gray-600 dark:text-gray-300">Bureau: {stats.membres.bureau}</span>
+                        <span className="text-gray-600 dark:text-gray-300">Membres: {stats.membres.membres}</span>
                     </div>
                 </div>
 
                 {/* Carte des cotisations */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">Cotisations</p>
-                            <h3 className="text-2xl font-bold text-gray-800">{stats.cotisations.total}</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Cotisations</p>
+                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white">{stats.cotisations.total}</h3>
                         </div>
-                        <div className="bg-green-100 p-3 rounded-full">
-                            <DollarSign className="h-6 w-6 text-green-600" />
+                        <div className="bg-green-100 dark:bg-green-900 p-3 rounded-full">
+                            <DollarSign className="h-6 w-6 text-green-600 dark:text-green-400" />
                         </div>
                     </div>
                     <div className="mt-4 space-y-2">
                         <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Payées: {stats.cotisations.payees}</span>
-                            <span className="text-gray-600">En cours: {stats.cotisations.enCours}</span>
+                            <span className="text-gray-600 dark:text-gray-300">Payées: {stats.cotisations.payees}</span>
+                            <span className="text-gray-600 dark:text-gray-300">En cours: {stats.cotisations.enCours}</span>
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
                             À payer: {stats.cotisations.aPayer}
                         </div>
                     </div>
                 </div>
 
                 {/* Carte des activités */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">Activités</p>
-                            <h3 className="text-2xl font-bold text-gray-800">{stats.activites.total}</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Activités</p>
+                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white">{stats.activites.total}</h3>
                         </div>
-                        <div className="bg-purple-100 p-3 rounded-full">
-                            <Calendar className="h-6 w-6 text-purple-600" />
+                        <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-full">
+                            <Calendar className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                         </div>
                     </div>
                     <div className="mt-4 flex justify-between text-sm">
-                        <span className="text-gray-600">En cours: {stats.activites.enCours}</span>
-                        <span className="text-gray-600">À venir: {stats.activites.aVenir}</span>
+                        <span className="text-gray-600 dark:text-gray-300">En cours: {stats.activites.enCours}</span>
+                        <span className="text-gray-600 dark:text-gray-300">À venir: {stats.activites.aVenir}</span>
                     </div>
                 </div>
 
                 {/* Carte des montants */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">Montants</p>
-                            <h3 className="text-xl font-bold text-gray-800">{formatMontant(stats.cotisations.montantTotal)}</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Montants</p>
+                            <h3 className="text-xl font-bold text-gray-800 dark:text-white">{formatMontant(stats.cotisations.montantTotal)}</h3>
                         </div>
-                        <div className="bg-yellow-100 p-3 rounded-full">
-                            <BarChart className="h-6 w-6 text-yellow-600" />
+                        <div className="bg-yellow-100 dark:bg-yellow-900 p-3 rounded-full">
+                            <BarChart className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
                         </div>
                     </div>
                     <div className="mt-4">
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
                             Payé: {formatMontant(stats.cotisations.montantPaye)}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
                             Restant: {formatMontant(stats.cotisations.montantTotal - stats.cotisations.montantPaye)}
                         </p>
                     </div>
@@ -291,16 +291,16 @@ const AcceuilUtilisateur = () => {
             {/* Graphiques */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Graphique des membres */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-lg font-semibold mb-4">Répartition des membres</h3>
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Répartition des membres</h3>
                     <div className="h-64">
                         <Pie data={membersChartData} options={pieOptions} />
                     </div>
                 </div>
 
                 {/* Graphique des cotisations */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-lg font-semibold mb-4">État des cotisations</h3>
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">État des cotisations</h3>
                     <div className="h-64">
                         <Bar data={cotisationsChartData} options={barOptions} />
                     </div>

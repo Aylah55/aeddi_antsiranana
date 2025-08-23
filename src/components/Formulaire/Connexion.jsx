@@ -8,6 +8,7 @@ import logo from '../../assets/logo/aeddi.png';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import DevenirMembre from './DevenirMembre';
+import ThemeToggle from '../ThemeToggle';
 
 const Connexion = ({ onForgot }) => {
   const [email, setEmail] = useState('');
@@ -18,7 +19,6 @@ const Connexion = ({ onForgot }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [showDevenirMembre, setShowDevenirMembre] = useState(false);
-
   // Vérifier les erreurs dans l'URL au chargement du composant
   useEffect(() => {
     const errorParam = searchParams.get('error');
@@ -69,7 +69,11 @@ const Connexion = ({ onForgot }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+      {/* Bouton de thème en haut à droite */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -84,7 +88,7 @@ const Connexion = ({ onForgot }) => {
           borderWidth: 2,
           borderStyle: 'solid',
         }}
-        className={`bg-white/80 backdrop-blur-lg rounded-3xl w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl flex flex-col items-center relative transition-all duration-300 p-4 sm:p-6 md:p-8 ${showDevenirMembre ? '' : ''}`}
+                 className={`bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg rounded-3xl w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl flex flex-col items-center relative transition-all duration-300 p-4 sm:p-6 md:p-8 ${showDevenirMembre ? '' : ''}`}
       >
         {showDevenirMembre ? (
           <div className="w-full">
@@ -93,15 +97,15 @@ const Connexion = ({ onForgot }) => {
         ) : (
           <>
             <img src={logo} alt="AEDDI" className="w-20 h-20 object-contain mb-4 drop-shadow-lg" />
-            <h1 className="text-3xl font-extrabold mb-4 text-center text-gray-800 tracking-tight">Connexion à AEDDI</h1>
+                         <h1 className="text-3xl font-extrabold mb-4 text-center text-gray-800 dark:text-white tracking-tight">Connexion à AEDDI</h1>
             <form className="space-y-4 w-full" onSubmit={handleSubmit} autoComplete="on">
               {error && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-600 text-center font-semibold animate-pulse">{error}</motion.p>}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                 <div className="relative">
                   <input
                     type="email"
-                    className="w-full p-3 pl-10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/70 shadow-sm transition-all"
+                                         className="w-full p-3 pl-10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white shadow-sm transition-all"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required
@@ -113,11 +117,11 @@ const Connexion = ({ onForgot }) => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mot de passe</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    className="w-full p-3 pl-10 pr-10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/70 shadow-sm transition-all"
+                                         className="w-full p-3 pl-10 pr-10 border rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white shadow-sm transition-all"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     required
@@ -180,12 +184,12 @@ const Connexion = ({ onForgot }) => {
               </button>
               */}
             </div>
-            <div className="mt-4 text-center text-sm text-gray-600">
-              <p>Nouveau sur AEDDI ?</p>
-              <p className="mt-2">
-                Connectez-vous avec Google pour créer votre compte automatiquement !
-              </p>
-            </div>
+                         <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+               <p>Nouveau sur AEDDI ?</p>
+               <p className="mt-2">
+                 Connectez-vous avec Google pour créer votre compte automatiquement !
+               </p>
+             </div>
           </>
         )}
       </motion.div>

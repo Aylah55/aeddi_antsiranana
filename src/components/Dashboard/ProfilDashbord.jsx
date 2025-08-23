@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_URL, getPhotoUrl } from '../../services/api';
 import { LogOut, Bell, Settings, Home, User, Calendar, Users, CreditCard, Trash2, Menu, Mail } from 'lucide-react';
+import ThemeToggle from '../ThemeToggle';
 import ProfilUtilisateur from './ProfilUtilisateur';
 import ListeUtilisateur from './ListUtilisateur';
 import ListeActivites from './ListeActivites';
@@ -294,6 +295,7 @@ const ProfilDashbord = () => {
                         >
                             <Mail className="w-7 h-7 text-blue-600" />
                         </button>
+                        <ThemeToggle />
                         <div className="relative" ref={notificationRef}>
                             <button
                                 className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"

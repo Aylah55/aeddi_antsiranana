@@ -147,17 +147,17 @@ function Accueil() {
         </div>
         {/* Qui sommes-nous ? juste en bas du carousel */}
         <div className="flex flex-col justify-center items-center text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Qui sommes-nous ?</h2>
-          <p className="text-gray-600 mb-4 px-4">Associations des Etudiants Dynamiques de Diego AEDDI.</p>
+                              <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">Qui sommes-nous ?</h2>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4 px-4">Associations des Etudiants Dynamiques de Diego AEDDI.</p>
         </div>
         {/* Avantages */}
         <div className="mt-6">
-          <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 text-center">Nos grands avantages</h3>
+                          <h3 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white mb-4 text-center">Nos grands avantages</h3>
           <div className="flex gap-6 overflow-x-auto pb-4 -mx-2 px-2 snap-x snap-mandatory">
             {avantages.map((av, idx) => (
               <div
                 key={idx}
-                className="min-w-[260px] md:min-w-[320px] bg-white rounded-2xl shadow-lg flex flex-col items-center p-1 transition hover:scale-105 hover:shadow-2xl cursor-pointer snap-start"
+                className="min-w-[260px] md:min-w-[320px] bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex flex-col items-center p-1 transition hover:scale-105 hover:shadow-2xl cursor-pointer snap-start border border-gray-200 dark:border-gray-700"
                 onClick={() => {
                   if (av.titre.toLowerCase().includes('cercle')) setSelectedCategory('cercle');
                   else if (av.titre.toLowerCase().includes('social')) setSelectedCategory('social');
@@ -170,7 +170,7 @@ function Accueil() {
                 </div>
                 <div className="text-2xl mb-1">{av.icone}</div>
                 <div className="font-semibold text-base text-blue-700 mb-1 text-center">{av.titre}</div>
-                <div className="text-gray-500 text-xs text-center px-2">{av.texte}</div>
+                                  <div className="text-gray-500 dark:text-gray-400 text-xs text-center px-2">{av.texte}</div>
               </div>
             ))}
           </div>

@@ -341,7 +341,7 @@ const ListUtilisateur = () => {
                 <div className="flex flex-col items-center justify-center py-12">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                        <p className="text-gray-600">Chargement...</p>
+                        <p className="text-gray-600 dark:text-gray-300">Chargement...</p>
                     </div>
                 </div>
             </div>
@@ -380,9 +380,9 @@ const ListUtilisateur = () => {
     };
 
     return (
-        <div className="p-6 bg-white rounded-lg shadow">
+        <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Liste des Utilisateurs</h2>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white">Liste des Utilisateurs</h2>
             </div>
 
             {/* Barre de recherche et filtres avec le nouveau composant */}

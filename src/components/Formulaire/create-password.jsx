@@ -194,10 +194,10 @@ export default function CreatePassword() {
 
   if (isLoading) {
     return (
-      <div className="max-w-md mx-auto mt-10 p-4 bg-white rounded shadow">
+      <div className="max-w-md mx-auto mt-10 p-4 bg-white dark:bg-gray-800 rounded shadow">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p>Chargement...</p>
+          <p className="text-gray-900 dark:text-white">Chargement...</p>
         </div>
       </div>
     );
@@ -206,15 +206,15 @@ export default function CreatePassword() {
   // Afficher l'erreur si pas d'utilisateur
   if (!user) {
     return (
-      <div className="max-w-md mx-auto mt-10 p-4 bg-white rounded shadow">
+      <div className="max-w-md mx-auto mt-10 p-4 bg-white dark:bg-gray-800 rounded shadow">
         <div className="text-center">
           <div className="text-red-600 mb-4">
             <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Erreur</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Erreur</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">{error}</p>
           <button
             onClick={() => navigate('/connexion')}
             className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
@@ -227,13 +227,13 @@ export default function CreatePassword() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-4 bg-white rounded shadow">
-      <h2 className="text-2xl font-bold mb-4 text-center">
+    <div className="max-w-md mx-auto mt-10 p-4 bg-white dark:bg-gray-800 rounded shadow">
+      <h2 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-white">
         {isNewUser ? 'Bienvenue ! Créez votre mot de passe' : 'Créer votre mot de passe'}
       </h2>
 
       {isNewUser ? (
-        <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded mb-4">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 px-4 py-3 rounded mb-4">
           <p className="text-sm">
             <strong>Bienvenue {user.prenom} !</strong> Pour finaliser votre inscription,
             créez un mot de passe pour votre compte. Vous pourrez ensuite vous connecter
@@ -241,50 +241,50 @@ export default function CreatePassword() {
           </p>
         </div>
       ) : (
-        <p className="text-gray-600 text-center mb-6">
+        <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
           Bienvenue {user.prenom} ! Créez un mot de passe pour votre compte.
         </p>
       )}
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
           <input
             type="email"
             value={user.email || ''}
             readOnly
-            className="w-full p-3 border rounded bg-gray-100 text-gray-600"
+            className="w-full p-3 border rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nouveau mot de passe</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nouveau mot de passe</label>
           <input
             type="password"
             placeholder="Entrez votre mot de passe"
             value={password}
             onChange={(e) => setPasswordState(e.target.value)}
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             required
             minLength={8}
           />
-          <p className="text-xs text-gray-500 mt-1">Le mot de passe doit contenir au moins 8 caractères</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Le mot de passe doit contenir au moins 8 caractères</p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Confirmer le mot de passe</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmer le mot de passe</label>
           <input
             type="password"
             placeholder="Confirmez votre mot de passe"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             required
             minLength={8}
           />
@@ -302,7 +302,7 @@ export default function CreatePassword() {
       <div className="mt-4 text-center">
         <button
           onClick={() => navigate('/dashbord')}
-          className="text-purple-600 hover:text-purple-800 underline"
+          className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 underline"
         >
           Plus tard, retourner au dashboard
         </button>
