@@ -411,6 +411,7 @@ const ProfilDashbord = () => {
                             />
                         </div>
                         <div className="flex flex-col space-y-4 mt-4">
+                            <ThemeToggle />
                             <button
                                 onClick={() => { closeMobileMenu(); toggleNotifications(); }}
                                 className="flex items-center px-4 py-3 rounded-lg hover:bg-blue-50 transition-colors text-blue-700 font-medium"
