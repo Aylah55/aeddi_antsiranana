@@ -11,23 +11,13 @@ import img3 from '../../assets/images/image3.jpg';
 import img4 from '../../assets/images/image4.jpg';
 import img5 from '../../assets/images/image5.jpg';
 import img6 from '../../assets/images/image6.jpg';
+import Slider from '../Slider';
 
 function Accueil() {
-  const [[currentImage, direction], setCurrentImage] = useState([0, 0]);
   const [currentView, setCurrentView] = useState('connexion');
   const [isSwitching, setIsSwitching] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const images = [img1, img2, img3, img4, img5, img6];
-  const nextImage = () => {
-    setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
-  };
-
-  const paginate = (newDirection) => {
-    setCurrentImage(([prevIndex]) => {
-      let newIndex = (prevIndex + newDirection + images.length) % images.length;
-      return [newIndex, newDirection];
-    });
-  };
 
   const handleSwitch = (view) => {
     setIsSwitching(true);
@@ -36,13 +26,6 @@ function Accueil() {
       setIsSwitching(false);
     }, 300);
   };
-  useEffect(() => {
-    const interval = setInterval(() => {
-      paginate(1);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [images.length]);
-  // Images d'avantages (libres de droits)
   const avantages = [
     {
       titre: 'Cercle d’étude',
@@ -101,59 +84,11 @@ function Accueil() {
       <div className="w-full lg:w-1/2 bg-gray-100 p-0 md:p-4 lg:p-6 flex flex-col h-full min-h-0 overflow-y-auto">
         {selectedCategory === null ? (
           <>
-            {/* Carousel d'images */}
-            <div className="relative w-full h-full overflow-hidden">
-              <AnimatePresence initial={false} custom={direction}>
-                <motion.img
-                  key={currentImage}
-                  src={images[currentImage]}
-                  alt={`Slide ${currentImage}`}
-                  custom={direction}
-                  initial={{ x: direction > 0 ? "100%" : "-100%" }}
-                  animate={{ x: 0 }}
-                  exit={{ x: direction > 0 ? "-100%" : "100%" }}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              </AnimatePresence>
-
-              {/* Boutons gauche/droite */}
-              <button
-                onClick={() => paginate(-1)}
-                className="absolute top-1/2 left-3 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/70"
-              >
-                <ChevronLeft size={24} />
-              </button>
-              <button
-                onClick={() => paginate(1)}
-                className="absolute top-1/2 right-3 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/70"
-              >
-                <ChevronRight size={24} />
-              </button>
-
-              {/* Dots */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2">
-                {images.map((_, index) => (
-                  <button
-                    key={index}
-                    className={`transition-all duration-300 w-3 h-3 rounded-full ${index === currentImage
-                        ? "bg-blue-500 scale-125 shadow"
-                        : "bg-white/60"
-                      }`}
-                    onClick={() =>
-                      setCurrentImage([index, index > currentImage ? 1 : -1])
-                    }
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Qui sommes-nous ? juste en bas du carousel */}
+            <Slider images={images} pauseTime={2} transitionTime={1} />
             <div className="flex flex-col justify-center items-center text-center">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">Qui sommes-nous ?</h2>
               <p className="text-gray-600 dark:text-gray-300 mb-4 px-4">Associations des Etudiants Dynamiques de Diego AEDDI.</p>
             </div>
-            {/* Avantages */}
             <div className="mt-6">
               <h3 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white mb-4 text-center">Nos grands avantages</h3>
               <div className="flex gap-6 overflow-x-auto pb-4 -mx-2 px-2 snap-x snap-mandatory">
