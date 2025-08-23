@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Connexion from './Connexion';
 import ForgotPassword from './ForgotPassword';
 import CercleEtude from './CercleEtude';
@@ -7,20 +8,25 @@ import Social from './Social';
 import img1 from '../../assets/images/image1.jpg';
 import img2 from '../../assets/images/image2.jpg';
 import img3 from '../../assets/images/image3.jpg';
+import img4 from '../../assets/images/image4.jpg';
+import img5 from '../../assets/images/image5.jpg';
+import img6 from '../../assets/images/image6.jpg';
 
 function Accueil() {
-  const [currentImage, setCurrentImage] = useState(0);
-  const [currentView, setCurrentView] = useState('connexion'); // 'connexion', 'forgot'
+  const [[currentImage, direction], setCurrentImage] = useState([0, 0]);
+  const [currentView, setCurrentView] = useState('connexion');
   const [isSwitching, setIsSwitching] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null); // 'cercle', 'social', 'sport', 'logement'
-  const images = [img1, img2, img3];
-
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const images = [img1, img2, img3, img4, img5, img6];
   const nextImage = () => {
     setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
   };
 
-  const prevImage = () => {
-    setCurrentImage((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+  const paginate = (newDirection) => {
+    setCurrentImage(([prevIndex]) => {
+      let newIndex = (prevIndex + newDirection + images.length) % images.length;
+      return [newIndex, newDirection];
+    });
   };
 
   const handleSwitch = (view) => {
@@ -30,15 +36,12 @@ function Accueil() {
       setIsSwitching(false);
     }, 300);
   };
-
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
+      paginate(1);
     }, 10000);
-
     return () => clearInterval(interval);
   }, [images.length]);
-
   // Images d'avantages (libres de droits)
   const avantages = [
     {
@@ -98,83 +101,83 @@ function Accueil() {
       <div className="w-full lg:w-1/2 bg-gray-100 p-0 md:p-4 lg:p-6 flex flex-col h-full min-h-0 overflow-y-auto">
         {selectedCategory === null ? (
           <>
-        {/* Carousel d'images */}
-        <div className="relative h-[300px] md:h-[700px] lg:h-[700px] xl:h-[960px] 2xl:h-[1040px] rounded-3xl overflow-hidden shadow-2xl mb-6 group">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentImage}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0"
-            >
-              <img
-                src={images[currentImage]}
-                alt={`Slide ${currentImage}`}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              {/* Overlay dégradé */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
-            </motion.div>
-          </AnimatePresence>
-          {/* Flèches customisées */}
-          <button
-            onClick={prevImage}
-            className="absolute top-1/2 left-3 -translate-y-1/2 bg-white/80 text-blue-600 p-2 rounded-full shadow-lg hover:bg-blue-100 hover:scale-110 transition-all"
-            aria-label="Image précédente"
-          >
-            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-          <button
-            onClick={nextImage}
-            className="absolute top-1/2 right-3 -translate-y-1/2 bg-white/80 text-blue-600 p-2 rounded-full shadow-lg hover:bg-blue-100 hover:scale-110 transition-all"
-            aria-label="Image suivante"
-          >
-            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg>
-          </button>
-          {/* Dots animés */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2">
-            {images.map((_, index) => (
+            {/* Carousel d'images */}
+            <div className="relative w-full h-full overflow-hidden">
+              <AnimatePresence initial={false} custom={direction}>
+                <motion.img
+                  key={currentImage}
+                  src={images[currentImage]}
+                  alt={`Slide ${currentImage}`}
+                  custom={direction}
+                  initial={{ x: direction > 0 ? "100%" : "-100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: direction > 0 ? "-100%" : "100%" }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </AnimatePresence>
+
+              {/* Boutons gauche/droite */}
               <button
-                key={index}
-                className={`transition-all duration-300 w-3 h-3 rounded-full ${index === currentImage ? 'bg-blue-500 scale-125 shadow' : 'bg-white/60'}`}
-                onClick={() => setCurrentImage(index)}
-                aria-label={`Aller à l'image ${index + 1}`}
-              />
-            ))}
-          </div>
-        </div>
-        {/* Qui sommes-nous ? juste en bas du carousel */}
-        <div className="flex flex-col justify-center items-center text-center">
-                              <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">Qui sommes-nous ?</h2>
-                    <p className="text-gray-600 dark:text-gray-300 mb-4 px-4">Associations des Etudiants Dynamiques de Diego AEDDI.</p>
-        </div>
-        {/* Avantages */}
-        <div className="mt-6">
-                          <h3 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white mb-4 text-center">Nos grands avantages</h3>
-          <div className="flex gap-6 overflow-x-auto pb-4 -mx-2 px-2 snap-x snap-mandatory">
-            {avantages.map((av, idx) => (
-              <div
-                key={idx}
-                className="min-w-[260px] md:min-w-[320px] bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex flex-col items-center p-1 transition hover:scale-105 hover:shadow-2xl cursor-pointer snap-start border border-gray-200 dark:border-gray-700"
-                onClick={() => {
-                  if (av.titre.toLowerCase().includes('cercle')) setSelectedCategory('cercle');
-                  else if (av.titre.toLowerCase().includes('social')) setSelectedCategory('social');
-                  else if (av.titre.toLowerCase().includes('sport')) setSelectedCategory('sport');
-                  else if (av.titre.toLowerCase().includes('logement')) setSelectedCategory('logement');
-                }}
+                onClick={() => paginate(-1)}
+                className="absolute top-1/2 left-3 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/70"
               >
-                <div className="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-22 rounded-2xl overflow-hidden mb-2 border-4 border-blue-100 flex items-center justify-center bg-blue-50">
-                  <img src={av.image} alt={av.titre} className="w-full h-full object-cover" />
-                </div>
-                <div className="text-2xl mb-1">{av.icone}</div>
-                <div className="font-semibold text-base text-blue-700 mb-1 text-center">{av.titre}</div>
-                                  <div className="text-gray-500 dark:text-gray-400 text-xs text-center px-2">{av.texte}</div>
+                <ChevronLeft size={24} />
+              </button>
+              <button
+                onClick={() => paginate(1)}
+                className="absolute top-1/2 right-3 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/70"
+              >
+                <ChevronRight size={24} />
+              </button>
+
+              {/* Dots */}
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2">
+                {images.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`transition-all duration-300 w-3 h-3 rounded-full ${index === currentImage
+                        ? "bg-blue-500 scale-125 shadow"
+                        : "bg-white/60"
+                      }`}
+                    onClick={() =>
+                      setCurrentImage([index, index > currentImage ? 1 : -1])
+                    }
+                  />
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+
+            {/* Qui sommes-nous ? juste en bas du carousel */}
+            <div className="flex flex-col justify-center items-center text-center">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">Qui sommes-nous ?</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-4 px-4">Associations des Etudiants Dynamiques de Diego AEDDI.</p>
+            </div>
+            {/* Avantages */}
+            <div className="mt-6">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white mb-4 text-center">Nos grands avantages</h3>
+              <div className="flex gap-6 overflow-x-auto pb-4 -mx-2 px-2 snap-x snap-mandatory">
+                {avantages.map((av, idx) => (
+                  <div
+                    key={idx}
+                    className="min-w-[260px] md:min-w-[320px] bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex flex-col items-center p-1 transition hover:scale-105 hover:shadow-2xl cursor-pointer snap-start border border-gray-200 dark:border-gray-700"
+                    onClick={() => {
+                      if (av.titre.toLowerCase().includes('cercle')) setSelectedCategory('cercle');
+                      else if (av.titre.toLowerCase().includes('social')) setSelectedCategory('social');
+                      else if (av.titre.toLowerCase().includes('sport')) setSelectedCategory('sport');
+                      else if (av.titre.toLowerCase().includes('logement')) setSelectedCategory('logement');
+                    }}
+                  >
+                    <div className="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-22 rounded-2xl overflow-hidden mb-2 border-4 border-blue-100 flex items-center justify-center bg-blue-50">
+                      <img src={av.image} alt={av.titre} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="text-2xl mb-1">{av.icone}</div>
+                    <div className="font-semibold text-base text-blue-700 mb-1 text-center">{av.titre}</div>
+                    <div className="text-gray-500 dark:text-gray-400 text-xs text-center px-2">{av.texte}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </>
         ) : (
           <div className="w-full h-full flex flex-col justify-center items-center">
@@ -186,8 +189,8 @@ function Accueil() {
                 <div className="mb-8 w-full px-8 pt-8">
                   <h2 className="text-3xl font-bold text-green-700 mb-4 text-center">Activités sportives</h2>
                   <p className="text-gray-700 text-center text-lg">
-                    Le sport est un excellent moyen de se défouler, de renforcer l'esprit d'équipe et de rester en bonne santé.<br/>
-                    Les activités sportives organisées par l'association favorisent la cohésion et la motivation de tous.<br/>
+                    Le sport est un excellent moyen de se défouler, de renforcer l'esprit d'équipe et de rester en bonne santé.<br />
+                    Les activités sportives organisées par l'association favorisent la cohésion et la motivation de tous.<br />
                     Découvrez ci-dessous les différents aspects du sport en association !
                   </p>
                 </div>
@@ -232,7 +235,7 @@ function Accueil() {
                 <div className="mb-8 w-full px-8 pt-8">
                   <h2 className="text-3xl font-bold text-yellow-700 mb-4 text-center">Aide au logement</h2>
                   <p className="text-gray-700 text-center text-lg">
-                    Trouver un logement étudiant peut être un vrai défi. L'association propose un accompagnement et des conseils pour faciliter cette étape.<br/>
+                    Trouver un logement étudiant peut être un vrai défi. L'association propose un accompagnement et des conseils pour faciliter cette étape.<br />
                     Découvrez ci-dessous les différents aspects de l'aide au logement !
                   </p>
                 </div>
@@ -271,7 +274,7 @@ function Accueil() {
                 </div>
               </div>
             )}
-        </div>
+          </div>
         )}
       </div>
       {/* Partie droite - Formulaire (connexion/inscription) inchangée */}
