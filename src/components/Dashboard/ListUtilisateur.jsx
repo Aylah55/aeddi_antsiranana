@@ -439,11 +439,7 @@ const ListUtilisateur = () => {
                                                 alt={`${user.nom} ${user.prenom}`}
                                                 className="w-full h-full object-cover"
                                             />
-                                        ) : (
-                                            <span className="text-lg font-bold" style={{ background: 'linear-gradient(135deg, #60a5fa 0%, #818cf8 100%)', color: 'white', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                {getInitials(user.nom, user.prenom)}
-                                            </span>
-                                        )}
+                                        ) : ''}
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
