@@ -8,7 +8,7 @@ import logo from '../../assets/logo/aeddi.png';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import DevenirMembre from './DevenirMembre';
-import ThemeToggle from '../ThemeToggle';
+import ThemeToggle from '../../utils/ThemeToggle';
 
 const Connexion = ({ onForgot }) => {
   const [email, setEmail] = useState('');

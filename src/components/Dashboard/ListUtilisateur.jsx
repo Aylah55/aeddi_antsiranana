@@ -347,7 +347,6 @@ const ListUtilisateur = () => {
             </div>
         );
     }
-
     // Palette de couleurs pour les rôles
     const ROLE_COLORS = {
       'President': 'bg-blue-500 text-white',
@@ -358,7 +357,6 @@ const ListUtilisateur = () => {
     function getInitials(nom, prenom) {
       return ((nom?.[0] || '') + (prenom?.[0] || '')).toUpperCase();
     }
-
     // Configuration des filtres pour SearchAndFilters
     const filters = [
       {
@@ -552,11 +550,10 @@ const ListUtilisateur = () => {
             {showViewModal && selectedUser && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-lg overflow-hidden max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-                        <UserDetailComp user={selectedUser} onClose={() => setShowViewModal(false)} />
+                        <UserDetailComp user={selectedUser} onClose={() => setShowViewModal(false)} full={false} />
                     </div>
                 </div>
             )}
-
             {/* Modal des cotisations */}
             {showCotisationsModal && selectedUser && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4">

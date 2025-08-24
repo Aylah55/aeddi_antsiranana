@@ -19,10 +19,6 @@ export const getPhotoUrl = (photoPath) => {
   return `${API_URL}/storage/${photoPath}`;
 };
 
-// Debug: Afficher l'URL de l'API
-console.log('API_URL:', API_URL);
-console.log('Base URL:', API_URL + API_PREFIX);
-
 // Puis le reste comme avant
 const apiClient = axios.create({
   baseURL: API_URL + API_PREFIX,
@@ -36,11 +32,7 @@ const apiClient = axios.create({
 
 // Fonction pour obtenir le CSRF token
 const getCsrfToken = async () => {
-  try {
-    console.log('Tentative de récupération du CSRF token depuis:', `${API_URL}/sanctum/csrf-cookie`);
-    console.log('Mode:', process.env.NODE_ENV);
-    console.log('API_URL:', API_URL);
-    
+  try {  
     const response = await axios.get(`${API_URL}/sanctum/csrf-cookie`, {
       withCredentials: true,
       headers: {
@@ -48,20 +40,11 @@ const getCsrfToken = async () => {
         'Content-Type': 'application/json'
       }
     });
-    console.log('CSRF token récupéré avec succès:', response);
+
     return response;
   } catch (error) {
-    console.error('Erreur lors de la récupération du CSRF token:', error);
-    console.error('URL tentée:', `${API_URL}/sanctum/csrf-cookie`);
-    console.error('Type d\'erreur:', error.code);
-    console.error('Message d\'erreur:', error.message);
-    console.error('Response status:', error.response?.status);
-    console.error('Response data:', error.response?.data);
     
-    // En cas d'erreur réseau, on peut continuer sans CSRF token
-    // car certaines configurations peuvent ne pas l'exiger
-    console.log('Continuing without CSRF token...');
-    throw error; // Re-throw pour que la fonction appelante puisse gérer
+    throw error;
   }
 };
 
@@ -86,13 +69,10 @@ apiClient.interceptors.request.use(
 // Gestion centralisée des erreurs API
 const handleApiError = (error) => {
   if (error.response) {
-    console.error('API Error Response:', error.response.data);
     throw error.response.data;
   } else if (error.request) {
-    console.error('API Request Error:', error.request);
     throw new Error('Aucune réponse du serveur');
   } else {
-    console.error('API Setup Error:', error.message);
     throw error;
   }
 };
@@ -102,26 +82,22 @@ export const authService = {
   // Connexion
   login: async (credentials) => {
     try {
-      // Désactiver temporairement la récupération du CSRF token
+      // Désactiver temporairement a récupération du CSRF token
       // await getCsrfToken();
-      console.log('Tentative de connexion sans CSRF token...');
     } catch (error) {
-      console.log('CSRF token non récupéré, tentative de connexion sans...');
+      // console.log('CSRF token non récupéré, tentative de connexion sans...');
     }
     
     try {
       const response = await apiClient.post('/login', credentials);
-      console.log('Connexion réussie:', response.data);
       
       // Stocker le token dans localStorage
       if (response.data.token) {
         localStorage.setItem('auth_token', response.data.token);
-        console.log('Token stocké dans localStorage');
       }
       
       return response;
     } catch (error) {
-      console.error('Erreur lors de la connexion:', error);
       throw error;
     }
   },
@@ -137,14 +113,11 @@ export const authService = {
     try {
       // Désactiver temporairement la récupération du CSRF token
       // await getCsrfToken();
-      console.log('Tentative de création de mot de passe pour utilisateur Google...');
       
       const response = await apiClient.post('/set-password', data);
-      console.log('Mot de passe créé avec succès:', response.data);
       
       return response;
     } catch (error) {
-      console.error('Erreur lors de la création du mot de passe:', error);
       throw error;
     }
   }
@@ -182,13 +155,6 @@ export const userService = {
         });
       }
 
-      // Debug: Afficher les données avant l'envoi
-      console.log('Données à envoyer via API:', {
-        url: `/user/${id}`,
-        method: 'PUT',
-        formData: Object.fromEntries(data.entries())
-      });
-      
       // Utiliser la méthode POST avec _method=PUT pour éviter les problèmes avec FormData
       data.append('_method', 'PUT');
       
@@ -198,10 +164,8 @@ export const userService = {
         }
       });
 
-      console.log('Réponse API reçue:', response.data);
       return response;
     } catch (error) {
-      console.error('Erreur API:', error.response || error);
       throw error;
     }
   },
@@ -338,8 +302,6 @@ export const notificationService = {
   fetchAll: () => {
     // Log pour debug
     const token = localStorage.getItem('auth_token');
-    console.log('Token d\'authentification:', token ? 'Présent' : 'Absent');
-    console.log('URL appelée:', '/user/notifications');
     
     return apiClient.get('/user/notifications')
       .catch(handleApiError);

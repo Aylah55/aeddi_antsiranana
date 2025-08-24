@@ -1,5 +1,5 @@
-import CercleEtude from './Formulaire/CercleEtude';
-import Social from './Formulaire/Social';
+import CercleEtude from '../components/Formulaire/CercleEtude';
+import Social from '../components/Formulaire/Social';
 
 const avantages = [
   {

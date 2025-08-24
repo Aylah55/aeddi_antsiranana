@@ -1,7 +1,40 @@
-import React from 'react';
-import { FiX } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { FiX, FiSave, FiCheckCircle, FiRefreshCw } from 'react-icons/fi';
 
 const UserCotisation = ({ user, cotisations, onClose, loading, onUpdatePaiement }) => {
+  const [localStatuts, setLocalStatuts] = useState({});
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    // Réinitialiser les statuts locaux si l'utilisateur ou les cotisations changent
+    const initial = {};
+    cotisations?.forEach(c => {
+      initial[c.id] = c.statut_paiement;
+    });
+    setLocalStatuts(initial);
+  }, [user, cotisations]);
+
+  const hasChanges = () => {
+    return cotisations?.some(c => localStatuts[c.id] !== c.statut_paiement);
+  };
+
+  const handleToggle = (id) => {
+    setLocalStatuts(prev => ({
+      ...prev,
+      [id]: prev[id] === 'Payé' ? 'Non payé' : 'Payé'
+    }));
+  };
+
+  const handleSave = async () => {
+    setPending(true);
+    for (const c of cotisations) {
+      if (localStatuts[c.id] !== c.statut_paiement) {
+        await onUpdatePaiement(c.id, user.id, localStatuts[c.id]);
+      }
+    }
+    setPending(false);
+  };
+
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="flex justify-between items-center mb-4">
@@ -24,7 +57,7 @@ const UserCotisation = ({ user, cotisations, onClose, loading, onUpdatePaiement 
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date début</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date fin</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut paiement</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -41,13 +74,17 @@ const UserCotisation = ({ user, cotisations, onClose, loading, onUpdatePaiement 
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA' }).format(cotisation.montant)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(cotisation.date_debut).toLocaleDateString('fr-FR')}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(cotisation.date_fin).toLocaleDateString('fr-FR')}</td>
-                    <td className={`px-6 py-4 whitespace-nowrap text-sm ${cotisation.statut_paiement === 'Payé' ? 'text-green-600' : 'text-red-600'}`}>{cotisation.statut_paiement}</td>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold ${localStatuts[cotisation.id] === 'Payé' ? 'text-green-600' : 'text-red-600'}`}>{localStatuts[cotisation.id]}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <button
-                        onClick={() => onUpdatePaiement(cotisation.id, user.id, cotisation.statut_paiement === 'Payé' ? 'Non payé' : 'Payé')}
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${cotisation.statut_paiement === 'Payé' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}
+                        onClick={() => handleToggle(cotisation.id)}
+                        className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 transition-colors duration-150 shadow-sm
+                          ${localStatuts[cotisation.id] === 'Payé' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}
+                          ${localStatuts[cotisation.id] !== cotisation.statut_paiement ? 'ring-2 ring-blue-400' : ''}`}
+                        disabled={pending}
                       >
-                        {cotisation.statut_paiement === 'Payé' ? 'Marquer comme non payé' : 'Marquer comme payé'}
+                        {localStatuts[cotisation.id] === 'Payé' ? <FiCheckCircle /> : <FiRefreshCw />}
+                        {localStatuts[cotisation.id] === 'Payé' ? 'Payé' : 'Non payé'}
                       </button>
                     </td>
                   </tr>
@@ -55,6 +92,17 @@ const UserCotisation = ({ user, cotisations, onClose, loading, onUpdatePaiement 
               )}
             </tbody>
           </table>
+          {hasChanges() && (
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={handleSave}
+                disabled={pending}
+                className="flex items-center gap-2 px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow-md hover:bg-blue-700 transition-colors disabled:opacity-60"
+              >
+                <FiSave /> {pending ? 'Sauvegarde...' : 'Sauvegarder'}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

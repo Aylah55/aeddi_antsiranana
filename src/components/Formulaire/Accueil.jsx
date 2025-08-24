@@ -5,8 +5,8 @@ import Connexion from './Connexion';
 import ForgotPassword from './ForgotPassword';
 import CercleEtude from './CercleEtude';
 import Social from './Social';
-import Slider from '../Slider';
-import Avantages from '../Avantages';
+import Slider from '../../utils/Slider';
+import Avantages from '../../utils/Avantages';
 
 function Accueil() {
   const [currentView, setCurrentView] = useState('connexion');

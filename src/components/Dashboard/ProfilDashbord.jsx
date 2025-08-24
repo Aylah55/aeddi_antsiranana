@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_URL, getPhotoUrl } from '../../services/api';
 import { LogOut, Bell, Settings, Home, User, Calendar, Users, CreditCard, Trash2, Menu, Mail } from 'lucide-react';
-import ThemeToggle from '../ThemeToggle';
+import ThemeToggle from '../../utils/ThemeToggle';
 import ProfilUtilisateur from './ProfilUtilisateur';
 import ListeUtilisateur from './ListUtilisateur';
 import ListeActivites from './ListeActivites';
