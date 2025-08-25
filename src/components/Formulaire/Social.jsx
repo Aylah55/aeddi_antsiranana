@@ -9,7 +9,7 @@ const galerie = [
   {
     url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80',
     legende: 'Ambiance festive',
-    explication: "Les événements organisés favorisent la bonne humeur, la détente et la convivialité."
+    explication: "Les événements organisés favorisent la bonne humeur, la détente et la convivialité. Découvrez un extrait musical ainsi que la sortie de promotion THE BEST 2024, qui a animé la plage de Ramena à Diego-Suarez."
   },
   {
     url: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80',
@@ -46,7 +46,21 @@ const Social = ({ data }) => {
         {galerie.map((img, idx) => (
           <div key={idx} className="mb-10">
             <div className="w-full h-72 md:h-80 lg:h-[28rem] rounded-2xl overflow-hidden shadow-lg mb-3">
-              <img src={img.url} alt={img.legende} className="w-full h-full object-cover" />
+              {img.legende === 'Ambiance festive' ? (
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src="https://www.youtube.com/embed/oR9TYQApFrg?si=B9_hvpspnPudCzcz"
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                  style={{ minHeight: '100%', minWidth: '100%' }}
+                />
+              ) : (
+                <img src={img.url} alt={img.legende} className="w-full h-full object-cover" />
+              )}
             </div>
             <div className="text-xl font-semibold text-pink-600 mb-1 text-center">{img.legende}</div>
             <div className="text-gray-600 text-base text-center mb-2">{img.explication}</div>
