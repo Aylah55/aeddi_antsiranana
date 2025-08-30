@@ -32,16 +32,10 @@ const ProfilDashbord = () => {
     const [isMobileMenuVisible, setIsMobileMenuVisible] = useState(false);
     const [showMessage, setShowMessage] = useState(false);
     const [isNotifLoading, setIsNotifLoading] = useState(true);
-    // Fonction pour gérer la soumission du formulaire de mot de passe
-    // Vérifier si l'utilisateur est admin
     const isAdmin = user?.role === 'admin';
-
-    // Initialiser l'onglet actif à l'accueil
     useEffect(() => {
         setActiveItem('accueil');
     }, []);
-
-    // Charger les notifications
     useEffect(() => {
         let previousIds = [];
         const loadNotifications = async () => {
@@ -51,7 +45,6 @@ const ProfilDashbord = () => {
                 const unread = response.data.filter(notif => !notif.is_read).length;
                 setUnreadCount(unread);
                 setNotifications(response.data);
-                // Toast pour nouvelle notification
                 const newNotifs = response.data.filter(n => !previousIds.includes(n.id));
                 if (previousIds.length > 0 && newNotifs.length > 0) {
                     newNotifs.forEach(n => {

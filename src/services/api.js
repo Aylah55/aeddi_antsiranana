@@ -82,10 +82,10 @@ export const authService = {
   // Connexion
   login: async (credentials) => {
     try {
-      // Désactiver temporairement a récupération du CSRF token
-      // await getCsrfToken();
+      // Récupérer le CSRF token pour Sanctum
+      await getCsrfToken();
     } catch (error) {
-      // console.log('CSRF token non récupéré, tentative de connexion sans...');
+      console.log('CSRF token non récupéré, tentative de connexion sans...');
     }
     
     try {
@@ -111,8 +111,8 @@ export const authService = {
   // Créer un mot de passe pour utilisateur Google
   setPassword: async (data) => {
     try {
-      // Désactiver temporairement la récupération du CSRF token
-      // await getCsrfToken();
+      // Récupérer le CSRF token pour Sanctum
+      await getCsrfToken();
       
       const response = await apiClient.post('/set-password', data);
       
@@ -140,8 +140,8 @@ export const userService = {
   // Mise à jour du profil utilisateur
   updateProfile: async (id, formData) => {
     try {
-      // Désactiver temporairement la récupération du CSRF token
-      // await getCsrfToken();
+      // Récupérer le CSRF token pour Sanctum
+      await getCsrfToken();
       
       // S'assurer que formData est une instance de FormData
       const data = formData instanceof FormData ? formData : new FormData();
@@ -371,8 +371,8 @@ export const apiGet = (endpoint, config = {}) => {
 // Fonction pour envoyer l'email de réinitialisation du mot de passe
 export const sendResetPasswordEmail = async (email) => {
   try {
-    // Désactiver temporairement la récupération du CSRF token
-    // await getCsrfToken();
+    // Récupérer le CSRF token pour Sanctum
+    await getCsrfToken();
     return await apiClient.post('/forgot-password', { email });
   } catch (error) {
     return handleApiError(error);

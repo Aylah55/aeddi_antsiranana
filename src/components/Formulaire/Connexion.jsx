@@ -32,10 +32,7 @@ const Connexion = ({ onForgot }) => {
     setError('');
     setLoading(true);
     try {
-      // 1. Récupère le cookie CSRF AVANT de faire le login
-      await axios.get('https://aeddi-back.onrender.com/sanctum/csrf-cookie', { withCredentials: true });
-
-      // 2. Appelle la fonction de login (qui doit utiliser withCredentials: true côté axios)
+      // La fonction loginUser gère maintenant automatiquement le CSRF token
       const response = await loginUser({ email, password });
       localStorage.setItem('auth_token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));

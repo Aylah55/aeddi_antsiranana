@@ -215,7 +215,7 @@ function ProfilUtilisateur({ user: initialUser, setUser: setParentUser }) {
                     <div className="p-6 flex flex-col items-center">
                         <EditUserComp
                             formData={formData}
-                            onChange={handleChange}
+                                        onChange={handleChange}
                             onSubmit={handleUpdate}
                             onClose={handleCancel}
                             isLoading={isLoading}
