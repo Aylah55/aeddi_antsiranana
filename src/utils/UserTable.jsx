@@ -24,7 +24,7 @@ const UserTable = ({
   const getInitialsFn = getInitials || getInitialsDefault;
 
   return (
-    <div className={`overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative hidden md:block ${className}`} style={{ maxHeight: '600px', overflowY: 'auto' }}>
+    <div className={`overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative ${className}`} style={{ maxHeight: '600px', overflowY: 'auto' }}>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50 sticky top-0 z-10">
           <tr>
@@ -74,7 +74,7 @@ const UserTable = ({
                   className={`group hover:bg-blue-50 transition-colors duration-200 ${idx % 2 === 0 ? 'bg-white' : 'bg-blue-50/40'}`}
                 >
                   <td className="px-2 md:px-6 py-4 whitespace-nowrap">
-                    <div className="w-14 h-14 rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:scale-105 transition-transform duration-200 bg-gray-100 flex items-center justify-center">
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:scale-105 transition-transform duration-200 bg-gray-100 flex items-center justify-center">
                       {(user.photo_url || user.photo) ? (
                         <img
                           src={user.photo_url || getPhotoUrl(user.photo)}
@@ -82,51 +82,55 @@ const UserTable = ({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-lg font-bold" style={{ background: 'linear-gradient(135deg, #60a5fa 0%, #818cf8 100%)', color: 'white', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span className="text-base md:text-xl font-bold" style={{ background: 'linear-gradient(135deg, #60a5fa 0%, #818cf8 100%)', color: 'white', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           {getInitialsFn(user.nom, user.prenom)}
                         </span>
                       )}
                     </div>
                   </td>
-                  <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900 flex items-center gap-2">
-                    {user.nom}
-                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold shadow ${roleColors[user.role] || 'bg-gray-300 text-gray-700'}`}>
+                  <td className="px-2 md:px-6 py-4 whitespace-nowrap text-sm md:text-base font-medium text-gray-900 flex items-center gap-2">
+                    <span className="truncate max-w-20 md:max-w-none">{user.nom}</span>
+                    <span className={`ml-1 md:ml-2 px-1 md:px-2 py-0.5 rounded-full text-xs font-semibold shadow ${roleColors[user.role] || 'bg-gray-300 text-gray-700'}`}>
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.prenom}</td>
-                  <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{user.email}</td>
-                  <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium relative">
-                    <div className="flex gap-2 items-center">
+                  <td className="px-2 md:px-6 py-4 whitespace-nowrap text-sm md:text-base text-gray-500">
+                    <span className="truncate max-w-20 md:max-w-none">{user.prenom}</span>
+                  </td>
+                  <td className="px-2 md:px-6 py-4 whitespace-nowrap text-sm md:text-base text-gray-500">
+                    <span className="truncate max-w-32 md:max-w-none">{user.email}</span>
+                  </td>
+                  <td className="px-2 md:px-6 py-4 whitespace-nowrap text-sm md:text-base font-medium relative">
+                    <div className="flex gap-1 md:gap-2 items-center">
                       <button
                         onClick={() => onView(user)}
-                        className="p-2 rounded-full hover:bg-blue-100 transition-colors"
+                        className="p-1 md:p-2 rounded-full hover:bg-blue-100 transition-colors"
                         title="Voir"
                       >
-                        <FiEye className="h-5 w-5 text-indigo-600" />
+                        <FiEye className="h-4 w-4 md:h-5 md:w-5 text-indigo-600" />
                       </button>
                       {isAdmin && (
                         <>
                           <button
                             onClick={() => onEdit(user)}
-                            className="p-2 rounded-full hover:bg-yellow-100 transition-colors"
+                            className="p-1 md:p-2 rounded-full hover:bg-yellow-100 transition-colors"
                             title="Modifier"
                           >
-                            <FiEdit className="h-5 w-5 text-yellow-600" />
+                            <FiEdit className="h-4 w-4 md:h-5 md:w-5 text-yellow-600" />
                           </button>
                           <button
                             onClick={() => onCotisations(user)}
-                            className="p-2 rounded-full hover:bg-green-100 transition-colors"
+                            className="p-1 md:p-2 rounded-full hover:bg-green-100 transition-colors"
                             title="Cotisations"
                           >
-                            <DollarSign className="h-5 w-5 text-green-600" />
+                            <DollarSign className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
                           </button>
                           <button
                             onClick={() => onDelete(user)}
-                            className="p-2 rounded-full hover:bg-red-100 transition-colors"
+                            className="p-1 md:p-2 rounded-full hover:bg-red-100 transition-colors"
                             title="Supprimer"
                           >
-                            <FiTrash2 className="h-5 w-5 text-red-600" />
+                            <FiTrash2 className="h-4 w-4 md:h-5 md:w-5 text-red-600" />
                           </button>
                         </>
                       )}

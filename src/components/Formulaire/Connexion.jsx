@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FaEye, FaEyeSlash, FaFacebookF } from 'react-icons/fa';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { GoogleLogin } from '@react-oauth/google';
 import { loginUser } from '../../services/api';
 import { API_URL } from '../../services/api';
@@ -32,7 +32,6 @@ const Connexion = ({ onForgot }) => {
     setError('');
     setLoading(true);
     try {
-      // La fonction loginUser gère maintenant automatiquement le CSRF token
       const response = await loginUser({ email, password });
       localStorage.setItem('auth_token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -163,22 +162,6 @@ const Connexion = ({ onForgot }) => {
                 <svg width="20" height="20" viewBox="0 0 48 48" className="mr-2"><g><path fill="#4285F4" d="M24 9.5c3.54 0 6.7 1.22 9.19 3.22l6.85-6.85C35.91 2.36 30.28 0 24 0 14.82 0 6.73 5.8 2.69 14.09l7.98 6.2C12.36 13.09 17.74 9.5 24 9.5z"/><path fill="#34A853" d="M46.1 24.55c0-1.64-.15-3.22-.42-4.74H24v9.01h12.42c-.54 2.9-2.18 5.36-4.65 7.01l7.19 5.6C43.99 37.09 46.1 31.27 46.1 24.55z"/><path fill="#FBBC05" d="M10.67 28.29c-1.01-2.9-1.01-6.01 0-8.91l-7.98-6.2C.99 17.09 0 20.45 0 24c0 3.55.99 6.91 2.69 9.82l7.98-6.2z"/><path fill="#EA4335" d="M24 48c6.28 0 11.91-2.09 15.91-5.73l-7.19-5.6c-2.01 1.35-4.59 2.13-8.72 2.13-6.26 0-11.64-3.59-13.33-8.82l-7.98 6.2C6.73 42.2 14.82 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></g></svg>
                 Se connecter avec Google
               </a>
-              <button
-                onClick={() => window.location.href = `${API_URL}/api/auth/facebook/redirect`}
-                className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow transition-all duration-150 active:scale-95"
-              >
-                <FaFacebookF size={18} />
-                Se connecter avec Facebook
-              </button>
-              {/*
-              <button
-                onClick={() => setShowDevenirMembre(true)}
-                className="w-full mt-2 text-pink-500 hover:underline font-semibold text-center"
-                type="button"
-              >
-                Devenir membre
-              </button>
-              */}
             </div>
                          <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
                <p>Nouveau sur AEDDI ?</p>

@@ -24,7 +24,6 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formErrors, setFormErrors] = useState({});
     const [isLoading, setIsLoading] = useState(true);
-    const [activeDropdown, setActiveDropdown] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [cotisationToDelete, setCotisationToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -45,19 +44,6 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
             fetchCotisations();
         }
     }, [user]);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.action-menu')) {
-                setActiveDropdown(null);
-            }
-        };
-
-        document.addEventListener('click', handleClickOutside);
-        return () => {
-            document.removeEventListener('click', handleClickOutside);
-        };
-    }, []);
 
     useEffect(() => {
         if (cotisationToView) {
@@ -358,89 +344,9 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
                 </div>
             )}
 
-            {/* En-têtes fixes (tableau desktop uniquement) */}
-            <div className="overflow-x-auto hidden md:block">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50 sticky top-0 z-10">
-                        <tr>
-                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date début</th>
-                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date fin</th>
-                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                            <th className="px-2 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-            {/* Affichage responsive en mode 'cards' sur mobile */}
-            <div className="block md:hidden space-y-4 mb-6">
-                {isLoading ? (
-                    <div className="flex flex-col gap-3">
-                        {[...Array(3)].map((_, i) => (
-                            <div key={i} className="bg-white rounded-xl shadow p-4 flex items-center gap-4 animate-pulse">
-                                <div className="w-12 h-12 rounded-full bg-blue-100" />
-                                <div className="flex-1 space-y-2">
-                                    <div className="h-4 bg-blue-50 rounded w-1/2" />
-                                    <div className="h-3 bg-blue-50 rounded w-1/3" />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : erreur ? (
-                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">{erreur.message || erreur}</div>
-                ) : (
-                    cotisations.map((cotisation, idx) => (
-                        <div key={cotisation.id} className="bg-white rounded-xl shadow p-4 flex flex-col gap-2 relative">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-blue-600 font-bold text-lg">
-                                    {cotisation.nom?.[0] || 'C'}
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-base font-bold text-gray-900">{cotisation.nom}</span>
-                                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold shadow ${cotisation.status === 'Payé' ? 'bg-green-100 text-green-700' : cotisation.status === 'En cours' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{cotisation.status}</span>
-                                    </div>
-                                    <div className="text-sm text-gray-500">Montant : {formatMontant(cotisation.montant)}</div>
-                                    <div className="text-xs text-gray-400">{new Date(cotisation.date_debut).toLocaleDateString('fr-FR')} - {new Date(cotisation.date_fin).toLocaleDateString('fr-FR')}</div>
-                                </div>
-                                {/* Bouton trois points */}
-                                <button onClick={() => setActiveDropdown(activeDropdown === cotisation.id ? null : cotisation.id)} className="p-2 rounded-full hover:bg-gray-100 transition-colors action-menu" title="Actions">
-                                    <MoreVertical className="h-5 w-5 text-gray-500" />
-                                </button>
-                            </div>
-                            {/* Menu d'actions flottant */}
-                            {activeDropdown === cotisation.id && (
-                                <div className="absolute right-4 top-16 z-20 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 action-menu">
-                                    <div className="py-1">
-                                        <button onClick={() => { setSelected(cotisation); setShowModal(true); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 action-menu">
-                                            <Eye className="mr-2 h-4 w-4 text-indigo-600" /> Voir
-                                        </button>
-                                        {isAdmin && (
-                                            <>
-                                                <button onClick={() => { setSelected(cotisation); setFormData({ nom: cotisation.nom, description: cotisation.description, montant: cotisation.montant, date_debut: formatDateForInput(cotisation.date_debut), date_fin: formatDateForInput(cotisation.date_fin), status: cotisation.status }); setShowEditModal(true); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 action-menu">
-                                                    <Edit className="mr-2 h-4 w-4 text-yellow-600" /> Modifier
-                                                </button>
-                                                <button onClick={() => { handleDeleteCotisation(cotisation); setActiveDropdown(null); }} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-red-50 action-menu">
-                                                    <Trash2 className="mr-2 h-4 w-4 text-red-600" /> Supprimer
-                                                </button>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ))
-                )}
-            </div>
 
-            {/* Tableau scrollable horizontalement (desktop) */}
-            <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative hidden md:block" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                {/* Indicateur mobile */}
-                <div className="md:hidden absolute top-2 right-4 z-20 text-xs text-blue-400 pointer-events-none animate-bounce">
-                  ⇠ Glissez pour voir plus ⇢
-                </div>
+            {/* Tableau responsive pour tous les écrans */}
+            <div className="overflow-x-auto rounded-lg shadow-inner bg-gradient-to-r from-blue-50 to-white relative" style={{ maxHeight: '600px', overflowY: 'auto' }}>
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50 sticky top-0 z-10">
                         <tr>
@@ -477,86 +383,67 @@ const ListeCotisation = ({ cotisationToView, setCotisationToView }) => {
                         ) : (
                             cotisations.map(item => (
                                 <tr key={item.id} className="hover:bg-gray-50">
-                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{item.nom}</td>
-                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">{item.description || "Aucune"}</td>
-                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-900">
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-sm md:text-base font-medium text-gray-900">
+                                        <span className="truncate max-w-20 md:max-w-none">{item.nom}</span>
+                                    </td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-sm md:text-base text-gray-500">
+                                        <span className="truncate max-w-32 md:max-w-none">{item.description || "Aucune"}</span>
+                                    </td>
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-sm md:text-base text-gray-900">
                                         {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'MGA' }).format(item.montant)}
                                     </td>
-                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-sm md:text-base text-gray-500">
                                         {new Date(item.date_debut).toLocaleDateString('fr-FR')}
                                     </td>
-                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base text-gray-500">
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-sm md:text-base text-gray-500">
                                         {new Date(item.date_fin).toLocaleDateString('fr-FR')}
                                     </td>
-                                    <td className={`px-2 md:px-6 py-4 whitespace-nowrap text-base ${
+                                    <td className={`px-2 md:px-6 py-4 whitespace-nowrap text-sm md:text-base ${
                                         item.status === 'Payé' ? 'text-green-600' :
                                         item.status === 'En cours' ? 'text-yellow-600' : 'text-red-600'
                                     }`}>
                                         {item.status}
                                     </td>
-                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-base font-medium relative">
-                                        <div className="action-menu">
+                                    <td className="px-2 md:px-6 py-4 whitespace-nowrap text-sm md:text-base font-medium relative">
+                                        <div className="flex gap-1 md:gap-2 items-center">
                                             <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setActiveDropdown(activeDropdown === item.id ? null : item.id);
+                                                onClick={() => {
+                                                    setSelected(item);
+                                                    setShowModal(true);
                                                 }}
-                                                className="text-gray-400 hover:text-gray-600"
-                                                title="Actions"
+                                                className="p-1 md:p-2 rounded-full hover:bg-blue-100 transition-colors"
+                                                title="Voir"
                                             >
-                                                <MoreVertical className="h-5 w-5" />
+                                                <Eye className="h-4 w-4 md:h-5 md:w-5 text-indigo-600" />
                                             </button>
-
-                                            {activeDropdown === item.id && (
-                                                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                                                    <div className="py-1" role="menu">
-                                                        <button
-                                                            onClick={() => {
-                                                                setSelected(item);
-                                                                setShowModal(true);
-                                                                setActiveDropdown(null);
-                                                            }}
-                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                            role="menuitem"
-                                                        >
-                                                            <Eye className="mr-3 h-4 w-4 text-indigo-600" />
-                                                            Voir
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                setSelected(item);
-                                                                setFormData({
-                                                                    nom: item.nom,
-                                                                    description: item.description,
-                                                                    montant: item.montant,
-                                                                    date_debut: formatDateForInput(item.date_debut),
-                                                                    date_fin: formatDateForInput(item.date_fin),
-                                                                    status: item.status
-                                                                });
-                                                                setShowEditModal(true);
-                                                                setActiveDropdown(null);
-                                                            }}
-                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                            role="menuitem"
-                                                        >
-                                                            <Edit className="mr-3 h-4 w-4 text-yellow-600" />
-                                                            Modifier
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                setCotisationToDelete(item);
-                                                                setShowDeleteModal(true);
-                                                                setActiveDropdown(null);
-                                                            }}
-                                                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                            role="menuitem"
-                                                        >
-                                                            <Trash2 className="mr-3 h-4 w-4 text-red-600" />
-                                                            Supprimer
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
+                                            <button
+                                                onClick={() => {
+                                                    setSelected(item);
+                                                    setFormData({
+                                                        nom: item.nom,
+                                                        description: item.description,
+                                                        montant: item.montant,
+                                                        date_debut: formatDateForInput(item.date_debut),
+                                                        date_fin: formatDateForInput(item.date_fin),
+                                                        status: item.status
+                                                    });
+                                                    setShowEditModal(true);
+                                                }}
+                                                className="p-1 md:p-2 rounded-full hover:bg-yellow-100 transition-colors"
+                                                title="Modifier"
+                                            >
+                                                <Edit className="h-4 w-4 md:h-5 md:w-5 text-yellow-600" />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setCotisationToDelete(item);
+                                                    setShowDeleteModal(true);
+                                                }}
+                                                className="p-1 md:p-2 rounded-full hover:bg-red-100 transition-colors"
+                                                title="Supprimer"
+                                            >
+                                                <Trash2 className="h-4 w-4 md:h-5 md:w-5 text-red-600" />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
